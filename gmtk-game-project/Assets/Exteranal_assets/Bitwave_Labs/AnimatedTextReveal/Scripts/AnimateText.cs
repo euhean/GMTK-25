@@ -37,6 +37,22 @@ namespace BitWave_Labs.AnimatedTextReveal
         private Coroutine _cycleCoroutine;
         
         /// <summary>
+        /// Sets the lines from an external script and resets the animation state
+        /// </summary>
+        /// <param name="newLines">The new lines to display</param>
+        public void SetLines(List<string> newLines)
+        {
+            lines = new List<string>(newLines);
+            
+            // Stop any existing coroutine
+            if (_cycleCoroutine != null)
+            {
+                StopCoroutine(_cycleCoroutine);
+                _cycleCoroutine = null;
+            }
+        }
+        
+        /// <summary>
         /// Listens for the trigger key and starts the text cycling once.
         /// </summary>
         private void Update()
