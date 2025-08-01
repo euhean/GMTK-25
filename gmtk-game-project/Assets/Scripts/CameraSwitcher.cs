@@ -14,7 +14,14 @@ public class CameraSwitcher : MonoBehaviour
         {
             _useCameraGameplay = value;
             SwitchCameras();
+            UpdateMouseVisibility();
         }
+    }
+
+    private void UpdateMouseVisibility()
+    {
+        Cursor.visible = _useCameraGameplay;
+        Cursor.lockState = _useCameraGameplay ? CursorLockMode.None : CursorLockMode.Locked;
     }
 
     private void Awake()
@@ -27,6 +34,16 @@ public class CameraSwitcher : MonoBehaviour
         else
         {
             Debug.LogWarning("One or both cameras are not assigned!");
+        }
+    }
+
+    // DEBUGGING: Toggle camera mode with space key
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            useCameraGameplay = !useCameraGameplay;
+            Debug.Log($"useCameraGameplay toggled to: {useCameraGameplay}");
         }
     }
 
