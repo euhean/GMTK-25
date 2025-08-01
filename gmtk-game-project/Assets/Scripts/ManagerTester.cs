@@ -32,7 +32,7 @@ public class ManagerTester : MonoBehaviour
         if (narrativeManager != null)
         {
             // Emula el envío de datos desde el GameManager al NarrativeManager:
-            narrativeManager.UpdateData(testCsv, testDayIndex, testQuotaBool, testStartEnd);
+            narrativeManager.UpdateData(testCsv, testDayIndex, testStartEnd, testQuotaBool);
             narrativeManager.StartText();
         }
         else

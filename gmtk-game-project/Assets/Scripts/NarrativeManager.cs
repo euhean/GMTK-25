@@ -7,17 +7,14 @@ public class NarrativeManager : MonoBehaviour
 {
     [SerializeField] private AnimateText animateText;
     [SerializeField] private TextAsset csvFile;
-    
+
     [Header("Filtering Criteria")]
     [Tooltip("Matches with 'Dia' column")]
     public int dayIndex = 1;
-    
-    [Tooltip("Matches with 'Variant' column")]
-    public bool quotaBool = true;
-    
-    // Internal toggle for matching Inici/Final column
+
     [SerializeField] private bool startEnd = true;
-    
+    [SerializeField] private bool quotaBool = true;
+
     [SerializeField] private List<string> textLines = new List<string>();
     private bool isTextComplete = false;
 
@@ -62,9 +59,6 @@ public class NarrativeManager : MonoBehaviour
             return;
         }
 
-        // Reset the alternating boolean
-        startEnd = true;
-
         // Skip header row
         for (int i = 1; i < data.Length; i++)
         {
@@ -77,24 +71,31 @@ public class NarrativeManager : MonoBehaviour
                 // Parse the day value
                 if (int.TryParse(row[0], out int rowDay))
                 {
-                    // Parse start/end boolean
-                    bool rowStartEnd = row[1].Trim().ToLower() == "true";
-
-                    // Parse variant boolean
-                    bool rowVariant = row[2].Trim().ToLower() == "true";
-
-                    // Match conditions
-                    if (rowDay == dayIndex && rowStartEnd == startEnd && rowVariant == quotaBool)
+                    if (rowDay == dayIndex)
                     {
-                        // Debug log for matched row
-                        Debug.Log($"Matched row {i}: Day={rowDay}, StartEnd={rowStartEnd}, Variant={rowVariant}");
+                        // Parse start/end boolean
+                        bool rowStartEnd = row[1].Trim().ToLower() == "true";
 
-                        // Split text by line breaks if any are encoded in the text
-                        string[] splitLines = row[3].Split(new[] { "\\n" }, System.StringSplitOptions.None);
-                        foreach (string line in splitLines)
+                        Debug.Log($"Row {i} matches Day={rowDay}, StartEnd={rowStartEnd}, currentStartEnd={startEnd}, Quota={quotaBool}");
+
+                        if (rowStartEnd == startEnd)
                         {
-                            Debug.Log($"Adding line: {line.Trim()}");
-                            textLines.Add(line.Trim());
+                            // Parse variant boolean
+                            bool rowQuota = row[2].Trim().ToLower() == "true";
+
+                            if (rowQuota == quotaBool)
+                            {
+                                // Debug log for matched row
+                                Debug.Log($"Matched row {i}: Day={rowDay}, StartEnd={rowStartEnd}, Quota={rowQuota}");
+
+                                // Split text by line breaks if any are encoded in the text
+                                string[] splitLines = row[3].Split(new[] { "\\n" }, System.StringSplitOptions.None);
+                                foreach (string line in splitLines)
+                                {
+                                    Debug.Log($"Adding line: {line.Trim()}");
+                                    textLines.Add(line.Trim());
+                                }
+                            }
                         }
                     }
                 }
@@ -103,16 +104,16 @@ public class NarrativeManager : MonoBehaviour
     }
 
     // Se agrega el método UpdateData para actualizar los datos
-    public void UpdateData(TextAsset newCsvFile, int newDayIndex, bool newQuotaBool, bool newStartEnd)
+    public void UpdateData(TextAsset newCsvFile, int newDayIndex, bool newStartEnd, bool newQuotaBool)
     {
         csvFile = newCsvFile;
         dayIndex = newDayIndex;
-        quotaBool = newQuotaBool;
         startEnd = newStartEnd;
+        quotaBool = newQuotaBool;
 
         LoadTextFromCSV();
     }
-    
+
     private void Update()
     {
         // When Space is pressed, advance to the next line if there's text to display
@@ -120,7 +121,7 @@ public class NarrativeManager : MonoBehaviour
         {
             if (isTextComplete)
             {
-                Debug.Log("All text already displayed. No more lines to advance.");
+                Debug.Log("NARRATIVA FINALIZADA");
             }
             else
             {
@@ -142,7 +143,7 @@ public class NarrativeManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Narrativa finalizada!");
+            Debug.LogError("AnimateText reference is missing or no text lines available!");
         }
     }
 }
