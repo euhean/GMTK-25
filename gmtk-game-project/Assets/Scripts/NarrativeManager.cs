@@ -59,14 +59,16 @@ public class NarrativeManager : MonoBehaviour
             return;
         }
 
+        List<string> fallbackLines = new List<string>();
+
         // Skip header row
         for (int i = 1; i < data.Length; i++)
         {
             string[] row = data[i].Split(';');
             if (row.Length >= 4)
             {
-                // Debug log for current row and column
-                Debug.Log($"Processing row {i}, columns: {string.Join(", ", row)}");
+                // DEBUG log for current row and column
+                // Debug.Log($"Processing row {i}, columns: {string.Join(", ", row)}");
 
                 // Parse the day value
                 if (int.TryParse(row[0], out int rowDay))
@@ -75,14 +77,13 @@ public class NarrativeManager : MonoBehaviour
                     {
                         // Parse start/end boolean
                         bool rowStartEnd = row[1].Trim().ToLower() == "true";
+                        bool rowQuota = row[2].Trim().ToLower() == "true";
 
-                        Debug.Log($"Row {i} matches Day={rowDay}, StartEnd={rowStartEnd}, currentStartEnd={startEnd}, Quota={quotaBool}");
+                        // DEBUG
+                        // Debug.Log($"Row {i} matches Day={rowDay}, rowStartEnd={rowStartEnd}, currentStartEnd={startEnd}, rowQuota={rowQuota}, currentQuota={quotaBool}");
 
                         if (rowStartEnd == startEnd)
                         {
-                            // Parse variant boolean
-                            bool rowQuota = row[2].Trim().ToLower() == "true";
-
                             if (rowQuota == quotaBool)
                             {
                                 // Debug log for matched row
@@ -96,10 +97,26 @@ public class NarrativeManager : MonoBehaviour
                                     textLines.Add(line.Trim());
                                 }
                             }
+                            else
+                            {
+                                // Save fallback lines if quotaBool doesn't match
+                                string[] splitLines = row[3].Split(new[] { "\\n" }, System.StringSplitOptions.None);
+                                foreach (string line in splitLines)
+                                {
+                                    fallbackLines.Add(line.Trim());
+                                }
+                            }
                         }
                     }
                 }
             }
+        }
+
+        // If no lines were added, use fallback lines
+        if (textLines.Count == 0 && fallbackLines.Count > 0)
+        {
+            Debug.Log("No rows matched quotaBool. Using fallback lines.");
+            textLines.AddRange(fallbackLines);
         }
     }
 

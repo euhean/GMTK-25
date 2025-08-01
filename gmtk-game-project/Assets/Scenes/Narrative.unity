@@ -149,6 +149,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animatedTextReveal: {fileID: 608678931}
+  lines: []
   fadeMode: 0
   fadeLastLine: 0
   delayBeforeFadeOut: 1
@@ -625,8 +626,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   textMesh: {fileID: 608678929}
-  fadeSpeed: 12
-  characterSpread: 10
+  fadeSpeed: 18
+  characterSpread: 6
 --- !u!1 &791036697
 GameObject:
   m_ObjectHideFlags: 0
@@ -690,7 +691,7 @@ MonoBehaviour:
   narrativeManager: {fileID: 1409679341}
   testCsv: {fileID: 4900000, guid: 35c4868b7678aac4c80b461522453c3d, type: 3}
   testDayIndex: 1
-  testStartEnd: 1
+  testStartEnd: 0
   testQuotaBool: 1
 --- !u!4 &849116296
 Transform:
@@ -739,8 +740,8 @@ MonoBehaviour:
   animateText: {fileID: 73008666}
   csvFile: {fileID: 4900000, guid: 35c4868b7678aac4c80b461522453c3d, type: 3}
   dayIndex: 1
-  quotaBool: 1
   startEnd: 1
+  quotaBool: 1
   textLines: []
 --- !u!4 &1409679342
 Transform:
