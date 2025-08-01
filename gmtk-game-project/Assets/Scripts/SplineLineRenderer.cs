@@ -1,10 +1,12 @@
 using UnityEngine;
+using UnityEngine.Splines;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(LineRenderer))]
 public class SplineLineRenderer : MonoBehaviour
 {
-    public Transform[] controlPoints; // puntos de control de la spline
-    public int pointsPerSegment = 20; // cuántos puntos por tramo
+    public SplineContainer splineContainer;
+    public int resolution = 100; // Número de puntos muestreados
 
     private LineRenderer lineRenderer;
 
@@ -16,36 +18,22 @@ public class SplineLineRenderer : MonoBehaviour
 
     void UpdateLine()
     {
-        if (controlPoints.Length < 4)
+        if (splineContainer == null || splineContainer.Spline == null)
         {
-            Debug.LogWarning("Se necesitan al menos 4 puntos para una Catmull-Rom spline.");
+            Debug.LogWarning("No se ha asignado una spline.");
             return;
         }
 
-        var positions = new System.Collections.Generic.List<Vector3>();
+        List<Vector3> positions = new List<Vector3>();
 
-        for (int i = 0; i < controlPoints.Length - 3; i++)
+        for (int i = 0; i <= resolution; i++)
         {
-            for (int j = 0; j <= pointsPerSegment; j++)
-            {
-                float t = j / (float)pointsPerSegment;
-                Vector3 point = GetCatmullRomPosition(t, controlPoints[i].position, controlPoints[i + 1].position, controlPoints[i + 2].position, controlPoints[i + 3].position);
-                positions.Add(point);
-            }
+            float t = i / (float)resolution;
+            Vector3 worldPos = splineContainer.EvaluatePosition(t);
+            positions.Add(worldPos);
         }
 
         lineRenderer.positionCount = positions.Count;
         lineRenderer.SetPositions(positions.ToArray());
-    }
-
-    Vector3 GetCatmullRomPosition(float t, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3)
-    {
-        // Catmull-Rom formula
-        return 0.5f * (
-            2f * p1 +
-            (-p0 + p2) * t +
-            (2f * p0 - 5f * p1 + 4f * p2 - p3) * t * t +
-            (-p0 + 3f * p1 - 3f * p2 + p3) * t * t * t
-        );
     }
 }
