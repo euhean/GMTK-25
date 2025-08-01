@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Shape
   m_EditorClassIdentifier: 
   shapeType: 0
-  shapeSprite: {fileID: 0}
+  triangleSprite: {fileID: 7482667652216324306, guid: 5ef85d0b3908def4d9f7cb73c017b31f, type: 3}
+  squareSprite: {fileID: 7482667652216324306, guid: 6abf4b647524bfa4c835f90692574afe, type: 3}
+  circleSprite: {fileID: -2413806693520163455, guid: 515c69e652a9c35418e8ad6ac122c6d8, type: 3}
   defaultScale: {x: 10, y: 10, z: 10}
-  defaultColliderSize: 7.5
