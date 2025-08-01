@@ -35,46 +35,26 @@ namespace BitWave_Labs.AnimatedTextReveal
 
         // Holds the running sequence coroutine so we don't start it twice.
         private Coroutine _cycleCoroutine;
+
+        private int currentLineIndex = 0;
         
         /// <summary>
-        /// Sets the lines from an external script and resets the animation state
+        /// Updates the list of lines to display.
         /// </summary>
-        /// <param name="newLines">The new lines to display</param>
         public void SetLines(List<string> newLines)
         {
-            lines = new List<string>(newLines);
-            
-            // Stop any existing coroutine
-            if (_cycleCoroutine != null)
-            {
-                StopCoroutine(_cycleCoroutine);
-                _cycleCoroutine = null;
-            }
-        }
-        
-        /// <summary>
-        /// Listens for the trigger key and starts the text cycling once.
-        /// </summary>
-        private void Update()
-        {
-            // On Space, begin cycling if not already started
-            if (Input.GetKeyDown(KeyCode.Space) && _cycleCoroutine == null)
-                _cycleCoroutine = StartCoroutine(CycleThroughLines());
+            lines = newLines;
+            currentLineIndex = 0;
         }
 
         /// <summary>
-        /// Coroutine that iterates over each line, applies fadeIn/fadeOut according to settings
+        /// Advances to the next line using fade animations.
         /// </summary>
-        private IEnumerator CycleThroughLines()
+        public IEnumerator ShowNextLine()
         {
-            // Set consistent text alignment for all lines
-            animatedTextReveal.TextMesh.alignment = TextAlignmentOptions.TopLeft;
-
-            int index = 0;
-
-            // Iterate through each provided line
-            foreach (string line in lines)
+            if (currentLineIndex < lines.Count)
             {
+                string line = lines[currentLineIndex];
                 // Update the text content
                 animatedTextReveal.TextMesh.text = line;
                 // Clear any previous alpha settings
@@ -85,7 +65,7 @@ namespace BitWave_Labs.AnimatedTextReveal
                     yield return StartCoroutine(animatedTextReveal.FadeText(true));
 
                 // If we should not fade out the last line, exit after fading in
-                if (!fadeLastLine && index == lines.Count - 1)
+                if (!fadeLastLine && currentLineIndex == lines.Count - 1)
                     yield break;
                 
                 // Fade out if enabled or required by combined mode
@@ -97,11 +77,22 @@ namespace BitWave_Labs.AnimatedTextReveal
                     yield return StartCoroutine(animatedTextReveal.FadeText(false));
                 }
                 
+                currentLineIndex++;
                 // Wait before moving to next line
                 yield return new WaitForSeconds(delayBeforeFadeIn);
-
-                index++;
             }
+            else
+            {
+                Debug.Log("No more lines to display.");
+            }
+        }
+
+        /// <summary>
+        /// Indicates if there are more lines to display.
+        /// </summary>
+        public bool HasMoreLines()
+        {
+            return currentLineIndex < lines.Count;
         }
     }
 }

@@ -149,13 +149,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animatedTextReveal: {fileID: 608678931}
-  lines:
-  - '1: Smoothly reveal text from left to right'
-  - '2: Supports multi-line text animations, allowing you to display longer sentences
-    that seamlessly fade in across multiple lines for a dynamic and engaging effect.'
-  - '3: Fully customizable speed and spread.'
-  - '4: Works with any TextMeshProUGUI component.'
-  - '5: Perfect for dialogue, UI effects, and more!'
   fadeMode: 0
   fadeLastLine: 0
   delayBeforeFadeOut: 1
@@ -634,6 +627,86 @@ MonoBehaviour:
   textMesh: {fileID: 608678929}
   fadeSpeed: 12
   characterSpread: 10
+--- !u!1 &791036697
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 791036698}
+  m_Layer: 0
+  m_Name: --- NARRATIVE ---
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &791036698
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 791036697}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &849116294
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 849116296}
+  - component: {fileID: 849116295}
+  m_Layer: 0
+  m_Name: ManagerTester
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &849116295
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 849116294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f451878dd1308dd4eacf8360e62903b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  narrativeManager: {fileID: 1409679341}
+  testCsv: {fileID: 4900000, guid: 35c4868b7678aac4c80b461522453c3d, type: 3}
+  testDayIndex: 1
+  testStartEnd: 1
+  testQuotaBool: 1
+--- !u!4 &849116296
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 849116294}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1409679340
 GameObject:
   m_ObjectHideFlags: 0
@@ -645,7 +718,7 @@ GameObject:
   - component: {fileID: 1409679342}
   - component: {fileID: 1409679341}
   m_Layer: 0
-  m_Name: TextLoader
+  m_Name: NarrativeManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -663,11 +736,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdb2dd489e1117147b78a7e9ee5cc35c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animateText: {fileID: 0}
+  animateText: {fileID: 73008666}
   csvFile: {fileID: 4900000, guid: 35c4868b7678aac4c80b461522453c3d, type: 3}
-  csvFilePath: 
   dayIndex: 1
   quotaBool: 1
+  startEnd: 1
+  textLines: []
 --- !u!4 &1409679342
 Transform:
   m_ObjectHideFlags: 0
@@ -857,6 +931,8 @@ SceneRoots:
   - {fileID: 1506670961}
   - {fileID: 438918521}
   - {fileID: 85935348}
+  - {fileID: 791036698}
   - {fileID: 176909557}
   - {fileID: 73008667}
   - {fileID: 1409679342}
+  - {fileID: 849116296}
