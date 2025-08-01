@@ -40,10 +40,4 @@ public class ManagerTester : MonoBehaviour
             Debug.LogWarning("NarrativeManager not found!");
         }
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

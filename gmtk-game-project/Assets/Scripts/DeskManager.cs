@@ -18,7 +18,7 @@ public class DeskManager : MonoBehaviour
     {
         // If cutsceneManager is not assigned, try to find it in the scene
         if (cutsceneManager == null)
-            cutsceneManager = FindObjectOfType<EcCutsceneManager>();
+            cutsceneManager = FindFirstObjectByType<EcCutsceneManager>();
         // If phoneDialogCanvas is not assigned, find it by tag "phone-dialog" and deactivate it by default.
         if (phoneDialogCanvas == null)
         {
