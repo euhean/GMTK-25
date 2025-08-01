@@ -19,13 +19,36 @@ public class NarrativeManager : MonoBehaviour
     [SerializeField] private bool startEnd = true;
     
     [SerializeField] private List<string> textLines = new List<string>();
-    private int currentLineIndex = 0;
+    private bool isTextComplete = false;
+
+    private void Start()
+    {
+        // Register the callback for text completion
+        if (animateText != null)
+        {
+            animateText.OnAllTextComplete = OnTextComplete;
+        }
+    }
+
+    /// <summary>
+    /// Called when all text has been displayed
+    /// </summary>
+    public void OnTextComplete()
+    {
+        Debug.Log("All narrative text has been displayed.");
+        isTextComplete = true;
+        // Any additional actions when text is complete can go here
+    }
 
     /// <summary>
     /// Loads text from CSV file based on filtering criteria and sends it to AnimateText
     /// </summary>
     public void LoadTextFromCSV()
     {
+        // Clear previous lines
+        textLines.Clear();
+        isTextComplete = false;
+
         string[] data;
 
         // Get CSV data from TextAsset
@@ -77,7 +100,6 @@ public class NarrativeManager : MonoBehaviour
                 }
             }
         }
-
     }
 
     // Se agrega el método UpdateData para actualizar los datos
@@ -93,41 +115,34 @@ public class NarrativeManager : MonoBehaviour
     
     private void Update()
     {
-        // Listen for space key to advance text
-        if (Input.GetKeyDown(KeyCode.Space))
+        // When Space is pressed, advance to the next line if there's text to display
+        if (Input.GetKeyDown(KeyCode.Space) && animateText != null && textLines.Count > 0)
         {
-            AdvanceText();
+            if (isTextComplete)
+            {
+                Debug.Log("All text already displayed. No more lines to advance.");
+            }
+            else
+            {
+                animateText.AdvanceToNextLine();
+            }
         }
     }
 
     /// <summary>
-    /// Advances to the next line of text and sends it to AnimateText.
+    /// Start showing text from the beginning
     /// </summary>
-    private void AdvanceText()
+    public void StartText()
     {
         if (animateText != null && textLines.Count > 0)
         {
-            if (currentLineIndex < textLines.Count)
-            {
-                animateText.SetLines(new List<string> { textLines[currentLineIndex] });
-                currentLineIndex++;
-            }
-            else
-            {
-                Debug.Log("No more lines to display.");
-            }
+            isTextComplete = false;
+            animateText.SetTextLines(textLines);
+            animateText.StartText();
         }
         else
         {
-            Debug.LogError("AnimateText reference is missing or no text lines available!");
+            Debug.LogError("Narrativa finalizada!");
         }
-    }
-
-    // Se agrega el método StartText para iniciar la visualización del texto
-    public void StartText()
-    {
-        // Reset the line index and start displaying text
-        currentLineIndex = 0;
-        AdvanceText();
     }
 }

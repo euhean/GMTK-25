@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using System;
 
 namespace BitWave_Labs.AnimatedTextReveal
 {
@@ -37,20 +38,55 @@ namespace BitWave_Labs.AnimatedTextReveal
         private Coroutine _cycleCoroutine;
 
         private int currentLineIndex = 0;
+        // Control for animation in progress
+        private Coroutine currentAnimation = null;
+        public bool IsAnimating => currentAnimation != null;
+        
+        // Callback for when all text is complete
+        public Action OnAllTextComplete;
         
         /// <summary>
         /// Updates the list of lines to display.
         /// </summary>
-        public void SetLines(List<string> newLines)
+        public void SetTextLines(List<string> newLines)
         {
             lines = newLines;
             currentLineIndex = 0;
         }
 
+        // Advances to the next line or completes current animation
+        public void AdvanceToNextLine()
+        {
+            if (IsAnimating)
+            {
+                 CompleteCurrentAnimation();
+                 return; // Rompe la corrutina sin reiniciar la animación
+            }
+            currentLineIndex++;
+            if (currentLineIndex >= lines.Count)
+            {
+                 OnAllTextComplete?.Invoke();
+                 return;
+            }
+            currentAnimation = StartCoroutine(ShowCurrentLineCoroutine());
+        }
+
+        // Finaliza la animación detenida y fuerza que el texto se muestre completo
+        public void CompleteCurrentAnimation()
+        {
+            if (currentAnimation != null)
+            {
+                StopCoroutine(currentAnimation);
+                // Forzar que todos los caracteres sean completamente visibles
+                animatedTextReveal.SetAllCharactersAlpha(255);
+                currentAnimation = null;
+            }
+        }
+
         /// <summary>
-        /// Advances to the next line using fade animations.
+        /// Shows the current line using fade animations.
         /// </summary>
-        public IEnumerator ShowNextLine()
+        private IEnumerator ShowCurrentLineCoroutine()
         {
             if (currentLineIndex < lines.Count)
             {
@@ -66,8 +102,11 @@ namespace BitWave_Labs.AnimatedTextReveal
 
                 // If we should not fade out the last line, exit after fading in
                 if (!fadeLastLine && currentLineIndex == lines.Count - 1)
+                {
+                    currentAnimation = null;
                     yield break;
-                
+                }
+
                 // Fade out if enabled or required by combined mode
                 if (fadeMode is FadeMode.FadeOut or FadeMode.FadeInAndOut)
                 {
@@ -77,22 +116,35 @@ namespace BitWave_Labs.AnimatedTextReveal
                     yield return StartCoroutine(animatedTextReveal.FadeText(false));
                 }
                 
-                currentLineIndex++;
                 // Wait before moving to next line
                 yield return new WaitForSeconds(delayBeforeFadeIn);
             }
+            
+            currentAnimation = null;
+        }
+        
+        /// <summary>
+        /// Start showing the first line of text
+        /// </summary>
+        public void StartText()
+        {
+            currentLineIndex = 0;
+            if (lines.Count > 0)
+            {
+                currentAnimation = StartCoroutine(ShowCurrentLineCoroutine());
+            }
             else
             {
-                Debug.Log("No more lines to display.");
+                Debug.LogWarning("No lines to display in AnimateText");
             }
         }
-
+        
         /// <summary>
         /// Indicates if there are more lines to display.
         /// </summary>
         public bool HasMoreLines()
         {
-            return currentLineIndex < lines.Count;
+            return currentLineIndex < lines.Count - 1;
         }
     }
 }
