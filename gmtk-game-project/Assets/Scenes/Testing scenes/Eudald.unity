@@ -364,6 +364,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!1 &711448728
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 711448730}
+  - component: {fileID: 711448729}
+  m_Layer: 0
+  m_Name: PlayerController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &711448729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 711448728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bc1352c78f7ad546b30f7b79cb235c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &711448730
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 711448728}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &874509841
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -430,7 +474,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 03c82741226516948bd196dc35c142ce, type: 3}
       propertyPath: m_Name
-      value: hollow-cylinder-2025-07-30-21-26-22 (1)
+      value: AssemblyLine
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 03c82741226516948bd196dc35c142ce, type: 3}
       propertyPath: m_IsActive
@@ -469,7 +513,7 @@ MonoBehaviour:
   angularSpeed: 0.5
   angularSeparation: 120
   machineInfos:
-  - machinePrefab: {fileID: 919132149155446097, guid: 9e1c97fc44f9a8744b61b58f72c56de4, type: 3}
+  - machinePrefab: {fileID: 5359917699364430212, guid: f5e4d5889aa0aca42b4022b745682a19, type: 3}
     angleDegrees: 0
 --- !u!1 &1757613698
 GameObject:
@@ -600,3 +644,4 @@ SceneRoots:
   - {fileID: 122179662}
   - {fileID: 1757613701}
   - {fileID: 874509841}
+  - {fileID: 711448730}

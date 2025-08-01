@@ -31,6 +31,25 @@ public class MultiOrbit : MonoBehaviour
     [Header("Máquinas que se colocan en posiciones fijas")]
     public List<MachineInfo> machineInfos = new List<MachineInfo>();
 
+    private Vector3 GetOrbitPosition(float angleRad, float radius, float y)
+    {
+        float x = transform.position.x + Mathf.Cos(angleRad) * radius;
+        float z = transform.position.z + Mathf.Sin(angleRad) * radius;
+        return new Vector3(x, y, z);
+    }
+
+    private void AlignCollider(GameObject obj)
+    {
+        var collider = obj.GetComponent<Collider>();
+        collider?.transform.position = obj.transform.position;
+    }
+
+    private void SetScale(GameObject obj, float scale)
+    {
+        var s = obj.transform.localScale;
+        obj.transform.localScale = new Vector3(s.x * scale, s.y * scale, s.z * scale);
+    }
+
     void Start()
     {
         // Instanciar orbitadores
@@ -41,10 +60,9 @@ public class MultiOrbit : MonoBehaviour
             orbitingObjects.Add(obj);
             baseAngles.Add(angle);
 
-            float x = transform.position.x + Mathf.Cos(angle) * orbitRadius;
-            float z = transform.position.z + Mathf.Sin(angle) * orbitRadius;
-            float y = transform.position.y;
-            obj.transform.position = new Vector3(x, y, z);
+            obj.transform.position = GetOrbitPosition(angle, orbitRadius, transform.position.y); // Match machine Y position for collider overlap
+            SetScale(obj, 0.5f);
+            AlignCollider(obj);
         }
 
         // Instanciar máquinas en posiciones fijas
@@ -53,12 +71,9 @@ public class MultiOrbit : MonoBehaviour
             if (machineInfo.machinePrefab != null)
             {
                 float angleRad = machineInfo.angleDegrees * Mathf.Deg2Rad;
-                float x = transform.position.x + Mathf.Cos(angleRad) * orbitRadius;
-                float z = transform.position.z + Mathf.Sin(angleRad) * orbitRadius;
-                float y = transform.position.y;
-
                 GameObject machine = Instantiate(machineInfo.machinePrefab);
-                machine.transform.position = new Vector3(x, y, z);
+                machine.transform.position = GetOrbitPosition(angleRad, orbitRadius, transform.position.y);
+                AlignCollider(machine);
             }
         }
     }
@@ -70,11 +85,8 @@ public class MultiOrbit : MonoBehaviour
         for (int i = 0; i < orbitingObjects.Count; i++)
         {
             float angle = baseAngles[i] + timeAngle;
-            float x = transform.position.x + Mathf.Cos(angle) * orbitRadius;
-            float z = transform.position.z + Mathf.Sin(angle) * orbitRadius;
-            float y = orbitingObjects[i].transform.position.y;
-
-            orbitingObjects[i].transform.position = new Vector3(x, y, z);
+            orbitingObjects[i].transform.position = GetOrbitPosition(angle, orbitRadius, transform.position.y + 1f); // Keep above the line
+            AlignCollider(orbitingObjects[i]);
         }
     }
 }
