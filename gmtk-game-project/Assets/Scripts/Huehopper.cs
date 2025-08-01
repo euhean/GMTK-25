@@ -8,7 +8,7 @@ public class Huehopper : MachineObject
 
         if (machineData is ResourceColor colorData)
         {
-            resource.UpdateResource(resource.shape, colorData);
+            resource.TransformColor(colorData);
             LogResource(resource);
 
             if (iconRenderer == null)

@@ -8,7 +8,7 @@ public class Shapeshifter : MachineObject
 
         if (machineData is Shape shapeData)
         {
-            resource.UpdateResource(shapeData, resource.color);
+            resource.TransformShape(shapeData);
             LogResource(resource);
 
             if (iconRenderer == null)

@@ -12,19 +12,16 @@ public class Resource : MonoBehaviour
     {
         spriteRenderer = GetComponent<SpriteRenderer>() ?? gameObject.AddComponent<SpriteRenderer>();
         if (shape != null && color != null)
-            UpdateResource(shape, color);
-    }
-
-    public void UpdateResource(Shape newShape, ResourceColor newColor)
-    {
-        TransformShape(newShape);
-        TransformColor(newColor);
-
+        {
+            TransformColor(color);
+            TransformShape(shape);
+        }
         gameObject.tag = "resource";
     }
 
-    private void TransformShape(Shape newShape)
+    public void TransformShape(Shape newShape)
     {
+        Debug.Log($"Transforming to shape: {newShape.shapeType}");
         switch (currentShape = newShape.shapeType)
         {
             case Shape.ShapeType.TRIANGLE:
@@ -39,7 +36,7 @@ public class Resource : MonoBehaviour
         }
     }
 
-    private void TransformColor(ResourceColor newColor)
+    public void TransformColor(ResourceColor newColor)
     {
         switch (currentColor = newColor.colorType)
         {

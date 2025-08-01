@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ResourceColor : ScriptableObject
 {
-    public enum ColorType { RED, GREEN, BLUE }
+    public enum ColorType { RED, GREEN, BLUE, None}
     public ColorType colorType;
     public Color UnityColor
     {

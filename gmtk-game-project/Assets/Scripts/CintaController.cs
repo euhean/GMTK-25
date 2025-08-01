@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 public class MultiOrbit : MonoBehaviour
 {
-    [Header("Prefab del objeto que orbita")]
-    public GameObject orbitingPrefab;
+    [Header("Prefabs de objetos que orbitan")]
+    public List<GameObject> resourcePrefabs = new List<GameObject>();
 
     [Header("Cantidad de objetos que orbitan")]
     public int numberOfOrbitingObjects = 6;
@@ -41,27 +41,23 @@ public class MultiOrbit : MonoBehaviour
     private void AlignCollider(GameObject obj)
     {
         var collider = obj.GetComponent<Collider>();
-        collider?.transform.position = obj.transform.position;
+        if (collider != null)
+            collider.transform.position = obj.transform.position;
     }
-
-    private void SetScale(GameObject obj, float scale)
-    {
-        var s = obj.transform.localScale;
-        obj.transform.localScale = new Vector3(s.x * scale, s.y * scale, s.z * scale);
-    }
-
+    
     void Start()
     {
         // Instanciar orbitadores
         for (int i = 0; i < numberOfOrbitingObjects; i++)
         {
             float angle = i * angularSeparation * Mathf.Deg2Rad;
-            GameObject obj = Instantiate(orbitingPrefab);
+            if (resourcePrefabs.Count == 0) break;
+            GameObject prefabToUse = resourcePrefabs[i % resourcePrefabs.Count];
+            GameObject obj = Instantiate(prefabToUse);
             orbitingObjects.Add(obj);
             baseAngles.Add(angle);
 
-            obj.transform.position = GetOrbitPosition(angle, orbitRadius, transform.position.y); // Match machine Y position for collider overlap
-            SetScale(obj, 0.5f);
+            obj.transform.position = GetOrbitPosition(angle, orbitRadius, transform.position.y);
             AlignCollider(obj);
         }
 
@@ -90,4 +86,3 @@ public class MultiOrbit : MonoBehaviour
         }
     }
 }
-//asdg

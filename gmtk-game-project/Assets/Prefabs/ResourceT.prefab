@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 2670209668070083738}
   - component: {fileID: 7251549517343942327}
   - component: {fileID: 5387486680296469001}
-  - component: {fileID: 145722633698917983}
+  - component: {fileID: 3361785105302541537}
   m_Layer: 0
-  m_Name: Resource
+  m_Name: ResourceT
   m_TagString: resource
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29,7 +29,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 2.0025988, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -46,10 +46,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f482e47cf6281149ab294242bbfbd3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shape: {fileID: 11400000, guid: e021fae11877ef24c95642702797cb41, type: 2}
+  shape: {fileID: 11400000, guid: f1331354b8ed6c94a869bbf9e354cb53, type: 2}
   currentShape: 0
-  color: {fileID: 11400000, guid: 718d5ccd31d7cdc49864f6af7c6bd900, type: 2}
-  currentColor: 0
+  color: {fileID: 11400000, guid: cf67822a4bc998341a1f42ae4b35221f, type: 2}
+  currentColor: 3
   spriteRenderer: {fileID: 5387486680296469001}
 --- !u!212 &5387486680296469001
 SpriteRenderer:
@@ -106,16 +106,13 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!58 &145722633698917983
-CircleCollider2D:
+--- !u!65 &3361785105302541537
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 538977329041564931}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -124,21 +121,9 @@ CircleCollider2D:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
   m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: -824662.06}
-  m_Radius: 0.5415174
+  m_ProvidesContacts: 1
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1.0000002, z: 0.20000005}
+  m_Center: {x: 0, y: 0.21133338, z: -3.0032273e-15}

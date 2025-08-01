@@ -20,14 +20,20 @@ public abstract class MachineObject : MonoBehaviour, IMachine
     {
         Resource resource = other.GetComponent<Resource>();
         if (resource != null)
+        {
             currentResource = resource;
+            Debug.Log($"Resource {resource.name} entered {gameObject.name}");
+        }
     }
 
     void OnTriggerExit(Collider other)
     {
         Resource resource = other.GetComponent<Resource>();
         if (resource != null && resource == currentResource)
+        {
             currentResource = null;
+            Debug.Log($"Resource {resource.name} exited {gameObject.name}");
+        }
     }
 
     public void LogResource(Resource resource)
