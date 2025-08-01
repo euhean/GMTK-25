@@ -41,3 +41,5 @@ sysinfo.txt
 # Mac OS system files
 .DS_Store
 *.blend1
+gmtk-game-project/UserSettings/EditorUserSettings.asset
+/gmtk-game-project/UserSettings
