@@ -3,6 +3,22 @@ using HisaGames.CutsceneManager;
 using System.Collections;
 using System.Collections.Generic;
 
+// Define the interaction types
+public enum InteractableType
+{
+    PC,
+    PHONE,
+    INSTRUCTIONS
+}
+
+// Define the interactable element class
+[System.Serializable]
+public class InteractableElement
+{
+    public GameObject gameObject;
+    public InteractableType type;
+}
+
 public class DeskManager : MonoBehaviour
 {
     [Header("Cutscene Settings")]
@@ -15,7 +31,7 @@ public class DeskManager : MonoBehaviour
     [SerializeField] private float deactivationDelay = 0.5f; // Delay before deactivating the canvas
 
     [Header("Interactable Objects")]
-    public List<GameObject> interactableObjects; // Lista de objetos interactuables
+    public List<InteractableElement> interactableObjects; // Lista de objetos interactuables
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -42,11 +58,11 @@ public class DeskManager : MonoBehaviour
     void Awake()
     {
         // Asignar el tag "Selectable" a todos los objetos interactuables
-        foreach (var obj in interactableObjects)
+        foreach (var element in interactableObjects)
         {
-            if (obj != null)
+            if (element.gameObject != null)
             {
-                obj.tag = "Selectable";
+                element.gameObject.tag = "Selectable";
             }
         }
     }
@@ -126,19 +142,68 @@ public class DeskManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Verifica si el objeto es interactuable y realiza la interacción.
+    /// Verifica si el objeto es interactuable y realiza la interacción correspondiente.
     /// </summary>
     /// <param name="obj">El objeto a interactuar.</param>
     public void InteractObject(GameObject obj)
     {
-        if (interactableObjects.Contains(obj))
+        // Find the matching InteractableElement
+        InteractableElement element = interactableObjects.Find(x => x.gameObject == obj);
+        
+        if (element != null)
         {
-            Debug.Log($"Interacting with object: {obj.name}");
-            // Lógica de interacción aquí
+            Debug.Log($"Interacting with object: {obj.name}, Type: {element.type}");
+            
+            // Call the appropriate interaction method based on type
+            switch (element.type)
+            {
+                case InteractableType.PC:
+                    InteractWithPC(element);
+                    break;
+                case InteractableType.PHONE:
+                    InteractWithPhone(element);
+                    break;
+                case InteractableType.INSTRUCTIONS:
+                    InteractWithInstructions(element);
+                    break;
+                default:
+                    Debug.LogWarning("Unknown interactable type");
+                    break;
+            }
         }
         else
         {
             Debug.Log($"Object {obj.name} is not interactable.");
         }
+    }
+    
+    /// <summary>
+    /// Maneja la interacción con un PC.
+    /// </summary>
+    /// <param name="element">El elemento interactuable de tipo PC.</param>
+    private void InteractWithPC(InteractableElement element)
+    {
+        Debug.Log("Interacting with PC");
+        // Lógica específica para interactuar con PC
+    }
+
+    /// <summary>
+    /// Maneja la interacción con un teléfono.
+    /// </summary>
+    /// <param name="element">El elemento interactuable de tipo PHONE.</param>
+    private void InteractWithPhone(InteractableElement element)
+    {
+        Debug.Log("Interacting with Phone");
+        // Lógica específica para interactuar con teléfono
+    }
+
+    /// <summary>
+    /// Maneja la interacción con instrucciones.
+    /// </summary>
+    /// <param name="element">El elemento interactuable de tipo INSTRUCTIONS.</param>
+    private void InteractWithInstructions(InteractableElement element)
+    {
+        Debug.Log("Interacting with Instructions");
+        // Lógica específica para interactuar con instrucciones
     }
 }
