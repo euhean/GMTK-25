@@ -42,3 +42,4 @@ sysinfo.txt
 .DS_Store
 *.blend1
 gmtk-game-project/UserSettings/EditorUserSettings.asset
+/gmtk-game-project/UserSettings
