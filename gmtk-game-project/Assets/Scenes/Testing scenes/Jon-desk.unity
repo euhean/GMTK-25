@@ -670,8 +670,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6e48cf66de61ff49a01f32990118f6e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  outlineColor: {r: 1, g: 0, b: 1, a: 1}
-  outlineWidth: 7
+  deskManager: {fileID: 0}
+  outlineColor: {r: 1, g: 0.9377036, b: 0.3820755, a: 1}
+  outlineWidth: 8
 --- !u!1 &720010456
 GameObject:
   m_ObjectHideFlags: 0
@@ -1272,6 +1273,8 @@ MonoBehaviour:
   phoneDialogCanvas: {fileID: 0}
   activationDelay: 0.5
   deactivationDelay: 0.5
+  interactableObjects:
+  - {fileID: 457267932}
 --- !u!4 &1948074668 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -5477749408508380018, guid: 37800c06bc4369847b86f3da52c25d79, type: 3}

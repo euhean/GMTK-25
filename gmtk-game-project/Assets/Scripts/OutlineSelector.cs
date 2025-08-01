@@ -2,11 +2,25 @@ using UnityEngine;
 
 public class OutlineSelector : MonoBehaviour
 {
+    public DeskManager deskManager; // Referencia al DeskManager
     public Color outlineColor = Color.magenta; // Color del outline
     public float outlineWidth = 7.0f;          // Ancho del outline
 
     private Transform lastHit;
     private RaycastHit raycastHit;
+
+    void Start()
+    {
+        // Buscar DeskManager en la escena si no está asignado
+        if (deskManager == null)
+        {
+            deskManager = FindFirstObjectByType<DeskManager>();
+            if (deskManager == null)
+            {
+                Debug.LogError("DeskManager not found in the scene!");
+            }
+        }
+    }
 
     // Update is called once per frame
     void Update()
@@ -39,6 +53,12 @@ public class OutlineSelector : MonoBehaviour
                 outline.OutlineColor = outlineColor;
                 outline.OutlineWidth = outlineWidth;
                 lastHit = hit;
+
+                // Llamar a InteractObject si se presiona el mouse
+                if (Input.GetMouseButtonDown(0) && deskManager != null)
+                {
+                    deskManager.InteractObject(hit.gameObject);
+                }
             }
         }
     }

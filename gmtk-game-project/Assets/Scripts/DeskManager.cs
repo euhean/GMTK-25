@@ -1,6 +1,7 @@
 using UnityEngine;
 using HisaGames.CutsceneManager;
 using System.Collections;
+using System.Collections.Generic;
 
 public class DeskManager : MonoBehaviour
 {
@@ -12,6 +13,9 @@ public class DeskManager : MonoBehaviour
     public Canvas phoneDialogCanvas;
     [SerializeField] private float activationDelay = 0.5f; // Delay before activating the canvas
     [SerializeField] private float deactivationDelay = 0.5f; // Delay before deactivating the canvas
+
+    [Header("Interactable Objects")]
+    public List<GameObject> interactableObjects; // Lista de objetos interactuables
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -32,6 +36,18 @@ public class DeskManager : MonoBehaviour
         else
         {
             phoneDialogCanvas.gameObject.SetActive(false);
+        }
+    }
+
+    void Awake()
+    {
+        // Asignar el tag "Selectable" a todos los objetos interactuables
+        foreach (var obj in interactableObjects)
+        {
+            if (obj != null)
+            {
+                obj.tag = "Selectable";
+            }
         }
     }
 
@@ -107,5 +123,22 @@ public class DeskManager : MonoBehaviour
         yield return new WaitForSeconds(deactivationDelay);
         if (phoneDialogCanvas != null)
             phoneDialogCanvas.gameObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// Verifica si el objeto es interactuable y realiza la interacción.
+    /// </summary>
+    /// <param name="obj">El objeto a interactuar.</param>
+    public void InteractObject(GameObject obj)
+    {
+        if (interactableObjects.Contains(obj))
+        {
+            Debug.Log($"Interacting with object: {obj.name}");
+            // Lógica de interacción aquí
+        }
+        else
+        {
+            Debug.Log($"Object {obj.name} is not interactable.");
+        }
     }
 }
