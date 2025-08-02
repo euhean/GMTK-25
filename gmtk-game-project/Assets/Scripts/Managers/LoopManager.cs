@@ -31,7 +31,8 @@ public class LoopManager : MonoBehaviour
     public enum EventType { Narrative, Gameplay, Dialog };
     
     [System.Serializable] public class Demand{
-        [SerializeField] public MachinePurpose machinePurpose;
+        [SerializeField] public ResourceColor.ColorType colorType;
+        [SerializeField] public Shape.ShapeType shapeType;
     }
 
     [System.Serializable]

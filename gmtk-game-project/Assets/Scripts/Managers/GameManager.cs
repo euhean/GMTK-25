@@ -17,7 +17,11 @@ public class GameManager : MonoBehaviour
     [Header("Loop Data")]
     [SerializeField] private LoopManager.Loop currentLoop;
     [SerializeField] private int currentDayIndex = 0;
+    [SerializeField] private LoopManager.GenericEvent currentEvent;
     [SerializeField] private int currentEventIndex = 0;
+
+    [SerializeField] private List<LoopManager.Demand> currentDemand = new List<LoopManager.Demand>();
+    [SerializeField] private List<LoopManager.Demand> demandToComplete = new List<LoopManager.Demand>();
 
     public enum Scenes {
         MENU = 0,
@@ -183,6 +187,65 @@ public class GameManager : MonoBehaviour
         currentDay = 0;
         
         Debug.Log("¡Loop completado! Reiniciando...");
+    }
+
+
+
+    public void startDemand(){
+        currentDemand = currentEvent.demands;
+
+    }
+
+    public List<LoopManager.Demand> getCurrentDemands()
+    {
+        return currentEvent.demands;
+    }
+
+    public bool isDemandCompleted()
+    {
+        // Verificar que ambas listas tengan el mismo tamaño
+        if (currentDemand.Count != demandToComplete.Count)
+        {
+            return false;
+        }
+        
+        // Si ambas listas están vacías, se considera completado
+        if (currentDemand.Count == 0)
+        {
+            return true;
+        }
+        
+        // Crear copias de las listas para no modificar las originales
+        List<LoopManager.Demand> currentCopy = new List<LoopManager.Demand>(currentDemand);
+        List<LoopManager.Demand> targetCopy = new List<LoopManager.Demand>(demandToComplete);
+        
+        // Para cada demanda en la lista objetivo
+        foreach (var targetDemand in targetCopy)
+        {
+            bool found = false;
+            
+            // Buscar una demanda coincidente en la lista actual
+            for (int i = 0; i < currentCopy.Count; i++)
+            {
+                if (currentCopy[i].colorType == targetDemand.colorType && 
+                    currentCopy[i].shapeType == targetDemand.shapeType)
+                {
+                    // Encontrada coincidencia, remover de la lista actual
+                    currentCopy.RemoveAt(i);
+                    found = true;
+                    break;
+                }
+            }
+            
+            // Si no se encontró coincidencia, las listas no son iguales
+            if (!found)
+            {
+                return false;
+            }
+        }
+        
+        // Si llegamos aquí, todas las demandas coinciden
+        return true;
     }
     
     // SCENE MANAGEMENT
