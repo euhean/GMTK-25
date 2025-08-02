@@ -45,6 +45,12 @@ public abstract class MachineObject : MonoBehaviour, IMachine
     {
         isOn = !isOn;
         UpdateMachineColor();
+        
+        // Si la máquina se apaga y hay un recurso actual, lo liberamos
+        if (!isOn && currentResource != null)
+        {
+            currentResource = null;
+        }
         Debug.Log($"Machine {gameObject.name} is now {(isOn ? "ON" : "OFF")}");
     }
 
@@ -68,7 +74,6 @@ public abstract class MachineObject : MonoBehaviour, IMachine
         if (resource != null && isOn)
         {
             currentResource = resource;
-            // Llamar automáticamente a Interact cuando el objeto entra en el trigger
             Interact(resource);
         }
     }
