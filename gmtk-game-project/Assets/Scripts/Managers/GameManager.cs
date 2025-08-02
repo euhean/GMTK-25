@@ -50,7 +50,7 @@ public class GameManager : MonoBehaviour
     
     private void Start()
     {
-      goToMenuScene();
+      //goToMenuScene();
     }
     
     private void Update()
