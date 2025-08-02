@@ -72,3 +72,7 @@ Logs/
 MemoryCaptures/
 obj/
 Temp/
+
+# Unity UserSettings
+gmtk-game-project/UserSettings/EditorUserSettings.asset
+/gmtk-game-project/UserSettings
