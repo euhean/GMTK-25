@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ResourceColor : ScriptableObject
 {
-    public enum ColorType { RED, GREEN, BLUE, None}
+    public enum ColorType { RED, GREEN, BLUE, NONE}
     public ColorType colorType;
     public Color UnityColor
     {
@@ -15,6 +15,7 @@ public class ResourceColor : ScriptableObject
                 case ColorType.RED: return Color.red;
                 case ColorType.GREEN: return Color.green;
                 case ColorType.BLUE: return Color.blue;
+                case ColorType.NONE: return Color.white;
                 default: return Color.white;
             }
         }

@@ -52,8 +52,11 @@ public class PlayerController : MonoBehaviour
                 var machine = innerHit.collider.GetComponent<MachineObject>();
                 if (machine && machine.iconRenderer) { machine.iconRenderer.enabled = true; lastHover = machine; }
 
-                if (Input.GetMouseButtonDown(0) && machine && machine.currentResource != null)
-                    machine.Interact(machine.currentResource);
+                if (Input.GetMouseButtonDown(0) && machine)
+                {
+                    // Siempre se alterna el estado, afectando también el recurso presente.
+                    machine.ToggleMachine();
+                }
             }
         }
         else
@@ -68,8 +71,11 @@ public class PlayerController : MonoBehaviour
                 var machine = hit.collider.GetComponent<MachineObject>();
                 if (machine && machine.iconRenderer) { machine.iconRenderer.enabled = true; lastHover = machine; }
 
-                if (Input.GetMouseButtonDown(0) && machine && machine.currentResource != null)
-                    machine.Interact(machine.currentResource);
+                if (Input.GetMouseButtonDown(0) && machine)
+                {
+                    // Siempre se alterna el estado, incluso si hay un recurso
+                    machine.ToggleMachine();
+                }
             }
         }
 
@@ -213,3 +219,4 @@ public class PlayerController : MonoBehaviour
         return true;
     }
 }
+
