@@ -511,19 +511,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resourcePrefabs:
-  - {fileID: 538977329041564931, guid: cd6717e7acd87a447bc50e96b090f281, type: 3}
-  - {fileID: 538977329041564931, guid: 47e6c904d17ffac4c8a7490de0ab9cb1, type: 3}
-  - {fileID: 538977329041564931, guid: 47e6c904d17ffac4c8a7490de0ab9cb1, type: 3}
+  - {fileID: 3255630545596280456, guid: 7db4db54165c2f94893231622bf63b57, type: 3}
+  - {fileID: 3255630545596280456, guid: 7db4db54165c2f94893231622bf63b57, type: 3}
+  - {fileID: 3255630545596280456, guid: 7db4db54165c2f94893231622bf63b57, type: 3}
   numberOfOrbitingObjects: 3
   orbitRadius: 4
   angularSpeed: 0.5
   angularSeparation: 120
   machineInfos:
-  - machinePrefab: {fileID: 5359917699364430212, guid: f5e4d5889aa0aca42b4022b745682a19, type: 3}
+  - machinePrefab: {fileID: 9181546477541318632, guid: f588054e7ce8ac44fa91bf584d7f3e5f, type: 3}
     angleDegrees: 0
-  - machinePrefab: {fileID: 5359917699364430212, guid: f864e27a6b6eba5449cd0a2a27696ef6, type: 3}
+  - machinePrefab: {fileID: 9181546477541318632, guid: 92ababcd9991b354a83ba2f2ede6d26b, type: 3}
     angleDegrees: 45
-  - machinePrefab: {fileID: 5359917699364430212, guid: 8dacbc3f95ec2f8429fa19c8cb66617a, type: 3}
+  - machinePrefab: {fileID: 8571882926431986609, guid: 76a8c6c1a7a28d6499296dc43e0f6e99, type: 3}
     angleDegrees: -90
 --- !u!1 &1757613698
 GameObject:
