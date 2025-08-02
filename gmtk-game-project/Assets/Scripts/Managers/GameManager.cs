@@ -171,10 +171,15 @@ public class GameManager : MonoBehaviour
     
     private void Start()
     {
-        if(debugMode){
+        if (debugMode)
+        {
             runEvent();
         }
 
+        // Ensure the game window is always in 16:9 aspect ratio
+        int width = Screen.width;
+        int height = Mathf.RoundToInt(width / (16f / 9f));
+        Screen.SetResolution(width, height, Screen.fullScreen);
     }
     
     private void Update()

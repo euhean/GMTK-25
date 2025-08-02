@@ -1,23 +1,15 @@
-using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
-using UnityEngine.SceneManagement;
 
 public class MenuManager : MonoBehaviour
 {
-    private void Update()
+    public void Start()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        // Verificar si hay loops disponibles
+        if (GameManager.Instance.GetCurrentLoop() != null)
         {
-            // Verificar si hay loops disponibles
-            if (GameManager.Instance.GetCurrentLoop() != null)
-            {
-                GameManager.Instance.goToLoopScene();
-            }
-            else
-            {
-                
-            }
+            GameManager.Instance.goToLoopScene();
         }
+
+        Debug.Log("MenuManager initialized.");
     }
 }
