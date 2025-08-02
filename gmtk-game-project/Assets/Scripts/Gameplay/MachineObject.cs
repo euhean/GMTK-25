@@ -41,13 +41,7 @@ public abstract class MachineObject : MonoBehaviour, IMachine
         UpdateMachineColor();
     }
 
-    void OnMouseDown()
-    {
-        // Alternar el estado de la máquina cuando se hace clic
-        ToggleMachine();
-    }
-
-    void ToggleMachine()
+    public void ToggleMachine()
     {
         isOn = !isOn;
         UpdateMachineColor();

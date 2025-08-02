@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bd8d94dfcdf049441a6370e037a19787, type: 3}
-  m_Name: Level_1
+  m_Name: Level_2 1
   m_EditorClassIdentifier: 
   eventName: Level 1
   eventType: 1
   description: Level
   isCompleted: 0
   demands:
-  - colorType: 0
+  - colorType: 1
     shapeType: 0
-  - colorType: 0
+  - colorType: 2
     shapeType: 0
-  - colorType: 0
+  - colorType: 1
     shapeType: 0
   orbitConfig:
     resourcePrefabs:
@@ -33,7 +33,5 @@ MonoBehaviour:
     machineInfos:
     - machineConfiguration: {fileID: 11400000, guid: 327b27d1e2e522647a12c88f8e0c7376, type: 2}
       angleDegrees: 36
-    - machineConfiguration: {fileID: 11400000, guid: 327b27d1e2e522647a12c88f8e0c7376, type: 2}
-      angleDegrees: 36
-    - machineConfiguration: {fileID: 11400000, guid: 327b27d1e2e522647a12c88f8e0c7376, type: 2}
-      angleDegrees: 36
+    - machineConfiguration: {fileID: 11400000, guid: f37df7509c7e81b4fa05921ef6be6e4f, type: 2}
+      angleDegrees: 216

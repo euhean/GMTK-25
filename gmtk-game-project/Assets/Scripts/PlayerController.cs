@@ -52,8 +52,13 @@ public class PlayerController : MonoBehaviour
                 var machine = innerHit.collider.GetComponent<MachineObject>();
                 if (machine && machine.iconRenderer) { machine.iconRenderer.enabled = true; lastHover = machine; }
 
-                if (Input.GetMouseButtonDown(0) && machine && machine.currentResource != null)
-                    machine.Interact(machine.currentResource);
+                if (Input.GetMouseButtonDown(0) && machine)
+                {
+                    if (machine.currentResource != null)
+                        machine.Interact(machine.currentResource);
+                    else
+                        machine.ToggleMachine(); // Alternar el estado de la máquina
+                }
             }
         }
         else
@@ -68,8 +73,13 @@ public class PlayerController : MonoBehaviour
                 var machine = hit.collider.GetComponent<MachineObject>();
                 if (machine && machine.iconRenderer) { machine.iconRenderer.enabled = true; lastHover = machine; }
 
-                if (Input.GetMouseButtonDown(0) && machine && machine.currentResource != null)
-                    machine.Interact(machine.currentResource);
+                if (Input.GetMouseButtonDown(0) && machine)
+                {
+                    if (machine.currentResource != null)
+                        machine.Interact(machine.currentResource);
+                    else
+                        machine.ToggleMachine(); // Alternar el estado de la máquina
+                }
             }
         }
 

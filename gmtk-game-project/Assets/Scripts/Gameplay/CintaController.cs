@@ -95,8 +95,11 @@ public class MultiOrbit : MonoBehaviour
                 
                 if (machine != null)
                 {
+                    //WHY?
                     Vector3 directionToCenter = (transform.position - machine.transform.position).normalized;
-                    machine.transform.rotation = Quaternion.LookRotation(directionToCenter);
+                    directionToCenter.y = 0; // Ignorar componente Y
+                    if (directionToCenter != Vector3.zero)
+                        machine.transform.rotation = Quaternion.LookRotation(directionToCenter, Vector3.up);
                 }
             }
             else
