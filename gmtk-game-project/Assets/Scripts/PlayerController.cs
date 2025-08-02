@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
@@ -15,6 +16,11 @@ public class PlayerController : MonoBehaviour
     public bool invertY = false;             // si ves el eje Y invertido
     public Vector2 texScale = Vector2.one;   // si el material del monitor usa tiling
     public Vector2 texOffset = Vector2.zero; // si usa offset
+    [Range(0.01f, 0.2f)]
+    public float innerMargin = 0.05f;        // margen interno (% del tamaño de la textura)
+
+    [Header("Mouse Sprite")]
+    public GameObject monitorMouseSprite; // Sprite del ratón dentro de la textura del monitor
 
     private MachineObject lastHover;
 
@@ -67,6 +73,35 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        // Actualiza la posición del sprite del ratón dentro del monitor
+        if (monitorMouseSprite && TryGetInnerRay(out Ray innerRayForSprite))
+        {
+            if (TryGetInnerUV(out Vector2 mouseUV))
+            {
+                // Aplicamos el margen interno
+                mouseUV = ClampUVWithMargin(mouseUV);
+                
+                // Convertimos UV a coordenadas de píxel
+                int texWidth = renderTex ? renderTex.width : Screen.width;
+                int texHeight = renderTex ? renderTex.height : Screen.height;
+                
+                float x = mouseUV.x * texWidth;
+                float y = invertY ? (1f - mouseUV.y) * texHeight : mouseUV.y * texHeight;
+                
+                // Calculamos la posición en el mundo
+                Vector3 screenPos = new Vector3(x, y, 0f);
+                Ray adjustedRay = innerCamera.ScreenPointToRay(screenPos);
+                float distanceFromCamera = innerCamera.nearClipPlane + 0.1f;
+                Vector3 worldPos = adjustedRay.origin + adjustedRay.direction * distanceFromCamera;
+                
+                monitorMouseSprite.transform.position = worldPos;
+            }
+            else
+            {
+                monitorMouseSprite.transform.position = innerRayForSprite.origin;
+            }
+        }
+
         // Tu lógica extra (tecla espacio, etc.)
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -75,55 +110,106 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // Proyecta el ratón real sobre el monitor y crea un ray desde la cámara secundaria
-    bool TryGetInnerRay(out Ray innerRay)
+    // Aplica los márgenes internos a las coordenadas UV
+    private Vector2 ClampUVWithMargin(Vector2 uv)
     {
-        innerRay = default;
+        return new Vector2(
+            Mathf.Clamp(uv.x, innerMargin, 1f - innerMargin),
+            Mathf.Clamp(uv.y, innerMargin, 1f - innerMargin)
+        );
+    }
+
+    // Proyecta el ratón real sobre el monitor y crea un ray desde la cámara secundaria
+    // Devuelve UV [0..1] del impacto sobre el monitor si se está apuntando
+    bool TryGetInnerUV(out Vector2 uvOut)
+    {
+        uvOut = default;
         var cam = mainCamera ? mainCamera : Camera.main;
-        if (!cam || !innerCamera || !monitorCollider || !renderTex) return false;
+        if (!cam || !monitorCollider) return false;
 
-        // 1) Ray hacia el monitor
         Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-        Debug.DrawRay(ray.origin, ray.direction * 1000f, Color.red); // rayo hacia el monitor
-
         if (!monitorCollider.Raycast(ray, out var hit, 1000f)) return false;
 
-        // Opcional: visualiza el normal del monitor en escena
-        Debug.DrawRay(hit.point, hit.normal * 0.4f, Color.magenta);
+        Vector2 uv = hit.textureCoord;
 
-        // 2) UV del impacto
-        Vector2 uv = hit.textureCoord; // 0..1 en el mesh
-
-        // Espejos por tiling negativo (lo más común en "pantallas")
+        // Ajustes por tiling/offset (como antes)
         Vector2 s = texScale;
         Vector2 o = texOffset;
         if (s.x < 0) { uv.x = 1f - uv.x; s.x = -s.x; }
         if (s.y < 0) { uv.y = 1f - uv.y; s.y = -s.y; }
 
-        // Compensa offset (normalizado a 0..1)
         uv -= new Vector2(Mathf.Repeat(o.x, 1f), Mathf.Repeat(o.y, 1f));
-
-        // Si hay tiling > 1, normaliza; si es 1, no cambia
         uv.x = (s.x > 0f) ? uv.x / s.x : uv.x;
         uv.y = (s.y > 0f) ? uv.y / s.y : uv.y;
 
-        // En vez de descartar, clamp a 0..1 para que siempre obtengas un rayo
-        uv.x = Mathf.Clamp01(uv.x);
-        uv.y = Mathf.Clamp01(uv.y);
-
-        // 3) UV -> píxeles del RenderTexture
-        float px = uv.x * renderTex.width;
-        float py = (invertY ? (1f - uv.y) : uv.y) * renderTex.height;
-
-        // 4) Rayo desde la cámara secundaria
-        Vector3 innerScreen = new Vector3(px, py, 0f);
-        innerRay = innerCamera.ScreenPointToRay(innerScreen);
-
-        // Dibuja largo para verlo en escenas grandes
-        float len = Mathf.Max(innerCamera.farClipPlane - innerCamera.nearClipPlane, 500f);
-        Debug.DrawRay(innerRay.origin, innerRay.direction * len, Color.yellow); // rayo de la cámara secundaria
-
+        uvOut = uv;
         return true;
     }
 
+    // Convierte un UV [0..1] al punto en pantalla (Input.mousePosition equiv.)
+    Vector2 MonitorUVToScreen(Vector2 uv)
+    {
+        if (!monitorCollider || !mainCamera) return Vector2.zero;
+
+        // Busca un punto en la superficie del monitor que corresponda a ese UV
+        MeshCollider mc = monitorCollider as MeshCollider;
+        if (mc && mc.sharedMesh)
+        {
+            Mesh mesh = mc.sharedMesh;
+
+            // Buscas el triángulo más cercano con barycentros... (no es trivial)
+            // Pero en la práctica, como ya tienes un hit cuando estás dentro, puedes almacenar el último punto
+            // o hacer una tabla de mapping inverso UV → punto. Para casos complejos hay que hornear esa relación.
+
+            // Alternativa rápida (no precisa): usa el último hit.point y ajusta sobre la pantalla del monitor 3D
+            return Mouse.current.position.ReadValue(); // como fallback
+        }
+
+        return Mouse.current.position.ReadValue();
+    }
+
+    void LateUpdate()
+    {
+        if (TryGetInnerUV(out Vector2 uv))
+        {
+            // Define los límites con el margen interno
+            float minX = innerMargin;
+            float maxX = 1f - innerMargin;
+            float minY = innerMargin;
+            float maxY = 1f - innerMargin;
+            
+            if (uv.x < minX || uv.x > maxX || uv.y < minY || uv.y > maxY)
+            {
+                // Mouse fuera del área con margen → lo reubicamos
+                Vector2 clampedUV = new Vector2(
+                    Mathf.Clamp(uv.x, minX, maxX),
+                    Mathf.Clamp(uv.y, minY, maxY)
+                );
+                Vector2 newScreenPos = MonitorUVToScreen(clampedUV);
+
+                // Recoloca el cursor real
+                Mouse.current.WarpCursorPosition(newScreenPos);
+            }
+        }
+    }
+
+    // Crea un Ray desde la innerCamera usando la posición del mouse proyectada sobre el monitor
+    bool TryGetInnerRay(out Ray innerRay)
+    {
+        innerRay = default;
+        if (!innerCamera || !monitorCollider) return false;
+
+        if (!TryGetInnerUV(out Vector2 uv)) return false;
+
+        // Convierte UV [0..1] a coordenadas de píxel en el RenderTexture
+        int texWidth = renderTex ? renderTex.width : Screen.width;
+        int texHeight = renderTex ? renderTex.height : Screen.height;
+
+        float x = uv.x * texWidth;
+        float y = invertY ? (1f - uv.y) * texHeight : uv.y * texHeight;
+
+        Vector3 screenPos = new Vector3(x, y, 0f);
+        innerRay = innerCamera.ScreenPointToRay(screenPos);
+        return true;
+    }
 }
