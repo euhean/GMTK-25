@@ -43,7 +43,7 @@ public class CameraSwitcher : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             useCameraGameplay = !useCameraGameplay;
-            Debug.Log($"useCameraGameplay toggled to: {useCameraGameplay}");
+            
         }
     }
 

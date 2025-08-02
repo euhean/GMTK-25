@@ -4,8 +4,8 @@
 TagManager:
   serializedVersion: 3
   tags:
-  - phone-dialog
-  - Selectable
+  - resource
+  - Machine
   layers:
   - Default
   - TransparentFX

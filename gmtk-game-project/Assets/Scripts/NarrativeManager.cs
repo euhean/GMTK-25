@@ -32,7 +32,7 @@ public class NarrativeManager : MonoBehaviour
     /// </summary>
     public void OnTextComplete()
     {
-        Debug.Log("All narrative text has been displayed.");
+        
         isTextComplete = true;
         // Any additional actions when text is complete can go here
     }
@@ -68,7 +68,7 @@ public class NarrativeManager : MonoBehaviour
             if (row.Length >= 4)
             {
                 // DEBUG log for current row and column
-                // Debug.Log($"Processing row {i}, columns: {string.Join(", ", row)}");
+                // 
 
                 // Parse the day value
                 if (int.TryParse(row[0], out int rowDay))
@@ -80,20 +80,20 @@ public class NarrativeManager : MonoBehaviour
                         bool rowQuota = row[2].Trim().ToLower() == "true";
 
                         // DEBUG
-                        // Debug.Log($"Row {i} matches Day={rowDay}, rowStartEnd={rowStartEnd}, currentStartEnd={startEnd}, rowQuota={rowQuota}, currentQuota={quotaBool}");
+                        // 
 
                         if (rowStartEnd == startEnd)
                         {
                             if (rowQuota == quotaBool)
                             {
                                 // Debug log for matched row
-                                Debug.Log($"Matched row {i}: Day={rowDay}, StartEnd={rowStartEnd}, Quota={rowQuota}");
+                                
 
                                 // Split text by line breaks if any are encoded in the text
                                 string[] splitLines = row[3].Split(new[] { "\\n" }, System.StringSplitOptions.None);
                                 foreach (string line in splitLines)
                                 {
-                                    Debug.Log($"Adding line: {line.Trim()}");
+                                    
                                     textLines.Add(line.Trim());
                                 }
                             }
@@ -115,7 +115,7 @@ public class NarrativeManager : MonoBehaviour
         // If no lines were added, use fallback lines
         if (textLines.Count == 0 && fallbackLines.Count > 0)
         {
-            Debug.Log("No rows matched quotaBool. Using fallback lines.");
+            
             textLines.AddRange(fallbackLines);
         }
     }
@@ -138,7 +138,8 @@ public class NarrativeManager : MonoBehaviour
         {
             if (isTextComplete)
             {
-                Debug.Log("NARRATIVA FINALIZADA");
+                
+                GameManager.Instance.AdvanceToNextEvent();
             }
             else
             {

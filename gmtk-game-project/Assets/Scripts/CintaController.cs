@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 public class MultiOrbit : MonoBehaviour
 {
-    [Header("Prefab del objeto que orbita")]
-    public GameObject orbitingPrefab;
+    [Header("Prefabs de objetos que orbitan")]
+    public List<GameObject> resourcePrefabs = new List<GameObject>();
 
     [Header("Cantidad de objetos que orbitan")]
     public int numberOfOrbitingObjects = 6;
@@ -31,20 +31,41 @@ public class MultiOrbit : MonoBehaviour
     [Header("Máquinas que se colocan en posiciones fijas")]
     public List<MachineInfo> machineInfos = new List<MachineInfo>();
 
+    private Vector3 GetOrbitPosition(float angleRad, float radius, float y)
+    {
+        float x = transform.position.x + Mathf.Cos(angleRad) * radius;
+        float z = transform.position.z + Mathf.Sin(angleRad) * radius;
+        return new Vector3(x, y, z);
+    }
+
+    private void AlignCollider(GameObject obj)
+    {
+        var collider = obj.GetComponent<Collider>();
+        if (collider != null)
+            collider.transform.position = obj.transform.position;
+    }
+    
     void Start()
     {
         // Instanciar orbitadores
         for (int i = 0; i < numberOfOrbitingObjects; i++)
         {
             float angle = i * angularSeparation * Mathf.Deg2Rad;
-            GameObject obj = Instantiate(orbitingPrefab);
+            if (resourcePrefabs.Count == 0) break;
+            GameObject prefabToUse = resourcePrefabs[i % resourcePrefabs.Count];
+            GameObject obj = Instantiate(prefabToUse);
             orbitingObjects.Add(obj);
             baseAngles.Add(angle);
 
-            float x = transform.position.x + Mathf.Cos(angle) * orbitRadius;
-            float z = transform.position.z + Mathf.Sin(angle) * orbitRadius;
-            float y = transform.position.y;
-            obj.transform.position = new Vector3(x, y, z);
+            obj.transform.position = GetOrbitPosition(angle, orbitRadius, transform.position.y);
+            AlignCollider(obj);
+            
+            // Asegurar que el Resource se registre correctamente
+            Resource resource = obj.GetComponent<Resource>();
+            if (resource != null)
+            {
+                
+            }
         }
 
         // Instanciar máquinas en posiciones fijas
@@ -53,12 +74,9 @@ public class MultiOrbit : MonoBehaviour
             if (machineInfo.machinePrefab != null)
             {
                 float angleRad = machineInfo.angleDegrees * Mathf.Deg2Rad;
-                float x = transform.position.x + Mathf.Cos(angleRad) * orbitRadius;
-                float z = transform.position.z + Mathf.Sin(angleRad) * orbitRadius;
-                float y = transform.position.y;
-
                 GameObject machine = Instantiate(machineInfo.machinePrefab);
-                machine.transform.position = new Vector3(x, y, z);
+                machine.transform.position = GetOrbitPosition(angleRad, orbitRadius, transform.position.y);
+                AlignCollider(machine);
             }
         }
     }
@@ -70,11 +88,8 @@ public class MultiOrbit : MonoBehaviour
         for (int i = 0; i < orbitingObjects.Count; i++)
         {
             float angle = baseAngles[i] + timeAngle;
-            float x = transform.position.x + Mathf.Cos(angle) * orbitRadius;
-            float z = transform.position.z + Mathf.Sin(angle) * orbitRadius;
-            float y = orbitingObjects[i].transform.position.y;
-
-            orbitingObjects[i].transform.position = new Vector3(x, y, z);
+            orbitingObjects[i].transform.position = GetOrbitPosition(angle, orbitRadius, transform.position.y + 1f); // Keep above the line
+            AlignCollider(orbitingObjects[i]);
         }
     }
 }

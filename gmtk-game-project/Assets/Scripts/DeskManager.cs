@@ -100,7 +100,7 @@ public class DeskManager : MonoBehaviour
         StartCoroutine(ActivatePhoneDialogCanvas());
         
         cutsceneManager.InitCutscenes(cutsceneName);
-        Debug.Log($"Started cutscene: {cutsceneName}");
+        
     }
     
     /// <summary>
@@ -152,7 +152,7 @@ public class DeskManager : MonoBehaviour
         
         if (element != null)
         {
-            Debug.Log($"Interacting with object: {obj.name}, Type: {element.type}");
+            
             
             // Call the appropriate interaction method based on type
             switch (element.type)
@@ -173,7 +173,7 @@ public class DeskManager : MonoBehaviour
         }
         else
         {
-            Debug.Log($"Object {obj.name} is not interactable.");
+            
         }
     }
     
@@ -183,7 +183,7 @@ public class DeskManager : MonoBehaviour
     /// <param name="element">El elemento interactuable de tipo PC.</param>
     private void InteractWithPC(InteractableElement element)
     {
-        Debug.Log("Interacting with PC");
+        
         // Lógica específica para interactuar con PC
     }
 
@@ -193,7 +193,7 @@ public class DeskManager : MonoBehaviour
     /// <param name="element">El elemento interactuable de tipo PHONE.</param>
     private void InteractWithPhone(InteractableElement element)
     {
-        Debug.Log("Interacting with Phone");
+        
         // Lógica específica para interactuar con teléfono
     }
 
@@ -203,7 +203,7 @@ public class DeskManager : MonoBehaviour
     /// <param name="element">El elemento interactuable de tipo INSTRUCTIONS.</param>
     private void InteractWithInstructions(InteractableElement element)
     {
-        Debug.Log("Interacting with Instructions");
+        
         // Lógica específica para interactuar con instrucciones
     }
 }

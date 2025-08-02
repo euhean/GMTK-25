@@ -9,10 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: decdb83716d8e6944b2f552231647ac8, type: 3}
-  m_Name: Shape
+  m_Script: {fileID: 11500000, guid: 672d78f613a9aff40b3fb54a8a2e4aa4, type: 3}
+  m_Name: ColorRed
   m_EditorClassIdentifier: 
-  shapeType: 0
-  shapeSprite: {fileID: 0}
-  defaultScale: {x: 10, y: 10, z: 10}
-  defaultColliderSize: 7.5
+  colorType: 0
+  unityColor: {r: 0, g: 0, b: 0, a: 0}

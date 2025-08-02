@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: decdb83716d8e6944b2f552231647ac8, type: 3}
+  m_Name: ShapeCircle
+  m_EditorClassIdentifier: 
+  shapeType: 2
+  triangleSprite: {fileID: 7482667652216324306, guid: 5ef85d0b3908def4d9f7cb73c017b31f, type: 3}
+  squareSprite: {fileID: 7482667652216324306, guid: 6abf4b647524bfa4c835f90692574afe, type: 3}
+  circleSprite: {fileID: -2413806693520163455, guid: 515c69e652a9c35418e8ad6ac122c6d8, type: 3}
+  defaultScale: {x: 10, y: 10, z: 10}
