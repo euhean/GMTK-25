@@ -13,6 +13,8 @@ public class GameManager : MonoBehaviour
 {
     [Header("Game State")]
     public int currentDay = 0;
+
+    [SerializeField] private bool debugMode = false;
     
     [Header("Loop Configuration")]
     [SerializeField] private Loop currentLoop = new Loop();
@@ -169,7 +171,10 @@ public class GameManager : MonoBehaviour
     
     private void Start()
     {
-      goToMenuScene();
+        if(debugMode){
+            runEvent();
+        }
+
     }
     
     private void Update()
@@ -267,7 +272,7 @@ public class GameManager : MonoBehaviour
         currentDay++;
         
         // Si hemos completado todos los días del loop
-        if (currentDayIndex >= currentLoop.days.Count)
+        if (currentDayIndex >= GetCurrentLoop().days.Count)
         {
             // TODO: Aquí deberías ir al siguiente loop si existe
             // Por ahora va al menú
