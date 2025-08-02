@@ -217,7 +217,7 @@ public static class MachinePrefabGenerator
             case MachinePurpose.RED: return ResourceColor.ColorType.RED;
             case MachinePurpose.GREEN: return ResourceColor.ColorType.GREEN;
             case MachinePurpose.BLUE: return ResourceColor.ColorType.BLUE;
-            default: return ResourceColor.ColorType.None;
+            default: return ResourceColor.ColorType.NONE;
         }
     }
     

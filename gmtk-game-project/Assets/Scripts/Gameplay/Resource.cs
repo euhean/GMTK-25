@@ -19,6 +19,7 @@ public class Resource : MonoBehaviour
         {
             TransformColor(color);
             TransformShape(shape);
+
         }
         gameObject.tag = "resource";
     }
@@ -66,7 +67,7 @@ public class Resource : MonoBehaviour
 
     public void TransformShape(Shape newShape)
     {
-        
+
         switch (currentShape = newShape.shapeType)
         {
             case Shape.ShapeType.TRIANGLE:
@@ -77,6 +78,9 @@ public class Resource : MonoBehaviour
                 break;
             case Shape.ShapeType.CIRCLE:
                 spriteRenderer.sprite = newShape.circleSprite;
+                break;
+            case Shape.ShapeType.NONE:
+                spriteRenderer.sprite = newShape.defaultShape;
                 break;
         }
         
@@ -96,6 +100,12 @@ public class Resource : MonoBehaviour
                 break;
             case ResourceColor.ColorType.BLUE:
                 spriteRenderer.color = Color.blue;
+                break;
+            case ResourceColor.ColorType.NONE:
+                spriteRenderer.color = Color.white;
+                break;
+            default:
+                spriteRenderer.color = Color.white;
                 break;
         }
         
