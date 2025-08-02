@@ -3,33 +3,20 @@ using System.Collections.Generic;
 
 public class MultiOrbit : MonoBehaviour
 {
-    [Header("Prefabs de objetos que orbitan")]
+    [Header("Configuración desde GameManager")]
+    [SerializeField] private bool useGameManagerConfig = true;
+    
+    [Header("Configuración local (solo si useGameManagerConfig = false)")]
     public List<GameObject> resourcePrefabs = new List<GameObject>();
-
-    [Header("Cantidad de objetos que orbitan")]
     public int numberOfOrbitingObjects = 6;
-
-    [Header("Radio de la órbita")]
     public float orbitRadius = 5f;
-
-    [Header("Velocidad angular (radianes por segundo)")]
     public float angularSpeed = 1f;
-
-    [Header("Separación angular entre objetos orbitantes (grados)")]
     public float angularSeparation = 60f;
+    public List<GameManager.MachineInfo> machineInfos = new List<GameManager.MachineInfo>();
 
     private List<GameObject> orbitingObjects = new List<GameObject>();
     private List<float> baseAngles = new List<float>();
-
-    [System.Serializable]
-    public class MachineInfo
-    {
-        public GameObject machinePrefab;  // Prefab del objeto
-        public float angleDegrees;        // Ángulo donde se colocará
-    }
-
-    [Header("Máquinas que se colocan en posiciones fijas")]
-    public List<MachineInfo> machineInfos = new List<MachineInfo>();
+    private GameManager.OrbitConfiguration currentConfig;
 
     private Vector3 GetOrbitPosition(float angleRad, float radius, float y)
     {
@@ -47,49 +34,124 @@ public class MultiOrbit : MonoBehaviour
     
     void Start()
     {
-        // Instanciar orbitadores
-        for (int i = 0; i < numberOfOrbitingObjects; i++)
+        if (useGameManagerConfig)
         {
-            float angle = i * angularSeparation * Mathf.Deg2Rad;
-            if (resourcePrefabs.Count == 0) break;
-            GameObject prefabToUse = resourcePrefabs[i % resourcePrefabs.Count];
-            GameObject obj = Instantiate(prefabToUse);
-            orbitingObjects.Add(obj);
-            baseAngles.Add(angle);
-
-            obj.transform.position = GetOrbitPosition(angle, orbitRadius, transform.position.y);
-            AlignCollider(obj);
-            
-            // Asegurar que el Resource se registre correctamente
-            Resource resource = obj.GetComponent<Resource>();
-            if (resource != null)
+            // Usar configuración del GameManager
+            currentConfig = GameManager.Instance.GetCurrentEventOrbitConfig();
+            if (currentConfig != null)
             {
-                
+                InstantiateFromConfig(currentConfig);
+            }
+            else
+            {
+                Debug.LogWarning("No se pudo obtener configuración del GameManager, usando configuración local");
+                InstantiateFromLocalConfig();
             }
         }
-
-        // Instanciar máquinas en posiciones fijas
-        foreach (var machineInfo in machineInfos)
+        else
         {
-            if (machineInfo.machinePrefab != null)
+            // Usar configuración local
+            InstantiateFromLocalConfig();
+        }
+    }
+    
+    private void InstantiateFromConfig(GameManager.OrbitConfiguration config)
+    {
+        // Instanciar objetos que orbitan
+        for (int i = 0; i < config.numberOfOrbitingObjects; i++)
+        {
+            if (config.resourcePrefabs.Count > 0)
+            {
+                GameObject prefab = config.resourcePrefabs[Random.Range(0, config.resourcePrefabs.Count)];
+                float baseAngle = i * config.angularSeparation * Mathf.Deg2Rad;
+                Vector3 initialPosition = GetOrbitPosition(baseAngle, config.orbitRadius, transform.position.y + 0.5f);
+                
+                GameObject orbitingObject = Instantiate(prefab, initialPosition, Quaternion.Euler(90f, 0f, 0f));
+                
+                // Agregar componente OrbitingObject
+                OrbitingObject orbitComponent = orbitingObject.AddComponent<OrbitingObject>();
+                orbitComponent.Initialize(transform, baseAngle, config.orbitRadius, config.angularSpeed);
+                
+                orbitingObjects.Add(orbitingObject);
+                baseAngles.Add(baseAngle);
+                AlignCollider(orbitingObject);
+            }
+        }
+        
+        // Instanciar máquinas usando MachineConfiguration
+        foreach (var machineInfo in config.machineInfos)
+        {
+            if (machineInfo.machineConfiguration != null)
             {
                 float angleRad = machineInfo.angleDegrees * Mathf.Deg2Rad;
-                GameObject machine = Instantiate(machineInfo.machinePrefab);
-                machine.transform.position = GetOrbitPosition(angleRad, orbitRadius, transform.position.y);
-                AlignCollider(machine);
+                Vector3 machinePosition = GetOrbitPosition(angleRad, config.orbitRadius, transform.position.y + 0.5f);
+                
+                // Generar máquina usando MachinePrefabGenerator
+                GameObject machine = MachinePrefabGenerator.GenerateMachine(
+                    machineInfo.machineConfiguration, 
+                    machinePosition, 
+                    Quaternion.identity
+                );
+                
+                if (machine != null)
+                {
+                    Vector3 directionToCenter = (transform.position - machine.transform.position).normalized;
+                    machine.transform.rotation = Quaternion.LookRotation(directionToCenter);
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"MachineInfo at angle {machineInfo.angleDegrees} has no MachineConfiguration assigned.");
+            }
+        }
+    }
+    
+    private void InstantiateFromLocalConfig()
+    {
+        // Código original para configuración local
+        for (int i = 0; i < numberOfOrbitingObjects; i++)
+        {
+            if (resourcePrefabs.Count > 0)
+            {
+                GameObject prefab = resourcePrefabs[i % resourcePrefabs.Count];
+                float baseAngle = i * angularSeparation * Mathf.Deg2Rad;
+                Vector3 initialPosition = GetOrbitPosition(baseAngle, orbitRadius, transform.position.y + 0.5f);
+                
+                GameObject orbitingObject = Instantiate(prefab, initialPosition, Quaternion.Euler(90f, 0f, 0f));
+                
+                orbitingObjects.Add(orbitingObject);
+                baseAngles.Add(baseAngle);
+                AlignCollider(orbitingObject);
+            }
+        }
+        
+        foreach (var machineInfo in machineInfos)
+        {
+            if (machineInfo.machineConfiguration != null)
+            {
+                float angleRad = machineInfo.angleDegrees * Mathf.Deg2Rad;
+                Vector3 machinePosition = GetOrbitPosition(angleRad, orbitRadius, transform.position.y);
+                
+                // Generar máquina usando MachinePrefabGenerator
+                GameObject machine = MachinePrefabGenerator.GenerateMachine(
+                    machineInfo.machineConfiguration, 
+                    machinePosition, 
+                    Quaternion.identity
+                );
+                
+                if (machine != null)
+                {
+                    Vector3 directionToCenter = (transform.position - machine.transform.position).normalized;
+                    machine.transform.rotation = Quaternion.LookRotation(directionToCenter);
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"MachineInfo at angle {machineInfo.angleDegrees} has no MachineConfiguration assigned.");
             }
         }
     }
 
-    void Update()
-    {
-        float timeAngle = angularSpeed * Time.time;
-
-        for (int i = 0; i < orbitingObjects.Count; i++)
-        {
-            float angle = baseAngles[i] + timeAngle;
-            orbitingObjects[i].transform.position = GetOrbitPosition(angle, orbitRadius, transform.position.y + 1f); // Keep above the line
-            AlignCollider(orbitingObjects[i]);
-        }
-    }
+    // El movimiento orbital ahora se maneja por el componente OrbitingObject
+    // Este método Update ya no es necesario
 }

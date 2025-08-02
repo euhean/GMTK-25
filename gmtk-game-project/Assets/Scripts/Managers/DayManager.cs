@@ -9,7 +9,7 @@ public class DayManager : MonoBehaviour
 {
     [Header("UI Reference")]
     [SerializeField] private Text dayText;
-    public LoopManager.Day currentDay;
+    public GameManager.Day currentDay;
 
     private void Awake()
     {
@@ -53,6 +53,13 @@ public class DayManager : MonoBehaviour
     public void setDay()
     {
         currentDay = GameManager.Instance.GetCurrentDay();
-        SetDayText(currentDay.dayName);
+        if (currentDay != null)
+        {
+            SetDayText(currentDay.dayName);
+        }
+        else
+        {
+            SetDayText("No Day Available");
+        }
     }
 }
