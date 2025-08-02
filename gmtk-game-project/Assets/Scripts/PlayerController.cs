@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 public class PlayerController : MonoBehaviour
 {
     public LayerMask machineLayerMask = ~0; // Default: all layers
-    public LoopManager.GenericEvent currentEvent;
+    public GameManager.GenericEvent currentEvent;
     
     void Start(){
         setCurrentEvent();
