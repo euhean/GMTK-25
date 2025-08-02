@@ -178,7 +178,7 @@ namespace HisaGames.CutsceneManager
                     return cutscenes[i];
             }
 
-            Debug.Log("cutscene with name " + name + " not found");
+            
             return null;
         }
 

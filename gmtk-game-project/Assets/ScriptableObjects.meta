@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<< HEAD
 guid: b7b34f5dbbefed24d817a912a9c01341
+=======
+guid: 96b5a37f9ac205a4b877570bc62deed0
+>>>>>>> origin/Jon-ui-logic
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}

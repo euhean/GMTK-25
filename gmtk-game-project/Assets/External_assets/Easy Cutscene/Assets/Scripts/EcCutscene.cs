@@ -247,7 +247,7 @@ namespace HisaGames.Cutscene
                         }
                         else
                         {
-                            Debug.Log("There are no transform setting named with " + tempCharaData.initialTransformID);
+                            
                         }
                     }
                     //-----------------------------------------------------------------------
@@ -264,7 +264,7 @@ namespace HisaGames.Cutscene
                 }
                 else
                 {
-                    Debug.Log("There are no characters named with " + tempCharaData.name);
+                    
                 }
             }
         }
@@ -287,7 +287,7 @@ namespace HisaGames.Cutscene
                     }
                     else
                     {
-                        Debug.Log("There are no properties named with " + activePropsData[i].name);
+                        
                     }
                 }
             }
@@ -313,7 +313,7 @@ namespace HisaGames.Cutscene
                 }
                 else
                 {
-                    Debug.Log("There are no properties named with " + activePropsData[i].name);
+                    
                 }
             }
         }
@@ -356,7 +356,7 @@ namespace HisaGames.Cutscene
                 }
                 else
                 {
-                    Debug.Log("Cutscene finished");
+                    
                     EcCutsceneManager.instance.closeCutscenes();
                 }
             }

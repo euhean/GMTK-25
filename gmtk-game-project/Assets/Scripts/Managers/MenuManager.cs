@@ -1,30 +1,29 @@
+using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+using UnityEngine.SceneManagement;
 
-/// <summary>
-/// Ejemplo de implementación de un manager específico.
-/// Muestra cómo heredar de BaseManager e implementar la funcionalidad requerida.
-/// </summary>
-public class MenuManager : BaseManager
+public class MenuManager : MonoBehaviour
 {
-    
-    protected override void OnManagerStart()
+    private void Update()
     {
-        GameManager.Instance.goToMenu();
-        Debug.Log($"[{ManagerID}] Manager iniciado");
-        
-    }
-    
-    protected override void OnManagerEnd()
-    {
-        Debug.Log($"[{ManagerID}] Manager finalizado.");
-    }
-    
-    protected override void OnManagerUpdate()
-    {
-        if (Input.GetKeyDown(KeyCode.N))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
+<<<<<<< HEAD
             // Remove manager switch call - not needed for testing
         }
         //print($"[{ManagerID}] Update #{updateCount} - Tiempo: {Time.time:F2}s");
+=======
+            // Verificar si hay loops disponibles
+            if (GameManager.Instance.GetCurrentLoop() != null)
+            {
+                GameManager.Instance.goToLoopScene();
+            }
+            else
+            {
+                
+            }
+        }
+>>>>>>> origin/Jon-ui-logic
     }
 }

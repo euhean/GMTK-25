@@ -84,7 +84,7 @@ namespace HisaGames.Character
                     if (targetMovePosition == transform.position)
                     {
                         characterState = CharacterState.StayInScene;
-                        Debug.Log("Play StayInScene");
+                        
                     }
 
                     break;
@@ -104,7 +104,7 @@ namespace HisaGames.Character
             if (transform.position != targetMovePosition)
             {
                 characterState = CharacterState.Moving;
-                Debug.Log("Play Moving");
+                
             }
         }
     }

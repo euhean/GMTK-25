@@ -21,7 +21,7 @@ public class ManagerTester : MonoBehaviour
     [ContextMenu("Test Narrative Manager")]
     public void TestNarrativeManager()
     {
-        Debug.Log("Testing NarrativeManager...");
+        
 
         // Si no hay referencia, intenta buscar el NarrativeManager en la escena.
         if (narrativeManager == null)

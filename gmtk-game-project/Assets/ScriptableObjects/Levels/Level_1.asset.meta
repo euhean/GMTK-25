@@ -1,8 +1,15 @@
 fileFormatVersion: 2
+<<<<<<< HEAD
 guid: 0cf7281c349843b48a0ee8ddd41d3f46
 NativeFormatImporter:
   externalObjects: {}
   mainObjectFileID: 0
+=======
+guid: 2b91e30c1f67d1b4ebd75ac221c954bd
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+>>>>>>> origin/Jon-ui-logic
   userData: 
   assetBundleName: 
   assetBundleVariant: 

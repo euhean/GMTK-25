@@ -6,6 +6,8 @@ TagManager:
   tags:
   - resource
   - Machine
+  - phone-dialog
+  - Selectable
   layers:
   - Default
   - TransparentFX
@@ -18,7 +20,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - Machine
   - 
   - 
   - 
