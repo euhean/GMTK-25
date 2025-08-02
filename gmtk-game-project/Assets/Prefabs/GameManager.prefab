@@ -45,16 +45,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentDay: 1
+  debugMode: 0
   currentLoop:
     loopName: Main Loop
-    days: []
+    days:
+    - dayName: Day 1
+      events:
+      - eventConfiguration: {fileID: 11400000, guid: 81cd39d7d052cf647928fe2bf41191e3, type: 2}
   currentDayIndex: 0
   currentEvent:
-    eventName: New Event
-    eventType: 0
-    description: 
-    isCompleted: 0
-    demands: []
+    eventConfiguration: {fileID: 0}
   currentEventIndex: 0
+  autoSaveOnStart: 1
   itemsInLine: []
   demandToComplete: []

@@ -15,14 +15,17 @@ EditorBuildSettings:
     path: Assets/Scenes/Testing scenes/TestIvan/Narrative.unity
     guid: ccc5961c4c228064681f17c7f6a939df
   - enabled: 1
-    path: Assets/Scenes/Testing scenes/TestIvan/Game.unity
-    guid: 2a2b2a12a58170f4b8d67bf3384d97bd
+    path: Assets/Scenes/LevelTester.unity
+    guid: b50486d01d20cb94fbd38ba3fcdf28d9
   - enabled: 1
     path: Assets/Scenes/Testing scenes/TestIvan/LoopScene.unity
     guid: 22168061d75437f45b054b54c834f2b7
   - enabled: 1
     path: Assets/Scenes/Testing scenes/TestIvan/DayScene.unity
     guid: d141ffcb85587a94a892c9fbe9515ce9
+  - enabled: 0
+    path: Assets/Scenes/Testing scenes/TestIvan/Game.unity
+    guid: 2a2b2a12a58170f4b8d67bf3384d97bd
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
