@@ -142,12 +142,37 @@ public class GameManager : MonoBehaviour
         currentDayIndex++;
         currentDay++;
         
-        Debug.Log($"Ejecutando evento: {currentDay}");
-        // Si hemos completado todos los días del loop, reiniciar
+        // Si hemos completado todos los días del loop
         if (currentDayIndex >= currentLoop.days.Count)
         {
+            // TODO: Aquí deberías ir al siguiente loop si existe
+            // Por ahora va al menú
             goToMenuScene();
-            //RestartLoop();
+        }
+        else
+        {
+            // Ir al siguiente día
+            goToDayScene();
+        }
+    }
+    
+    // Nuevo método para manejar la navegación desde eventos
+    public void AdvanceFromEvent()
+    {
+        var currentDay = GetCurrentDay();
+        if (currentDay == null) return;
+        
+        currentEventIndex++;
+        
+        // Si hay más eventos en el día actual
+        if (currentEventIndex < currentDay.events.Count)
+        {
+            runEvent(); // Ir al siguiente evento
+        }
+        else
+        {
+            // No hay más eventos, ir al siguiente día
+            AdvanceToNextDay();
         }
     }
     

@@ -5,7 +5,12 @@ using UnityEngine.SceneManagement;
 public class PlayerController : MonoBehaviour
 {
     public LayerMask machineLayerMask = ~0; // Default: all layers
-
+    public LoopManager.GenericEvent currentEvent;
+    
+    void Start(){
+        setCurrentEvent();
+    }
+    
     void Update()
     {
         // Disable all icons first
@@ -36,4 +41,12 @@ public class PlayerController : MonoBehaviour
             GameManager.Instance.AdvanceToNextEvent();
         }
     }
+
+    public void setCurrentEvent(){  
+        currentEvent = GameManager.Instance.GetCurrentEvent();
+    }
+
+
+
+
 }

@@ -26,8 +26,17 @@ public class DayManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            GameManager.Instance.StartDay();
-
+            // Verificar si hay eventos en el día actual
+            var currentDay = GameManager.Instance.GetCurrentDay();
+            if (currentDay != null && currentDay.events.Count > 0)
+            {
+                GameManager.Instance.runEvent(); // Ir al primer evento
+            }
+            else
+            {
+                Debug.Log("No hay eventos en el día actual");
+                GameManager.Instance.AdvanceToNextDay();
+            }
         }
     }
     

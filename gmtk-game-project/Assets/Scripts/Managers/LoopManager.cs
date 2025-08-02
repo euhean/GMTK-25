@@ -30,12 +30,18 @@ public class LoopManager : MonoBehaviour
 
     public enum EventType { Narrative, Gameplay, Dialog };
     
+    [System.Serializable] public class Demand{
+        [SerializeField] public MachinePurpose machinePurpose;
+    }
+
     [System.Serializable]
     public class GenericEvent{
         [SerializeField] public string eventName = "New Event";
         [SerializeField] public EventType eventType = EventType.Narrative;
         [SerializeField] public string description = "";
         [SerializeField] public bool isCompleted = false;
+        [SerializeField] public List<Demand> demands = new List<Demand>();
+        
     }
 
     private void Start()
@@ -50,9 +56,17 @@ public class LoopManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            Debug.Log("LoopManager Update");
-            // Lógica para avanzar al siguiente evento/día
-            GameManager.Instance.goToDayScene();
+            // Verificar si hay días en el loop actual
+            var currentLoop = GameManager.Instance.GetCurrentLoop();
+            if (currentLoop != null && currentLoop.days.Count > 0)
+            {
+                GameManager.Instance.goToDayScene();
+            }
+            else
+            {
+                Debug.Log("No hay días en el loop actual");
+                GameManager.Instance.goToMenuScene();
+            }
         }
     }
     
