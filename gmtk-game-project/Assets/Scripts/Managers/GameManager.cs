@@ -18,7 +18,7 @@ public class GameManager : MonoBehaviour
     
     [Header("Loop Configuration")]
     [SerializeField] private Loop currentLoop = new Loop();
-    [SerializeField] private int currentDayIndex = 0;
+    public int currentDayIndex = 0;
     [SerializeField] private GenericEvent currentEvent;
     [SerializeField] private int currentEventIndex = 0;
     [SerializeField] private bool autoSaveOnStart = true;

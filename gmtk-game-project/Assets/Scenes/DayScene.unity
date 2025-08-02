@@ -176,6 +176,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1794052602641212326, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
+      propertyPath: currentLoop.days.Array.data[0].events.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1794052602641212326, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
+      propertyPath: currentLoop.days.Array.data[0].events.Array.data[1].eventConfiguration
+      value: 
+      objectReference: {fileID: 11400000, guid: 81cd39d7d052cf647928fe2bf41191e3, type: 2}
     - target: {fileID: 3531560230527322648, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

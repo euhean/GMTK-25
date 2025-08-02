@@ -13,16 +13,10 @@ MonoBehaviour:
   m_Name: Narrative_1
   m_EditorClassIdentifier: 
   eventName: New Event
-  eventType: 1
+  eventType: 0
   description: test
   isCompleted: 0
-  demands:
-  - colorType: 0
-    shapeType: 0
-  - colorType: 0
-    shapeType: 0
-  - colorType: 0
-    shapeType: 0
+  demands: []
   orbitConfig:
     resourcePrefabs:
     - {fileID: 538977329041564931, guid: cd6717e7acd87a447bc50e96b090f281, type: 3}
@@ -30,6 +24,4 @@ MonoBehaviour:
     orbitRadius: 3.5
     angularSpeed: 1
     angularSeparation: 60
-    machineInfos:
-    - machineConfiguration: {fileID: 11400000, guid: 327b27d1e2e522647a12c88f8e0c7376, type: 2}
-      angleDegrees: 36
+    machineInfos: []

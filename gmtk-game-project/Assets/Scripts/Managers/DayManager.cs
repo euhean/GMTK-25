@@ -83,7 +83,7 @@ public class DayManager : MonoBehaviour
         currentDay = GameManager.Instance.GetCurrentDay();
         if (currentDay != null)
         {
-            SetDayText(currentDay.dayName);
+            SetDayText("Day " + (GameManager.Instance.currentDayIndex + 1));
         }
         else
         {
