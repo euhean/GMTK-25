@@ -9,11 +9,6 @@ public class MenuManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-<<<<<<< HEAD
-            // Remove manager switch call - not needed for testing
-        }
-        //print($"[{ManagerID}] Update #{updateCount} - Tiempo: {Time.time:F2}s");
-=======
             // Verificar si hay loops disponibles
             if (GameManager.Instance.GetCurrentLoop() != null)
             {
@@ -24,6 +19,5 @@ public class MenuManager : MonoBehaviour
                 
             }
         }
->>>>>>> origin/Jon-ui-logic
     }
 }
