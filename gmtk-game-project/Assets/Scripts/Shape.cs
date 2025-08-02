@@ -8,6 +8,7 @@ public class Shape : MonoBehaviour
     public Sprite triangleSprite;
     public Sprite squareSprite;
     public Sprite circleSprite;
+    public Sprite defaultShape;
     public Vector3 defaultScale = new Vector3(10, 10, 10);
 
     public Sprite CurrentSprite
@@ -22,5 +23,10 @@ public class Shape : MonoBehaviour
                 _ => null,
             };
         }
+    }
+
+    void Awake()
+    {
+        CurrentSprite = defaultShape;
     }
 }

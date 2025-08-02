@@ -50,7 +50,7 @@ public class LevelManager : BaseManager
     
     protected override void OnManagerUpdate()
     {
-        if (Input.GetKeyDown(KeyCode.M))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             RequestManagerSwitch("MenuManager");
         }
