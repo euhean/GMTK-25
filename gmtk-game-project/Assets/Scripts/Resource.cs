@@ -3,51 +3,51 @@ using UnityEngine;
 public class Resource : MonoBehaviour
 {
     public Shape shape;
-    public Shape.ShapeType currentShape;
     public ResourceColor color;
-    public ResourceColor.ColorType currentColor;
     public SpriteRenderer spriteRenderer;
 
     void Awake()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>() ?? gameObject.AddComponent<SpriteRenderer>();
-        if (shape != null && color != null)
-        {
-            TransformColor(color);
-            TransformShape(shape);
-        }
+        spriteRenderer ??= GetComponent<SpriteRenderer>();
+        shape ??= GetComponent<Shape>();
+        color ??= GetComponent<ResourceColor>();
         gameObject.tag = "resource";
     }
 
-    public void TransformShape(Shape newShape)
+    public void TransformShape(MachinePurpose purpose)
     {
-        Debug.Log($"Transforming to shape: {newShape.shapeType}");
-        switch (currentShape = newShape.shapeType)
+        switch (purpose)
         {
-            case Shape.ShapeType.TRIANGLE:
-                spriteRenderer.sprite = newShape.triangleSprite;
+            case MachinePurpose.TRIANGLE:
+                shape.shapeType = Shape.ShapeType.TRIANGLE;
+                spriteRenderer.sprite = shape.triangleSprite;
                 break;
-            case Shape.ShapeType.SQUARE:
-                spriteRenderer.sprite = newShape.squareSprite;
+            case MachinePurpose.SQUARE:
+                shape.shapeType = Shape.ShapeType.SQUARE;
+                spriteRenderer.sprite = shape.squareSprite;
                 break;
-            case Shape.ShapeType.CIRCLE:
-                spriteRenderer.sprite = newShape.circleSprite;
+            case MachinePurpose.CIRCLE:
+                shape.shapeType = Shape.ShapeType.CIRCLE;
+                spriteRenderer.sprite = shape.circleSprite;
                 break;
         }
     }
 
-    public void TransformColor(ResourceColor newColor)
+    public void TransformColor(MachinePurpose purpose)
     {
-        switch (currentColor = newColor.colorType)
+        switch (purpose)
         {
-            case ResourceColor.ColorType.RED:
-                spriteRenderer.color = Color.red;
+            case MachinePurpose.RED:
+                color.colorType = ResourceColor.ColorType.RED;
+                spriteRenderer.color = color.UnityColor;
                 break;
-            case ResourceColor.ColorType.GREEN:
-                spriteRenderer.color = Color.green;
+            case MachinePurpose.GREEN:
+                color.colorType = ResourceColor.ColorType.GREEN;
+                spriteRenderer.color = color.UnityColor;
                 break;
-            case ResourceColor.ColorType.BLUE:
-                spriteRenderer.color = Color.blue;
+            case MachinePurpose.BLUE:
+                color.colorType = ResourceColor.ColorType.BLUE;
+                spriteRenderer.color = color.UnityColor;
                 break;
         }
     }
