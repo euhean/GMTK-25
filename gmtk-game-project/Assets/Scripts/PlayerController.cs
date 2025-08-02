@@ -54,10 +54,8 @@ public class PlayerController : MonoBehaviour
 
                 if (Input.GetMouseButtonDown(0) && machine)
                 {
-                    if (machine.currentResource != null)
-                        machine.Interact(machine.currentResource);
-                    else
-                        machine.ToggleMachine(); // Alternar el estado de la máquina
+                    // Siempre se alterna el estado, afectando también el recurso presente.
+                    machine.ToggleMachine();
                 }
             }
         }
@@ -75,10 +73,8 @@ public class PlayerController : MonoBehaviour
 
                 if (Input.GetMouseButtonDown(0) && machine)
                 {
-                    if (machine.currentResource != null)
-                        machine.Interact(machine.currentResource);
-                    else
-                        machine.ToggleMachine(); // Alternar el estado de la máquina
+                    // Siempre se alterna el estado, incluso si hay un recurso
+                    machine.ToggleMachine();
                 }
             }
         }
@@ -223,3 +219,4 @@ public class PlayerController : MonoBehaviour
         return true;
     }
 }
+
