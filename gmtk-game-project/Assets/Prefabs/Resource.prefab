@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f482e47cf6281149ab294242bbfbd3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shape: {fileID: 11400000, guid: c5baa46e08041274abf7d147e592061f, type: 2}
+  shape: {fileID: 11400000, guid: c4495744441ca644b86b921a8ac6cef8, type: 2}
   currentShape: 3
   color: {fileID: 11400000, guid: cf67822a4bc998341a1f42ae4b35221f, type: 2}
   currentColor: 3

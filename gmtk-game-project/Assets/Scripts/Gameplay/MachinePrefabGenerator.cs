@@ -203,7 +203,7 @@ public static class MachinePrefabGenerator
             case MachinePurpose.TRIANGLE: return Shape.ShapeType.TRIANGLE;
             case MachinePurpose.SQUARE: return Shape.ShapeType.SQUARE;
             case MachinePurpose.CIRCLE: return Shape.ShapeType.CIRCLE;
-            default: return Shape.ShapeType.CIRCLE;
+            default: return Shape.ShapeType.NONE;
         }
     }
     

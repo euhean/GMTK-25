@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: decdb83716d8e6944b2f552231647ac8, type: 3}
-  m_Name: ShapeTriangle
+  m_Name: ShapeNONE
   m_EditorClassIdentifier: 
   shapeType: 0
   triangleSprite: {fileID: 7482667652216324306, guid: 5ef85d0b3908def4d9f7cb73c017b31f, type: 3}

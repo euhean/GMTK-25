@@ -4,7 +4,7 @@ using UnityEngine;
 public class Shape : ScriptableObject
 {
     public enum ShapeType { TRIANGLE, SQUARE, CIRCLE, NONE }
-    public ShapeType shapeType;
+    public ShapeType shapeType = ShapeType.NONE; // Se inicia en NONE
     public Sprite triangleSprite;
     public Sprite squareSprite;
     public Sprite circleSprite;

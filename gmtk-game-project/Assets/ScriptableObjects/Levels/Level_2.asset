@@ -18,11 +18,11 @@ MonoBehaviour:
   isCompleted: 0
   demands:
   - colorType: 3
-    shapeType: 0
+    shapeType: 3
   - colorType: 3
-    shapeType: 0
+    shapeType: 3
   - colorType: 3
-    shapeType: 0
+    shapeType: 3
   orbitConfig:
     resourcePrefabs:
     - {fileID: 538977329041564931, guid: cd6717e7acd87a447bc50e96b090f281, type: 3}
