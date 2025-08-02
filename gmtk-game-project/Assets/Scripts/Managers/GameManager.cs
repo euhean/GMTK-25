@@ -11,25 +11,24 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class GameManager : MonoBehaviour
 {
+    [Header("Game State")]
+    public int currentDay = 0;
+    
+    [Header("Loop Data")]
+    [SerializeField] private LoopManager.Loop currentLoop;
+    [SerializeField] private int currentDayIndex = 0;
+    [SerializeField] private int currentEventIndex = 0;
+
+    public enum Scenes {
+        MENU = 0,
+        NARRATIVE = 1,
+        LEVEL = 2,
+        LOOP = 3,
+        DAY = 4
+    }
+
     // Singleton instance
     public static GameManager Instance { get; private set; }
-    
-    [Header("Game State")]
-    [SerializeField] private bool isGameActive = true;
-    
-    [Header("Managers Configuration")]
-    [SerializeField] public List<MonoBehaviour> availableManagers = new List<MonoBehaviour>();
-    
-    [Header("Debug Info")]
-    [SerializeField] private string currentActiveManager = "None";
-    
-    // Manager actualmente activo
-    private BaseManager activeManager;
-    
-    // Diccionario para acceso rápido por ID
-    private Dictionary<string, BaseManager> managersDict = new Dictionary<string, BaseManager>();
-    
-    #region Unity Lifecycle
     
     private void Awake()
     {
@@ -38,217 +37,151 @@ public class GameManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            InitializeManagers();
         }
         else
         {
-            Debug.LogWarning("[GameManager] Ya existe una instancia de GameManager. Destruyendo duplicado.");
             Destroy(gameObject);
         }
     }
     
     private void Start()
     {
-        // Activar MenuManager al inicio del juego
-        if (managersDict.Count > 0 && activeManager == null)
-        {
-            // Intentar activar MenuManager por defecto
-            if (managersDict.ContainsKey("MenuManager"))
-            {
-                SwitchManager("MenuManager");
-            }
-            else
-            {
-                // Si no existe MenuManager, activar el primer manager disponible
-                var firstManagerID = managersDict.Keys.First();
-                SwitchManager(firstManagerID);
-            }
-        }
+      goToMenuScene();
     }
     
     private void Update()
     {
-        if (!isGameActive) return;
-        if (activeManager != null)
-        {
-            activeManager.UpdateManager();
-        }
-    }
-    
-    #endregion
-    
-    #region Manager Initialization
-    
-    /// <summary>
-    /// Inicializa todos los managers y crea el diccionario de acceso
-    /// </summary>
-    private void InitializeManagers()
-    {
-        managersDict.Clear();
-        
-        foreach (var managerComponent in availableManagers)
-        {
-            if (managerComponent == null)
-            {
-                Debug.LogWarning("[GameManager] Manager nulo encontrado en la lista.");
-                continue;
-            }
-            
-            // Verificar que el componente sea un BaseManager
-            var manager = managerComponent as BaseManager;
-            if (manager == null)
-            {
-                Debug.LogWarning($"[GameManager] El componente {managerComponent.name} no es un BaseManager válido.");
-                continue;
-            }
-            
-            if (string.IsNullOrEmpty(manager.ManagerID))
-            {
-                Debug.LogWarning($"[GameManager] Manager {manager.name} no tiene ID asignado.");
-                continue;
-            }
-            
-            if (managersDict.ContainsKey(manager.ManagerID))
-            {
-                Debug.LogWarning($"[GameManager] ID duplicado encontrado: {manager.ManagerID}");
-                continue;
-            }
-            
-            managersDict.Add(manager.ManagerID, manager);
-            
-            Debug.Log($"[GameManager] Manager registrado: {manager.ManagerID}");
-        }
-    }
-    
-    #endregion
-    
-    #region Manager Switching
-    
-    /// <summary>
-    /// Cambia al manager especificado por su ID
-    /// </summary>
-    /// <param name="managerID">ID del manager a activar</param>
-    /// <returns>True si el cambio fue exitoso</returns>
-    public bool SwitchManager(string managerID)
-    {
-        if (string.IsNullOrEmpty(managerID))
-        {
-            Debug.LogWarning("[GameManager] ID de manager vacío o nulo.");
-            return false;
-        }
-        
-        if (!managersDict.ContainsKey(managerID))
-        {
-            Debug.LogWarning($"[GameManager] Manager con ID '{managerID}' no encontrado.");
-            return false;
-        }
-        
-        var newManager = managersDict[managerID];
-        
-        // Si ya está activo, no hacer nada
-        if (activeManager == newManager)
-        {
-            Debug.Log($"[GameManager] Manager '{managerID}' ya está activo.");
-            return true;
-        }
-        
-        // Desactivar manager actual
-        if (activeManager != null)
-        {
-            activeManager.EndManager();
-            Debug.Log($"[GameManager] Manager '{activeManager.ManagerID}' desactivado.");
-        }
-        
-        // Activar nuevo manager
-        activeManager = newManager;
-        activeManager.StartManager();
-        currentActiveManager = managerID;
-        
-        Debug.Log($"[GameManager] Manager '{managerID}' activado.");
-        return true;
-    }
-    
-    /// <summary>
-    /// Desactiva el manager actual sin activar otro
-    /// </summary>
-    public void DeactivateCurrentManager()
-    {
-        if (activeManager != null)
-        {
-            activeManager.EndManager();
-            Debug.Log($"[GameManager] Manager '{activeManager.ManagerID}' desactivado.");
-            activeManager = null;
-            currentActiveManager = "None";
-        }
-    }
-    
-    #endregion
-    
-    #region Game State Control
-    
-    /// <summary>
-    /// Pausa o reanuda el juego
-    /// </summary>
-    public void SetGameActive(bool active)
-    {
-        isGameActive = active;
-        Debug.Log($"[GameManager] Juego {(active ? "activado" : "pausado")}.");
-    }
-    
-    /// <summary>
-    /// Obtiene el estado actual del juego
-    /// </summary>
-    public bool IsGameActive => isGameActive;
-    
-    #endregion
-    
-    #region Public Getters
-    
-    /// <summary>
-    /// Obtiene el manager actualmente activo
-    /// </summary>
-    public BaseManager GetActiveManager() => activeManager;
-    
-    /// <summary>
-    /// Obtiene un manager específico por su ID
-    /// </summary>
-    public BaseManager GetManager(string managerID)
-    {
-        return managersDict.ContainsKey(managerID) ? managersDict[managerID] : null;
-    }
-    
-    /// <summary>
-    /// Obtiene la lista de todos los IDs de managers disponibles
-    /// </summary>
-    public List<string> GetAvailableManagerIDs()
-    {
-        return managersDict.Keys.ToList();
-    }
-    
-    #endregion
-    
-    #region Editor Utilities
-    
-    /// <summary>
-    /// Método para testing desde el editor
-    /// </summary>
-    [ContextMenu("Refresh Managers")]
-    private void RefreshManagers()
-    {
-        InitializeManagers();
-    }
-    
-    #endregion
 
-    // FUNCIONALITATS DEL GAMEMANAGER
-
-    public void goToMenu()
+    }
+    
+    // LOOP MANAGEMENT METHODS
+    public void SetLoop(LoopManager.Loop loop)
     {
-        SceneManager.LoadScene(0);
+        currentLoop = loop;
+        currentDayIndex = 0;
+        currentEventIndex = 0;
+        currentDay = 0;
+        Debug.Log($"Loop '{loop.loopName}' guardado en GameManager");
+    }
+    
+    public LoopManager.Loop GetCurrentLoop()
+    {
+        return currentLoop;
+    }
+    
+    public LoopManager.Day GetCurrentDay()
+    {
+        if (currentLoop != null && currentLoop.days.Count > 0 && currentDayIndex < currentLoop.days.Count)
+            return currentLoop.days[currentDayIndex];
+        return null;
+    }
+    
+    public LoopManager.GenericEvent GetCurrentEvent()
+    {
+        var currentDay = GetCurrentDay();
+        if (currentDay != null && currentDay.events.Count > 0 && currentEventIndex < currentDay.events.Count)
+            return currentDay.events[currentEventIndex];
+        return null;
+    }
+    
+    public void AdvanceToNextEvent()
+    {
+        var currentDay = GetCurrentDay();
+        if (currentDay == null) return;
+        
+        currentEventIndex++;
+        
+        // Si hemos completado todos los eventos del día actual
+        if (currentEventIndex >= currentDay.events.Count)
+        {
+            AdvanceToNextDay();
+        }
+        else {
+            runEvent();
+        }
+    }
+    
+    public void StartDay()
+    {
+        var currentDay = GetCurrentDay();
+        if (currentDay == null) return;
+
+    
+        // Si hemos completado todos los eventos del día actual
+        if (currentEventIndex >= currentDay.events.Count)
+        {
+            AdvanceToNextDay();
+        }
+        else {
+            runEvent();
+        }
+    }
+    
+    
+    public void runEvent()
+    {
+        var currentEvent = GetCurrentEvent();
+        if (currentEvent == null) return;
+        
+        if(currentEvent.eventType == LoopManager.EventType.Narrative)
+        {
+            goToNarrativeScene();
+        }
+        else if(currentEvent.eventType == LoopManager.EventType.Gameplay)
+        {
+            goToLevelScene();
+        }
+        Debug.Log($"Ejecutando evento: {currentEvent.eventName}");
     }
 
-    public void goToLevel()
+    public void AdvanceToNextDay()
     {
-        SceneManager.LoadScene(2);
+        if (currentLoop == null) return;
+        
+        currentEventIndex = 0;
+        currentDayIndex++;
+        currentDay++;
+        
+        Debug.Log($"Ejecutando evento: {currentDay}");
+        // Si hemos completado todos los días del loop, reiniciar
+        if (currentDayIndex >= currentLoop.days.Count)
+        {
+            goToMenuScene();
+            //RestartLoop();
+        }
     }
+    
+    public void RestartLoop()
+    {
+        currentEventIndex = 0;
+        currentDayIndex = 0;
+        currentDay = 0;
+        
+        Debug.Log("¡Loop completado! Reiniciando...");
+    }
+    
+    // SCENE MANAGEMENT
+    public void goToMenuScene() 
+    {
+        SceneManager.LoadScene((int)Scenes.MENU);
+    }
+
+    public void goToNarrativeScene()
+    {
+        SceneManager.LoadScene((int)Scenes.NARRATIVE);
+    }
+
+    public void goToLevelScene()
+    {
+        SceneManager.LoadScene((int)Scenes.LEVEL);
+    }
+    public void goToLoopScene()
+    {
+        SceneManager.LoadScene((int)Scenes.LOOP);
+    }
+    public void goToDayScene()
+    {
+        SceneManager.LoadScene((int)Scenes.DAY);
+    }
+    
 }

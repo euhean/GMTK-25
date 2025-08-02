@@ -139,6 +139,7 @@ public class NarrativeManager : MonoBehaviour
             if (isTextComplete)
             {
                 Debug.Log("NARRATIVA FINALIZADA");
+                GameManager.Instance.AdvanceToNextEvent();
             }
             else
             {

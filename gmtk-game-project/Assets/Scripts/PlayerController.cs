@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using UnityEngine;
-
+using System.Linq;
+using UnityEngine.SceneManagement;
 public class PlayerController : MonoBehaviour
 {
     public LayerMask machineLayerMask = ~0; // Default: all layers
@@ -20,13 +22,18 @@ public class PlayerController : MonoBehaviour
                 machine.iconRenderer.enabled = true;
                 if (Input.GetMouseButtonDown(0))
                 {
-                    Debug.Log("Clicked on machine: " + machine.name);
+                    // Debug.Log("Clicked on machine: " + machine.name);
                     if (machine.currentResource != null)
                         machine.Interact(machine.currentResource);
-                    else
-                        Debug.LogWarning("No resource to interact with!");
+                   
                 }
             }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            // Lógica para avanzar al siguiente evento/día
+            GameManager.Instance.AdvanceToNextEvent();
         }
     }
 }

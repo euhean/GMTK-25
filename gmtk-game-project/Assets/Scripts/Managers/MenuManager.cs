@@ -1,39 +1,36 @@
+using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+using UnityEngine.SceneManagement;
+
 
 /// <summary>
-/// Ejemplo de implementación de un manager específico.
-/// Muestra cómo heredar de BaseManager e implementar la funcionalidad requerida.
+/// GameManager principal que controla el estado del juego y gestiona todos los managers.
+/// Implementa el patrón Singleton para acceso global.
+/// Permite activar/desactivar managers usando sus identificadores desde el editor o código.
 /// </summary>
-public class MenuManager : BaseManager
+public class MenuManager : MonoBehaviour
 {
-    
-    protected override void OnManagerStart()
+
+
+    private void Awake()
     {
-        GameManager.Instance.goToMenu();
-        Debug.Log($"[{ManagerID}] Manager iniciado");
         
     }
     
-    protected override void OnManagerEnd()
+    private void Start()
     {
-        Debug.Log($"[{ManagerID}] Manager finalizado.");
+    
     }
     
-    protected override void OnManagerUpdate()
+    private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.N))
-        {
-            RequestManagerSwitch("NarrativeManager");
-        }
-        //print($"[{ManagerID}] Update #{updateCount} - Tiempo: {Time.time:F2}s");
+    if (Input.GetKeyDown(KeyCode.Space))
+    {
+            Debug.Log("MenuManager Update");
+            GameManager.Instance.goToLoopScene();
+    }
     }
     
-    public void RequestManagerSwitch(string targetManagerID)
-    {
-        if (GameManager.Instance != null)
-        {
-            Debug.Log($"[{ManagerID}] Solicitando cambio a manageR");
-            GameManager.Instance.SwitchManager(targetManagerID);
-        }
-    }
+    
 }
