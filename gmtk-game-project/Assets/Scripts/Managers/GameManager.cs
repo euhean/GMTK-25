@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GenericEvent currentEvent;
     [SerializeField] private int currentEventIndex = 0;
     [SerializeField] private bool autoSaveOnStart = true;
+    [SerializeField] private FadeManager fadeManager;
 
     [SerializeField] private List<Demand> itemsInLine = new List<Demand>();
     [SerializeField] private List<Demand> demandToComplete = new List<Demand>();
@@ -367,25 +368,82 @@ public class GameManager : MonoBehaviour
     // SCENE MANAGEMENT
     public void goToMenuScene() 
     {
-        SceneManager.LoadScene((int)Scenes.MENU);
+        if (fadeManager != null)
+        {
+            fadeManager.FadeIn(() => {
+                SceneManager.LoadSceneAsync((int)Scenes.MENU).completed += (op) => {
+                    fadeManager.FadeOut();
+                };
+            });
+        }
+        else
+        {
+            SceneManager.LoadScene((int)Scenes.MENU);
+        }
     }
 
     public void goToNarrativeScene()
     {
-        SceneManager.LoadScene((int)Scenes.NARRATIVE);
+        if (fadeManager != null)
+        {
+            fadeManager.FadeIn(() => {
+                SceneManager.LoadSceneAsync((int)Scenes.NARRATIVE).completed += (op) => {
+                    fadeManager.FadeOut();
+                };
+            });
+        }
+        else
+        {
+            SceneManager.LoadScene((int)Scenes.NARRATIVE);
+        }
     }
 
     public void goToLevelScene()
     {
-        SceneManager.LoadScene((int)Scenes.LEVEL);
+        if (fadeManager != null)
+        {
+            fadeManager.FadeIn(() => {
+                SceneManager.LoadSceneAsync((int)Scenes.LEVEL).completed += (op) => {
+                    fadeManager.FadeOut();
+                };
+            });
+        }
+        else
+        {
+            SceneManager.LoadScene((int)Scenes.LEVEL);
+        }
     }
+
     public void goToLoopScene()
     {
-        SceneManager.LoadScene((int)Scenes.LOOP);
+        if (fadeManager != null)
+        {
+            fadeManager.FadeIn(() => {
+                SceneManager.LoadSceneAsync((int)Scenes.LOOP).completed += (op) => {
+                    fadeManager.FadeOut();
+                };
+            });
+        }
+        else
+        {
+            SceneManager.LoadScene((int)Scenes.LOOP);
+        }
     }
+
     public void goToDayScene()
     {
-        SceneManager.LoadScene((int)Scenes.DAY);
+        if (fadeManager != null)
+        {
+            fadeManager.FadeIn(() => {
+                SceneManager.LoadSceneAsync((int)Scenes.DAY).completed += (op) => {
+                    fadeManager.FadeOut();
+                };
+            });
+        }
+        else
+        {
+            SceneManager.LoadScene((int)Scenes.DAY);
+        }
     }
     
     // ITEMS IN LINE MANAGEMENT

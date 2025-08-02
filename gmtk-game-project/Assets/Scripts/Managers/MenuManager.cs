@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class MenuManager : MonoBehaviour
 {
-    public void Start()
+    public void StartGame()
     {
         // Verificar si hay loops disponibles
         if (GameManager.Instance.GetCurrentLoop() != null)
