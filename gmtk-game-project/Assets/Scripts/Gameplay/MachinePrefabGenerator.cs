@@ -351,7 +351,7 @@ public static class MachinePrefabGenerator
     }
     
     /// <summary>
-    /// Crea un GameObject hijo para mostrar el icono cuando el padre tiene MeshRenderer
+    /// Configura el icono usando el hijo "Icon" existente o crea uno nuevo si no existe
     /// </summary>
     private static void CreateIconChild(GameObject parent, MachineConfiguration config)
     {
@@ -361,18 +361,26 @@ public static class MachinePrefabGenerator
             return;
         }
         
-        // Buscar si ya existe un hijo para el icono
-        Transform existingIcon = parent.transform.Find("MachineIcon");
+        // Buscar primero el hijo "Icon" (nombre preferido)
+        Transform existingIcon = parent.transform.Find("Icon");
+        
+        // Si no existe "Icon", buscar "MachineIcon" (compatibilidad con versiones anteriores)
+        if (existingIcon == null)
+        {
+            existingIcon = parent.transform.Find("MachineIcon");
+        }
+        
         GameObject iconChild;
         
         if (existingIcon != null)
         {
             iconChild = existingIcon.gameObject;
+            Debug.Log($"Usando hijo existente para icono: {iconChild.name}");
         }
         else
         {
-            // Crear nuevo GameObject hijo para el icono
-            iconChild = new GameObject("MachineIcon");
+            // Crear nuevo GameObject hijo para el icono con el nombre "Icon"
+            iconChild = new GameObject("Icon");
             iconChild.transform.SetParent(parent.transform);
             
             // Posicionar el icono centrado y ligeramente encima del cubo
@@ -380,6 +388,8 @@ public static class MachinePrefabGenerator
             // Rotar 90 grados en X para orientar correctamente el icono
             iconChild.transform.localRotation = UnityEngine.Quaternion.Euler(90, 0, 0);
             iconChild.transform.localScale = UnityEngine.Vector3.one;
+            
+            Debug.Log("Creado nuevo hijo 'Icon' para el icono");
         }
         
         // Configurar el SpriteRenderer del icono
@@ -387,6 +397,11 @@ public static class MachinePrefabGenerator
         if (iconRenderer == null)
         {
             iconRenderer = iconChild.AddComponent<SpriteRenderer>();
+            Debug.Log("Agregado SpriteRenderer al hijo Icon");
+        }
+        else
+        {
+            Debug.Log("Usando SpriteRenderer existente en el hijo Icon");
         }
         
         // Aplicar sprite y color
