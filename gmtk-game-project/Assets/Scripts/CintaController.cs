@@ -53,7 +53,7 @@ public class CintaController : MonoBehaviour
     /// </summary>
     public void LockAllMachines()
     {
-        foreach (var machine in FindObjectsOfType<MachineObject>())
+        foreach (var machine in FindObjectsByType<MachineObject>(FindObjectsSortMode.None))
         {
             machine.IsOn = false;
         }
@@ -65,7 +65,7 @@ public class CintaController : MonoBehaviour
     /// </summary>
     public void UnlockAllMachines()
     {
-        foreach (var machine in FindObjectsOfType<MachineObject>())
+        foreach (var machine in FindObjectsByType<MachineObject>(FindObjectsSortMode.None))
         {
             machine.IsOn = true;
         }

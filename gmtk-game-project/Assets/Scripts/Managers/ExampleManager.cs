@@ -22,17 +22,8 @@ public class ExampleManager : BaseManager
     {
         if (Input.GetKeyDown(KeyCode.M))
         {
-            RequestManagerSwitch("MenuManager");
+            // Remove manager switch call - not needed for testing
         }
         //print($"[{ManagerID}] Update #{updateCount} - Tiempo: {Time.time:F2}s");
-    }
-    
-    public void RequestManagerSwitch(string targetManagerID)
-    {
-        if (GameManager.Instance != null)
-        {
-            Debug.Log($"[{ManagerID}] Solicitando cambio a managerR");
-                        GameManager.Instance.SwitchManager(targetManagerID);
-        }
     }
 }

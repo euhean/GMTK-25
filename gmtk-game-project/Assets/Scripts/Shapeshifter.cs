@@ -18,7 +18,7 @@ public class Shapeshifter : MachineObject
         LogResource(resource);
         
         // Add to sequence tracking
-        var sequenceManager = GameManager.Instance?.GetManager("SequenceManager") as SequenceManager;
+        var sequenceManager = FindFirstObjectByType<SequenceManager>();
         sequenceManager?.AddToSequence(resource);
     }
     

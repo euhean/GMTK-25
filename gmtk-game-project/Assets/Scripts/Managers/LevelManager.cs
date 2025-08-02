@@ -75,7 +75,8 @@ public class LevelManager : BaseManager
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            RequestManagerSwitch("MenuManager");
+            // Go back to menu on escape - for testing
+            GameManager.Instance?.goToMenuScene();
         }
         
         // Handle gameplay timer
@@ -95,9 +96,9 @@ public class LevelManager : BaseManager
     {
         // Find components if not assigned
         if (cintaController == null)
-            cintaController = FindObjectOfType<CintaController>();
+            cintaController = FindFirstObjectByType<CintaController>();
         if (sequenceManager == null)
-            sequenceManager = gameManager.GetManager("SequenceManager") as SequenceManager;
+            sequenceManager = FindFirstObjectByType<SequenceManager>();
         
         // Initialize UI
         deliveryPanel?.SetActive(false);
@@ -293,13 +294,4 @@ public class LevelManager : BaseManager
     }
     
     #endregion
-    
-    public void RequestManagerSwitch(string targetManagerID)
-    {
-        if (GameManager.Instance != null)
-        {
-            Debug.Log($"[{ManagerID}] Requesting manager switch to {targetManagerID}");
-            GameManager.Instance.SwitchManager(targetManagerID);
-        }
-    }
 }

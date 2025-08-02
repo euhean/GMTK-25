@@ -23,17 +23,8 @@ public class MenuManager : BaseManager
     {
         if (Input.GetKeyDown(KeyCode.N))
         {
-            RequestManagerSwitch("NarrativeManager");
+            // Remove manager switch call - not needed for testing
         }
         //print($"[{ManagerID}] Update #{updateCount} - Tiempo: {Time.time:F2}s");
-    }
-    
-    public void RequestManagerSwitch(string targetManagerID)
-    {
-        if (GameManager.Instance != null)
-        {
-            Debug.Log($"[{ManagerID}] Solicitando cambio a manageR");
-            GameManager.Instance.SwitchManager(targetManagerID);
-        }
     }
 }

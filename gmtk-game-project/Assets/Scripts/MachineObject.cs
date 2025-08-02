@@ -12,6 +12,7 @@ public abstract class MachineObject : MonoBehaviour
     private bool isOn;
     public Resource currentResource;
     public List<Resource> resourceLog = new List<Resource>();
+    public SpriteRenderer iconRenderer;
 
     public bool IsOn { get => isOn; set => isOn = value; }
     public MachineConfiguration Configuration { get => configuration; set => configuration = value; }
