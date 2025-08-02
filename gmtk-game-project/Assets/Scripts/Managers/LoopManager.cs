@@ -33,6 +33,11 @@ public class LoopManager : MonoBehaviour
     [System.Serializable] public class Demand{
         [SerializeField] public ResourceColor.ColorType colorType;
         [SerializeField] public Shape.ShapeType shapeType;
+
+        public override string ToString()
+        {
+            return $"colorType: {colorType.ToString()}, shapeType: {shapeType.ToString()}";
+        }
     }
 
     [System.Serializable]
@@ -65,7 +70,7 @@ public class LoopManager : MonoBehaviour
             }
             else
             {
-                Debug.Log("No hay días en el loop actual");
+                
                 GameManager.Instance.goToMenuScene();
             }
         }
@@ -79,7 +84,7 @@ public class LoopManager : MonoBehaviour
         if (GameManager.Instance != null)
         {
             GameManager.Instance.SetLoop(currentLoop);
-            Debug.Log($"Loop '{currentLoop.loopName}' guardado en GameManager desde LoopManager");
+            
         }
         else
         {

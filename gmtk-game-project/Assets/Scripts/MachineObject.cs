@@ -22,7 +22,7 @@ public abstract class MachineObject : MonoBehaviour, IMachine
         if (resource != null)
         {
             currentResource = resource;
-            Debug.Log($"Resource {resource.name} entered {gameObject.name}");
+            
         }
     }
 
@@ -32,7 +32,7 @@ public abstract class MachineObject : MonoBehaviour, IMachine
         if (resource != null && resource == currentResource)
         {
             currentResource = null;
-            Debug.Log($"Resource {resource.name} exited {gameObject.name}");
+            
         }
     }
 
@@ -41,7 +41,7 @@ public abstract class MachineObject : MonoBehaviour, IMachine
         if (!resourceLog.Contains(resource))
         {
             resourceLog.Add(resource);
-            Debug.Log($"Resource interacted: {resource.name}");
+            
         }
     }
 

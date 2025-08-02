@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private LoopManager.GenericEvent currentEvent;
     [SerializeField] private int currentEventIndex = 0;
 
-    [SerializeField] private List<LoopManager.Demand> currentDemand = new List<LoopManager.Demand>();
+    [SerializeField] private List<LoopManager.Demand> itemsInLine = new List<LoopManager.Demand>();
     [SerializeField] private List<LoopManager.Demand> demandToComplete = new List<LoopManager.Demand>();
 
     public enum Scenes {
@@ -65,7 +65,7 @@ public class GameManager : MonoBehaviour
         currentDayIndex = 0;
         currentEventIndex = 0;
         currentDay = 0;
-        Debug.Log($"Loop '{loop.loopName}' guardado en GameManager");
+        
     }
     
     public LoopManager.Loop GetCurrentLoop()
@@ -125,6 +125,7 @@ public class GameManager : MonoBehaviour
     public void runEvent()
     {
         var currentEvent = GetCurrentEvent();
+        demandToComplete = currentEvent.demands;
         if (currentEvent == null) return;
         
         if(currentEvent.eventType == LoopManager.EventType.Narrative)
@@ -135,7 +136,7 @@ public class GameManager : MonoBehaviour
         {
             goToLevelScene();
         }
-        Debug.Log($"Ejecutando evento: {currentEvent.eventName}");
+        
     }
 
     public void AdvanceToNextDay()
@@ -186,13 +187,13 @@ public class GameManager : MonoBehaviour
         currentDayIndex = 0;
         currentDay = 0;
         
-        Debug.Log("¡Loop completado! Reiniciando...");
+        
     }
 
 
 
     public void startDemand(){
-        currentDemand = currentEvent.demands;
+       //  demandToComplete = currentEvent.demands;
 
     }
 
@@ -203,26 +204,50 @@ public class GameManager : MonoBehaviour
 
     public bool isDemandCompleted()
     {
-        // Verificar que ambas listas tengan el mismo tamaño
-        if (currentDemand.Count != demandToComplete.Count)
+        // Debug: Mostrar estado inicial de ambos arrays
+        Debug.Log("=== DEBUG isDemandCompleted ===");
+        Debug.Log($"itemsInLine.Count: {itemsInLine.Count}");
+        Debug.Log($"demandToComplete.Count: {demandToComplete.Count}");
+        
+        // Debug: Mostrar contenido de itemsInLine
+        Debug.Log("itemsInLine contents:");
+        for (int i = 0; i < itemsInLine.Count; i++)
         {
+            Debug.Log($"  [{i}] Color: {itemsInLine[i].colorType}, Shape: {itemsInLine[i].shapeType}");
+        }
+        
+        // Debug: Mostrar contenido de demandToComplete
+        Debug.Log("demandToComplete contents:");
+        for (int i = 0; i < demandToComplete.Count; i++)
+        {
+            Debug.Log($"  [{i}] Color: {demandToComplete[i].colorType}, Shape: {demandToComplete[i].shapeType}");
+        }
+
+        // Verificar que ambas listas tengan el mismo tamaño
+        if (itemsInLine.Count != demandToComplete.Count)
+        {
+            Debug.Log("RESULTADO: false - Tamaños diferentes");
             return false;
         }
         
         // Si ambas listas están vacías, se considera completado
-        if (currentDemand.Count == 0)
+        if (itemsInLine.Count == 0)
         {
+            Debug.Log("RESULTADO: true - Ambas listas vacías");
             return true;
         }
         
         // Crear copias de las listas para no modificar las originales
-        List<LoopManager.Demand> currentCopy = new List<LoopManager.Demand>(currentDemand);
+        List<LoopManager.Demand> currentCopy = new List<LoopManager.Demand>(itemsInLine);
         List<LoopManager.Demand> targetCopy = new List<LoopManager.Demand>(demandToComplete);
         
+        Debug.Log("Iniciando comparación elemento por elemento...");
+
         // Para cada demanda en la lista objetivo
         foreach (var targetDemand in targetCopy)
         {
             bool found = false;
+            Debug.Log($"Buscando coincidencia para: {targetDemand.colorType} {targetDemand.shapeType}");
             
             // Buscar una demanda coincidente en la lista actual
             for (int i = 0; i < currentCopy.Count; i++)
@@ -230,6 +255,7 @@ public class GameManager : MonoBehaviour
                 if (currentCopy[i].colorType == targetDemand.colorType && 
                     currentCopy[i].shapeType == targetDemand.shapeType)
                 {
+                    Debug.Log($"  ✓ Coincidencia encontrada en índice {i}: {currentCopy[i].colorType} {currentCopy[i].shapeType}");
                     // Encontrada coincidencia, remover de la lista actual
                     currentCopy.RemoveAt(i);
                     found = true;
@@ -240,11 +266,15 @@ public class GameManager : MonoBehaviour
             // Si no se encontró coincidencia, las listas no son iguales
             if (!found)
             {
+                Debug.Log($"  ✗ No se encontró coincidencia para: {targetDemand.colorType} {targetDemand.shapeType}");
+                Debug.Log("RESULTADO: false - No hay coincidencia completa");
                 return false;
             }
         }
         
         // Si llegamos aquí, todas las demandas coinciden
+        Debug.Log("RESULTADO: true - Todas las demandas coinciden");
+        Debug.Log("=== FIN DEBUG isDemandCompleted ===");
         return true;
     }
     
@@ -270,6 +300,44 @@ public class GameManager : MonoBehaviour
     public void goToDayScene()
     {
         SceneManager.LoadScene((int)Scenes.DAY);
+    }
+    
+    // ITEMS IN LINE MANAGEMENT
+    public void AddResourceToLine(Resource resource)
+    {
+        if (resource == null) return;
+        
+        var demand = new LoopManager.Demand
+        {
+            colorType = resource.currentColor,
+            shapeType = resource.currentShape
+        };
+        
+        itemsInLine.Add(demand);
+        
+    }
+    
+    public void UpdateResourceInLine(Resource resource, int index)
+    {
+        if (resource == null || index < 0 || index >= itemsInLine.Count) return;
+        
+        itemsInLine[index].colorType = resource.currentColor;
+        itemsInLine[index].shapeType = resource.currentShape;
+        
+    }
+    
+    public void RemoveResourceFromLine(int index)
+    {
+        if (index >= 0 && index < itemsInLine.Count)
+        {
+            itemsInLine.RemoveAt(index);
+            
+        }
+    }
+    
+    public List<LoopManager.Demand> GetItemsInLine()
+    {
+        return new List<LoopManager.Demand>(itemsInLine);
     }
     
 }

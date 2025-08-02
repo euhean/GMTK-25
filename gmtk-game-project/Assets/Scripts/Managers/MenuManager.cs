@@ -16,7 +16,7 @@ public class MenuManager : MonoBehaviour
             }
             else
             {
-                Debug.Log("No hay loops disponibles");
+                
             }
         }
     }

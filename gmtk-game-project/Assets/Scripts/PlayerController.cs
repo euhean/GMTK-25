@@ -27,7 +27,7 @@ public class PlayerController : MonoBehaviour
                 machine.iconRenderer.enabled = true;
                 if (Input.GetMouseButtonDown(0))
                 {
-                    // Debug.Log("Clicked on machine: " + machine.name);
+                    // 
                     if (machine.currentResource != null)
                         machine.Interact(machine.currentResource);
                    
@@ -37,13 +37,17 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            // Lógica para avanzar al siguiente evento/día
-            GameManager.Instance.AdvanceToNextEvent();
+            Debug.Log("PlayerController Update");
+        
+            if(GameManager.Instance.isDemandCompleted()){
+                GameManager.Instance.AdvanceToNextEvent();
+            }
         }
     }
 
     public void setCurrentEvent(){  
         currentEvent = GameManager.Instance.GetCurrentEvent();
+        GameManager.Instance.startDemand();
     }
 
 

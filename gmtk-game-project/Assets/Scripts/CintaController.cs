@@ -59,6 +59,13 @@ public class MultiOrbit : MonoBehaviour
 
             obj.transform.position = GetOrbitPosition(angle, orbitRadius, transform.position.y);
             AlignCollider(obj);
+            
+            // Asegurar que el Resource se registre correctamente
+            Resource resource = obj.GetComponent<Resource>();
+            if (resource != null)
+            {
+                
+            }
         }
 
         // Instanciar máquinas en posiciones fijas

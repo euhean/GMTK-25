@@ -370,20 +370,36 @@ MonoBehaviour:
         eventType: 0
         description: Eevent
         isCompleted: 0
+        demands: []
       - eventName: Event 02
         eventType: 1
         description: Event
         isCompleted: 0
+        demands:
+        - colorType: 0
+          shapeType: 1
+        - colorType: 0
+          shapeType: 1
+        - colorType: 0
+          shapeType: 1
     - dayName: Day 2
       events:
       - eventName: Event 03
         eventType: 0
         description: Eevent
         isCompleted: 0
+        demands: []
       - eventName: Event 04
         eventType: 1
         description: Event
         isCompleted: 0
+        demands:
+        - colorType: 0
+          shapeType: 1
+        - colorType: 0
+          shapeType: 1
+        - colorType: 0
+          shapeType: 1
   autoSaveOnStart: 1
 --- !u!4 &1221918784
 Transform:

@@ -34,7 +34,7 @@ public class DayManager : MonoBehaviour
             }
             else
             {
-                Debug.Log("No hay eventos en el día actual");
+                
                 GameManager.Instance.AdvanceToNextDay();
             }
         }
@@ -45,7 +45,7 @@ public class DayManager : MonoBehaviour
         if (dayText != null)
         {
 
-            Debug.Log("Dia: " + currentDay.dayName);
+            
             dayText.text = newText;
         }
     }
