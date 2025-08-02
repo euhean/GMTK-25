@@ -5,6 +5,7 @@ public class CameraSwitcher : MonoBehaviour
 {
     public CinemachineCamera camera_desk;
     public CinemachineCamera camera_gameplay;
+    [SerializeField] private GameObject playerController;
     [SerializeField] private bool _useCameraGameplay = true;
 
     public bool useCameraGameplay
@@ -15,12 +16,12 @@ public class CameraSwitcher : MonoBehaviour
             _useCameraGameplay = value;
             SwitchCameras();
             UpdateMouseVisibility();
+            UpdatePlayerControllerState();
         }
     }
 
     private void UpdateMouseVisibility()
     {
-        Cursor.visible = _useCameraGameplay;
         Cursor.lockState = _useCameraGameplay ? CursorLockMode.None : CursorLockMode.Locked;
     }
 
@@ -35,6 +36,13 @@ public class CameraSwitcher : MonoBehaviour
         {
             Debug.LogWarning("One or both cameras are not assigned!");
         }
+
+        UpdatePlayerControllerState();
+    }
+
+    private void Start()
+    {
+        Cursor.visible = false;
     }
 
     // DEBUGGING: Toggle camera mode with space key
@@ -58,6 +66,18 @@ public class CameraSwitcher : MonoBehaviour
         else
         {
             Debug.LogWarning("One or both cameras are not assigned!");
+        }
+    }
+
+    private void UpdatePlayerControllerState()
+    {
+        if (playerController != null)
+        {
+            playerController.SetActive(useCameraGameplay);
+        }
+        else
+        {
+            Debug.LogWarning("PlayerController GameObject is not assigned!");
         }
     }
 }
