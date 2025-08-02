@@ -11,20 +11,32 @@ public class Huehopper : MachineObject
             resource.TransformColor(colorData);
             LogResource(resource);
 
-            if (iconRenderer == null)
-                iconRenderer = GetComponent<SpriteRenderer>() ?? gameObject.AddComponent<SpriteRenderer>();
-
-            switch (purpose)
+            // Usar el renderer del mesh en lugar de SpriteRenderer
+            Renderer meshRenderer = GetComponent<Renderer>();
+            if (meshRenderer != null && meshRenderer.material != null)
             {
-                case MachinePurpose.RED:
-                    iconRenderer.color = Color.red;
-                    break;
-                case MachinePurpose.GREEN:
-                    iconRenderer.color = Color.green;
-                    break;
-                case MachinePurpose.BLUE:
-                    iconRenderer.color = Color.blue;
-                    break;
+                Color machineColor = Color.white;
+                switch (purpose)
+                {
+                    case MachinePurpose.RED:
+                        machineColor = Color.red;
+                        break;
+                    case MachinePurpose.GREEN:
+                        machineColor = Color.green;
+                        break;
+                    case MachinePurpose.BLUE:
+                        machineColor = Color.blue;
+                        break;
+                }
+                
+                // Crear una instancia del material si no existe
+                if (meshRenderer.material.name.Contains("Instance") == false)
+                {
+                    meshRenderer.material = new Material(meshRenderer.material);
+                }
+                
+                // Aplicar el color al material del mesh
+                meshRenderer.material.color = machineColor;
             }
         }
         else Debug.LogWarning($"Huehopper: machineData is not a ResourceColor ScriptableObject.");
