@@ -16,13 +16,66 @@ public abstract class MachineObject : MonoBehaviour, IMachine
 
     public abstract void Interact(Resource resource);
 
+    private Renderer statusIndicatorRenderer;
+
+    void Start()
+    {
+        // Buscar el indicador de estado
+        Transform statusIndicator = transform.Find("StatusIndicator");
+        if (statusIndicator != null)
+        {
+            statusIndicatorRenderer = statusIndicator.GetComponent<Renderer>();
+            if (statusIndicatorRenderer != null && statusIndicatorRenderer.material != null)
+            {
+                // Crear una instancia única del material para evitar modificar el material compartido
+                statusIndicatorRenderer.material = new Material(statusIndicatorRenderer.material);
+                Debug.Log($"Machine {gameObject.name}: Found status indicator");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"Machine {gameObject.name}: No status indicator found");
+        }
+        
+        // Establecer el color inicial basado en el estado
+        UpdateMachineColor();
+    }
+
+    void OnMouseDown()
+    {
+        // Alternar el estado de la máquina cuando se hace clic
+        ToggleMachine();
+    }
+
+    void ToggleMachine()
+    {
+        isOn = !isOn;
+        UpdateMachineColor();
+        Debug.Log($"Machine {gameObject.name} is now {(isOn ? "ON" : "OFF")}");
+    }
+
+    void UpdateMachineColor()
+    {
+        if (statusIndicatorRenderer != null && statusIndicatorRenderer.material != null)
+        {
+            Color targetColor = isOn ? Color.green : Color.red;
+            statusIndicatorRenderer.material.color = targetColor;
+            Debug.Log($"Machine {gameObject.name}: Status indicator color changed to {targetColor}");
+        }
+        else
+        {
+            Debug.LogWarning($"Machine {gameObject.name}: No status indicator renderer found for color change");
+        }
+    }
+
     void OnTriggerEnter(Collider other)
     {
         Resource resource = other.GetComponent<Resource>();
-        if (resource != null)
+        if (resource != null && isOn)
         {
             currentResource = resource;
-            
+            // Llamar automáticamente a Interact cuando el objeto entra en el trigger
+            Interact(resource);
         }
     }
 

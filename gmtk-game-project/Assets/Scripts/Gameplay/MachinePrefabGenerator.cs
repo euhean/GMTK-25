@@ -50,6 +50,12 @@ public static class MachinePrefabGenerator
         // Aplicar configuración visual
         ApplyVisualConfiguration(machineInstance, config);
         
+        // Configurar colliders como triggers
+        ConfigureColliders(machineInstance);
+        
+        // Crear indicador de estado
+        CreateStatusIndicator(machineInstance);
+        
         return machineInstance;
     }
     
@@ -108,6 +114,30 @@ public static class MachinePrefabGenerator
         Huehopper huehopper = machineInstance.GetComponent<Huehopper>();
         if (huehopper != null)
             Object.DestroyImmediate(huehopper);
+    }
+    
+    /// <summary>
+    /// Configura todos los colliders de la máquina como triggers
+    /// </summary>
+    private static void ConfigureColliders(GameObject machineInstance)
+    {
+        // Configurar colliders en el objeto principal
+        Collider[] colliders = machineInstance.GetComponentsInChildren<Collider>();
+        
+        foreach (Collider collider in colliders)
+        {
+            collider.isTrigger = true;
+            Debug.Log($"MachinePrefabGenerator: Configured {collider.GetType().Name} as trigger on {machineInstance.name}");
+        }
+        
+        // Si no hay colliders, agregar uno por defecto
+        if (colliders.Length == 0)
+        {
+            BoxCollider boxCollider = machineInstance.AddComponent<BoxCollider>();
+            boxCollider.isTrigger = true;
+            boxCollider.size = Vector3.one * 2f; // Hacer el trigger más grande para mejor detección
+            Debug.Log($"MachinePrefabGenerator: Added default BoxCollider as trigger on {machineInstance.name}");
+        }
     }
     
     /// <summary>
@@ -189,6 +219,73 @@ public static class MachinePrefabGenerator
             case MachinePurpose.BLUE: return ResourceColor.ColorType.BLUE;
             default: return ResourceColor.ColorType.None;
         }
+    }
+    
+    /// <summary>
+    /// Crea un indicador de estado circular encima de la máquina
+    /// </summary>
+    private static void CreateStatusIndicator(GameObject machineInstance)
+    {
+        // Crear un quad como indicador de estado (sprite plano)
+        GameObject statusIndicator = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        statusIndicator.name = "StatusIndicator";
+        
+        // Configurar como hijo de la máquina
+        statusIndicator.transform.SetParent(machineInstance.transform);
+        
+        // Posicionar encima del centro de la máquina
+        Bounds machineBounds = GetMachineBounds(machineInstance);
+        Vector3 indicatorPosition = new Vector3(0, machineBounds.size.y / 2 + 0.3f, 0);
+        statusIndicator.transform.localPosition = indicatorPosition;
+        
+        // Rotar para que sea horizontal (mirando hacia arriba)
+        statusIndicator.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+        
+        // Escalar para hacer un círculo pequeño
+        statusIndicator.transform.localScale = new Vector3(0.4f, 0.4f, 1f);
+        
+        // Crear material para el indicador con shader Unlit para mejor visibilidad
+        Renderer indicatorRenderer = statusIndicator.GetComponent<Renderer>();
+        if (indicatorRenderer != null)
+        {
+            Material indicatorMaterial = new Material(Shader.Find("Unlit/Color"));
+            indicatorMaterial.color = Color.green; // Estado inicial activo
+            indicatorRenderer.material = indicatorMaterial;
+        }
+        
+        // Remover el collider del indicador para que no interfiera
+        Collider indicatorCollider = statusIndicator.GetComponent<Collider>();
+        if (indicatorCollider != null)
+        {
+            Object.DestroyImmediate(indicatorCollider);
+        }
+        
+        Debug.Log($"MachinePrefabGenerator: Created flat status indicator for {machineInstance.name}");
+    }
+    
+    /// <summary>
+    /// Obtiene los bounds de la máquina para posicionar el indicador
+    /// </summary>
+    private static Bounds GetMachineBounds(GameObject machineInstance)
+    {
+        Renderer[] renderers = machineInstance.GetComponentsInChildren<Renderer>();
+        if (renderers.Length == 0)
+        {
+            return new Bounds(Vector3.zero, Vector3.one);
+        }
+        
+        Bounds bounds = renderers[0].bounds;
+        foreach (Renderer renderer in renderers)
+        {
+            if (renderer.gameObject.name != "StatusIndicator") // Excluir el propio indicador
+            {
+                bounds.Encapsulate(renderer.bounds);
+            }
+        }
+        
+        // Convertir a espacio local
+        bounds.center = machineInstance.transform.InverseTransformPoint(bounds.center);
+        return bounds;
     }
     
     /// <summary>
