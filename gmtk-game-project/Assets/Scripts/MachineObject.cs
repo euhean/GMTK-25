@@ -3,17 +3,26 @@ using System.Collections.Generic;
 
 public abstract class MachineObject : MonoBehaviour
 {
-    public bool isOn = true;
-    public MachinePurpose purpose;
+    [Header("Configuration")]
+    [SerializeField]
+    private MachineConfiguration configuration;
+
+    [Header("Runtime State")]
+    [SerializeField]
+    private bool isOn;
     public Resource currentResource;
     public List<Resource> resourceLog = new List<Resource>();
-    public SpriteRenderer iconRenderer;
 
     public bool IsOn { get => isOn; set => isOn = value; }
-    public MachinePurpose Purpose { get => purpose; set => purpose = value; }
+    public MachineConfiguration Configuration { get => configuration; set => configuration = value; }
+    
+    // Access config values through properties
+    public MachinePurpose Purpose => configuration?.purpose ?? MachinePurpose.TRIANGLE;
+    public MachineType MachineType => configuration?.machineType ?? MachineType.Shapeshifter;
 
     public abstract void Interact(Resource resource);
 
+    // Collision logic
     void OnTriggerEnter(Collider other)
     {
         Resource resource = other.GetComponent<Resource>();
@@ -43,12 +52,12 @@ public abstract class MachineObject : MonoBehaviour
         }
     }
 
+    // <<summary>>
     // Optional helper method to sync resourceLog size with assembly line
+    // <<summary>>
     public void SyncResourceLogSize(List<Resource> allResources)
     {
-        // Remove resources not in the assembly line
         resourceLog.RemoveAll(r => !allResources.Contains(r));
-        // Add missing resources
         foreach (var r in allResources)
         {
             if (!resourceLog.Contains(r))

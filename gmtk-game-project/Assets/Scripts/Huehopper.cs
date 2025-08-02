@@ -2,30 +2,41 @@ using UnityEngine;
 
 public class Huehopper : MachineObject
 {
-    public ResourceColor colorData;
+    [Header("Runtime Data")]
+    public ColorData.ColorType lastProcessedColor;
 
     public override void Interact(Resource resource)
     {
-        if (!isOn || resource == null) return;
+        if (!IsOn || resource == null || !IsValidConfiguration()) return;
         
-        colorData = resource.color;
-        resource.TransformColor(purpose);
+        // Store what color this resource had before transformation
+        lastProcessedColor = resource.currentColorType;
+        
+        // Apply the machine's target color configuration
+        resource.ApplyColorTransformation(Configuration.targetColor);
+        
         LogResource(resource);
         
-        if (iconRenderer == null)
-            iconRenderer = GetComponent<SpriteRenderer>() ?? gameObject.AddComponent<SpriteRenderer>();
-
-        switch (purpose)
-        {
-            case MachinePurpose.RED:
-                iconRenderer.color = Color.red;
-                break;
-            case MachinePurpose.GREEN:
-                iconRenderer.color = Color.green;
-                break;
-            case MachinePurpose.BLUE:
-                iconRenderer.color = Color.blue;
-                break;
-        }
+        // Add to sequence tracking
+        var sequenceManager = GameManager.Instance?.GetManager("SequenceManager") as SequenceManager;
+        sequenceManager?.AddToSequence(resource);
+    }
+    
+    /// <summary>
+    /// Validates that this huehopper has a valid configuration
+    /// </summary>
+    public bool IsValidConfiguration()
+    {
+        if (Configuration == null) return false;
+        
+        // Validate purpose is color-related
+        bool validPurpose = Purpose == MachinePurpose.RED || 
+                           Purpose == MachinePurpose.GREEN || 
+                           Purpose == MachinePurpose.BLUE;
+        
+        // Validate has target color data for transformation
+        bool hasTargetColor = Configuration.targetColor != null;
+        
+        return validPurpose && hasTargetColor;
     }
 }

@@ -1,46 +1,17 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class SequenceManager : MonoBehaviour
+public class SequenceManager : BaseManager
 {
     [System.Serializable]
     public class Sequence
     {
-        [Header("Sequence => Three Resource Combination")]
-        public Resource resource0, resource1, resource2;
+        [Header("Sequence Resources")]
+        public List<Resource> resources = new List<Resource>();
         
         public List<Resource> GetResources()
         {
-            return new List<Resource> { resource0, resource1, resource2 };
-        }
-        
-        // Helper methods to access shape/color data
-        public List<Shape.ShapeType> GetShapes()
-        {
-            List<Shape.ShapeType> shapes = new List<Shape.ShapeType>();
-            foreach (var resource in GetResources())
-            {
-                if (resource != null)
-                {
-                    var shape = resource.GetComponent<Shape>();
-                    if (shape != null) shapes.Add(shape.shapeType);
-                }
-            }
-            return shapes;
-        }
-        
-        public List<ResourceColor.ColorType> GetColors()
-        {
-            List<ResourceColor.ColorType> colors = new List<ResourceColor.ColorType>();
-            foreach (var resource in GetResources())
-            {
-                if (resource != null)
-                {
-                    var color = resource.GetComponent<ResourceColor>();
-                    if (color != null) colors.Add(color.colorType);
-                }
-            }
-            return colors;
+            return resources;
         }
     }
 
@@ -50,96 +21,132 @@ public class SequenceManager : MonoBehaviour
         public List<Sequence> sequences = new List<Sequence>();
     }
 
-    [Header("Sequence Verification")]
-    public SequenceList requiredSequences = new SequenceList();
-    private SequenceList completedSequences = new SequenceList();
-    private Sequence currentSequence = new Sequence();
-    private int currentResourceIndex = 0; // Track which resource we're adding (0, 1, or 2)
+    [Header("Sequence Configuration")]
+    public SequenceList demands = new();
+    
+    // Helper components
+    private SequenceValidator validator;
+    private ResourceCollector collector;
+    private SequenceList completedSequences = new();
 
     // Events for communication with other systems
-    public System.Action<int> OnSequenceCompleted; // Passes sequence number
-    public System.Action<Sequence> OnSequenceIncorrect; // Passes incorrect sequence
+    public System.Action<int> OnSequenceCompleted; // Notify LevelManager when sequence is ready for delivery
+    public System.Action<int> OnSequenceCorrect; // Notify EconomyManager when sequence is correctly completed
 
-    // Call this when a resource is processed to add to the sequence
-    public void AddToSequence(Resource resource)
+    #region BaseManager Implementation
+    
+    protected override void OnManagerStart()
     {
-        // Add resource to current sequence based on index
-        switch (currentResourceIndex)
+        Debug.Log("[SequenceManager] Started - Ready to track sequences");
+        
+        // Initialize helper components
+        validator = new SequenceValidator();
+        collector = new ResourceCollector();
+        
+        // Reset state for new game session
+        completedSequences.sequences.Clear();
+        
+        // Validate demands are properly configured
+        if (demands.sequences.Count == 0)
         {
-            case 0:
-                currentSequence.resource0 = resource;
-                break;
-            case 1:
-                currentSequence.resource1 = resource;
-                break;
-            case 2:
-                currentSequence.resource2 = resource;
-                break;
+            Debug.LogWarning("[SequenceManager] No demands configured! Please set up sequences in inspector.");
         }
-        
-        currentResourceIndex++;
-        
-        // Check if sequence is complete (3 resources)
-        if (currentResourceIndex >= 3)
+        else
         {
-            // Sequence complete, verify against required sequences
-            if (completedSequences.sequences.Count < requiredSequences.sequences.Count)
+            Debug.Log($"[SequenceManager] Loaded {demands.sequences.Count} demands for this session");
+        }
+    }
+    
+    protected override void OnManagerEnd()
+    {
+        Debug.Log("[SequenceManager] Ended - Cleaning up");
+        
+        // Clear all subscriptions to prevent memory leaks
+        OnSequenceCompleted = null;
+        OnSequenceCorrect = null;
+        
+        // Clear runtime data
+        collector?.Clear();
+    }
+    
+    protected override void OnManagerUpdate()
+    {
+        // Debug info for development - shows current sequence progress
+        if (demands.sequences.Count > 0 && collector != null)
+        {
+            int currentSequenceIndex = completedSequences.sequences.Count;
+            if (currentSequenceIndex < demands.sequences.Count)
             {
-                var requiredSequence = requiredSequences.sequences[completedSequences.sequences.Count];
-                if (VerifySequence(currentSequence, requiredSequence))
+                var currentDemand = demands.sequences[currentSequenceIndex];
+                int requiredCount = currentDemand.GetResources().Count;
+                
+                // Update debug display every few frames to avoid spam
+                if (Time.frameCount % 60 == 0) // Update once per second at 60fps
                 {
-                    completedSequences.sequences.Add(currentSequence);
-                    Debug.Log($"Sequence {completedSequences.sequences.Count} correct! ({currentSequence.resource0?.name}, {currentSequence.resource1?.name}, {currentSequence.resource2?.name})");
-                    
-                    // Notify other systems
-                    OnSequenceCompleted?.Invoke(completedSequences.sequences.Count);
-                }
-                else
-                {
-                    Debug.LogWarning($"Sequence incorrect! Got: ({currentSequence.resource0?.name}, {currentSequence.resource1?.name}, {currentSequence.resource2?.name})");
-                    
-                    // Notify other systems
-                    OnSequenceIncorrect?.Invoke(currentSequence);
+                    Debug.Log($"[SequenceManager Debug] Current: {collector.Count}/{requiredCount} resources | " +
+                             $"Completed: {completedSequences.sequences.Count}/{demands.sequences.Count} sequences | " +
+                             $"Progress: {GetProgressPercentage():F1}%");
                 }
             }
-            
-            // Reset for next sequence
-            currentSequence = new Sequence();
-            currentResourceIndex = 0;
         }
     }
+    
+    #endregion
 
-    private bool VerifySequence(Sequence player, Sequence required)
+    public void AddToSequence(Resource resource)
     {
-        var playerResources = player.GetResources();
-        var requiredResources = required.GetResources();
+        collector.AddResource(resource);
         
-        for (int i = 0; i < 3; i++)
+        // Get current demand to check required sequence length
+        if (completedSequences.sequences.Count < demands.sequences.Count)
         {
-            var playerResource = playerResources[i];
-            var requiredResource = requiredResources[i];
+            var currentDemand = demands.sequences[completedSequences.sequences.Count];
+            var requiredCount = currentDemand.GetResources().Count;
             
-            if (playerResource == null || requiredResource == null)
-                return false;
-            
-            // Compare shapes
-            var playerShape = playerResource.GetComponent<Shape>();
-            var requiredShape = requiredResource.GetComponent<Shape>();
-            if (playerShape?.shapeType != requiredShape?.shapeType)
-                return false;
-                
-            // Compare colors
-            var playerColor = playerResource.GetComponent<ResourceColor>();
-            var requiredColor = requiredResource.GetComponent<ResourceColor>();
-            if (playerColor?.colorType != requiredColor?.colorType)
-                return false;
+            // Check if sequence is complete (matches required count)
+            if (collector.IsComplete(requiredCount))
+            {
+                ProcessCompletedSequence();
+            }
         }
-        return true;
     }
 
-    // Public getters for other systems to query state
+    private void ProcessCompletedSequence()
+    {
+        if (completedSequences.sequences.Count < demands.sequences.Count)
+        {
+            var requiredSequence = demands.sequences[completedSequences.sequences.Count];
+            var currentResources = collector.GetCurrentResources();
+            
+            if (validator.VerifySequence(currentResources, requiredSequence))
+            {
+                // Sequence is correct - notify both managers
+                var completedSequence = collector.CreateSequence();
+                completedSequences.sequences.Add(completedSequence);
+                
+                Debug.Log($"Sequence {completedSequences.sequences.Count} correct! Ready for delivery.");
+                
+                // Notify both LevelManager and EconomyManager
+                OnSequenceCompleted?.Invoke(completedSequences.sequences.Count);
+                OnSequenceCorrect?.Invoke(completedSequences.sequences.Count);
+            }
+            // If incorrect, do nothing - player must keep trying
+        }
+        collector.Clear();
+    }
+
+    // Public getters for other systems
     public int GetCompletedSequenceCount() => completedSequences.sequences.Count;
-    public int GetRequiredSequenceCount() => requiredSequences.sequences.Count;
+    public int GetRequiredSequenceCount() => demands.sequences.Count;
     public bool IsLevelComplete() => GetCompletedSequenceCount() >= GetRequiredSequenceCount();
     public float GetProgressPercentage() => GetRequiredSequenceCount() > 0 ? (float)GetCompletedSequenceCount() / GetRequiredSequenceCount() : 0f;
+    
+    /// <summary>
+    /// Called by LevelManager when delivery button is pressed and level should continue
+    /// </summary>
+    public void PrepareForNextSequence()
+    {
+        collector.Clear();
+        Debug.Log("SequenceManager ready for next sequence");
+    }
 }

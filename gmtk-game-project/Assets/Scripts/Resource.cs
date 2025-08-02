@@ -2,53 +2,39 @@ using UnityEngine;
 
 public class Resource : MonoBehaviour
 {
-    public Shape shape;
-    public ResourceColor color;
+    [Header("Current State")]
+    public ShapeData.ShapeType currentShapeType = ShapeData.ShapeType.NONE;
+    public ColorData.ColorType currentColorType = ColorData.ColorType.NONE;
+    
+    [Header("Components")]
     public SpriteRenderer spriteRenderer;
 
     void Awake()
     {
         spriteRenderer ??= GetComponent<SpriteRenderer>();
-        shape ??= GetComponent<Shape>();
-        color ??= GetComponent<ResourceColor>();
         gameObject.tag = "resource";
     }
 
-    public void TransformShape(MachinePurpose purpose)
+    /// <summary>
+    /// Apply shape transformation using machine's configuration
+    /// </summary>
+    public void ApplyShapeTransformation(ShapeData shapeData)
     {
-        switch (purpose)
-        {
-            case MachinePurpose.TRIANGLE:
-                shape.shapeType = Shape.ShapeType.TRIANGLE;
-                spriteRenderer.sprite = shape.triangleSprite;
-                break;
-            case MachinePurpose.SQUARE:
-                shape.shapeType = Shape.ShapeType.SQUARE;
-                spriteRenderer.sprite = shape.squareSprite;
-                break;
-            case MachinePurpose.CIRCLE:
-                shape.shapeType = Shape.ShapeType.CIRCLE;
-                spriteRenderer.sprite = shape.circleSprite;
-                break;
-        }
+        if (shapeData == null) return;
+        
+        currentShapeType = shapeData.shapeType;
+        spriteRenderer.sprite = shapeData.sprite;
+        transform.localScale = shapeData.scale;
     }
 
-    public void TransformColor(MachinePurpose purpose)
+    /// <summary>
+    /// Apply color transformation using machine's configuration
+    /// </summary>
+    public void ApplyColorTransformation(ColorData colorData)
     {
-        switch (purpose)
-        {
-            case MachinePurpose.RED:
-                color.colorType = ResourceColor.ColorType.RED;
-                spriteRenderer.color = color.UnityColor;
-                break;
-            case MachinePurpose.GREEN:
-                color.colorType = ResourceColor.ColorType.GREEN;
-                spriteRenderer.color = color.UnityColor;
-                break;
-            case MachinePurpose.BLUE:
-                color.colorType = ResourceColor.ColorType.BLUE;
-                spriteRenderer.color = color.UnityColor;
-                break;
-        }
+        if (colorData == null) return;
+        
+        currentColorType = colorData.colorType;
+        spriteRenderer.color = colorData.color;
     }
 }

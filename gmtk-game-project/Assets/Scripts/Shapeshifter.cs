@@ -2,30 +2,41 @@ using UnityEngine;
 
 public class Shapeshifter : MachineObject
 {
-    public Shape shapeData;
+    [Header("Runtime Data")]
+    public ShapeData.ShapeType lastProcessedShape;
     
     public override void Interact(Resource resource)
     {
-        if (!isOn || resource == null) return;
+        if (!IsOn || resource == null || !IsValidConfiguration()) return;
         
-        shapeData = resource.shape;
-        resource.TransformShape(purpose);
+        // Store what shape this resource had before transformation
+        lastProcessedShape = resource.currentShapeType;
+        
+        // Apply the machine's target shape configuration
+        resource.ApplyShapeTransformation(Configuration.targetShape);
+        
         LogResource(resource);
         
-        if (iconRenderer == null)
-            iconRenderer = GetComponent<SpriteRenderer>() ?? gameObject.AddComponent<SpriteRenderer>();
-
-        switch (purpose)
-        {
-            case MachinePurpose.TRIANGLE:
-                iconRenderer.sprite = shapeData.triangleSprite;
-                break;
-            case MachinePurpose.CIRCLE:
-                iconRenderer.sprite = shapeData.circleSprite;
-                break;
-            case MachinePurpose.SQUARE:
-                iconRenderer.sprite = shapeData.squareSprite;
-                break;
-        }
+        // Add to sequence tracking
+        var sequenceManager = GameManager.Instance?.GetManager("SequenceManager") as SequenceManager;
+        sequenceManager?.AddToSequence(resource);
+    }
+    
+    /// <summary>
+    /// Validates that this shapeshifter has a valid configuration
+    /// </summary>
+    public bool IsValidConfiguration()
+    {
+        if (Configuration == null) return false;
+        
+        // Validate purpose is shape-related
+        bool validPurpose = Purpose == MachinePurpose.TRIANGLE || 
+                           Purpose == MachinePurpose.CIRCLE || 
+                           Purpose == MachinePurpose.SQUARE;
+        
+        // Validate has target shape data for transformation
+        bool hasTargetShape = Configuration.targetShape != null;
+        
+        return validPurpose && hasTargetShape;
     }
 }
