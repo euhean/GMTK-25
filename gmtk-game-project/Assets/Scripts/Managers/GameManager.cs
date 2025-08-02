@@ -24,6 +24,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] private bool autoSaveOnStart = true;
     [SerializeField] private FadeManager fadeManager;
 
+    [Header("Narrative Configuration")]
+    [SerializeField] private TextAsset narrativeCsv;
+    [SerializeField] private bool narrativeStartEnd = true;
+    [SerializeField] private bool narrativeQuotaBool = true;
+
     [SerializeField] private List<Demand> itemsInLine = new List<Demand>();
     [SerializeField] private List<Demand> demandToComplete = new List<Demand>();
 
@@ -389,12 +394,30 @@ public class GameManager : MonoBehaviour
             fadeManager.FadeIn(() => {
                 SceneManager.LoadSceneAsync((int)Scenes.NARRATIVE).completed += (op) => {
                     fadeManager.FadeOut();
+                    // Try to find and initialize NarrativeManager
+                    var narrativeManager = FindFirstObjectByType<NarrativeManager>();
+                    if (narrativeManager != null)
+                    {
+                        narrativeManager.InitializeFromGameManager();
+                    }
                 };
             });
         }
         else
         {
             SceneManager.LoadScene((int)Scenes.NARRATIVE);
+            // Try to find and initialize NarrativeManager on the next frame
+            StartCoroutine(InitializeNarrativeManagerNextFrame());
+        }
+    }
+
+    private System.Collections.IEnumerator InitializeNarrativeManagerNextFrame()
+    {
+        yield return null; // Wait one frame
+        var narrativeManager = FindFirstObjectByType<NarrativeManager>();
+        if (narrativeManager != null)
+        {
+            narrativeManager.InitializeFromGameManager();
         }
     }
 
@@ -567,5 +590,10 @@ public class GameManager : MonoBehaviour
         GenericEvent currentEvent = GetCurrentEvent();
         return currentEvent?.GetOrbitConfig();
     }
+
+    // Narrative Getters
+    public TextAsset GetNarrativeCsv() => narrativeCsv;
+    public bool GetNarrativeStartEnd() => narrativeStartEnd;
+    public bool GetNarrativeQuotaBool() => narrativeQuotaBool;
     
 }

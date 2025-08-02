@@ -248,9 +248,10 @@ MonoBehaviour:
       - eventConfiguration: {fileID: 11400000, guid: 81cd39d7d052cf647928fe2bf41191e3, type: 2}
   currentDayIndex: 0
   currentEvent:
-    eventConfiguration: {fileID: 0}
+    eventConfiguration: {fileID: 11400000, guid: 81cd39d7d052cf647928fe2bf41191e3, type: 2}
   currentEventIndex: 0
   autoSaveOnStart: 1
   fadeManager: {fileID: 7402595997789170133}
   itemsInLine: []
   demandToComplete: []
+  narrativeCsv: {fileID: 4900000, guid: 35c4868b7678aac4c80b461522453c3d, type: 3}
