@@ -32,6 +32,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<Demand> itemsInLine = new List<Demand>();
     [SerializeField] private List<List<Demand>> demandToComplete = new List<List<Demand>>();
 
+    // Timer variables for Gameplay events
+    [Header("Gameplay Timer")]
+    private float gameplayTimer = 0f;
+    private bool isGameplayTimerActive = false;
+     [SerializeField] public float GAMEPLAY_TIME_LIMIT = 120f; // 2 minutes in seconds
+
 
     // Estructuras de datos movidas desde LoopManager
     [System.Serializable]
@@ -197,7 +203,19 @@ public class GameManager : MonoBehaviour
     
     private void Update()
     {
-
+        // Handle gameplay timer
+        if (isGameplayTimerActive)
+        {
+            gameplayTimer += Time.deltaTime;
+            
+            if (gameplayTimer >= GAMEPLAY_TIME_LIMIT)
+            {
+                // Timer completed - trigger runEvent
+                StopGameplayTimer();
+                currentEventIndex++;
+                runEvent();
+            }
+        }
     }
     
     // LOOP MANAGEMENT METHODS
@@ -271,8 +289,23 @@ public class GameManager : MonoBehaviour
         currentDemandIndex = 0;
         demandToComplete = currentEvent.GetDemands();
 
+        if (currentEvent.GetEventType() == EventType.Gameplay)
+        {
+            // Start the 2-minute timer for Gameplay events
+            StartGameplayTimer();
+            
+            // Buscar una instancia del DeskManager en la escena
+            DeskManager deskManager = FindFirstObjectByType<DeskManager>();
+            if (deskManager != null)
+            {
+                deskManager.StartGameplayEvent();
+            }
+            else
+            {
+                Debug.LogError("No se encontró DeskManager en la escena para el evento de gameplay");
+            }
         // Si no estamos en la escena LEVEL, cargarla primero independientemente del tipo de evento
-        if (SceneManager.GetActiveScene().buildIndex != (int)Scenes.LEVEL)
+        else if (SceneManager.GetActiveScene().buildIndex != (int)Scenes.LEVEL)
         {
             // Registrar el evento para que se ejecute después de cargar la escena
             SceneManager.sceneLoaded += OnLevelSceneLoaded;
@@ -280,8 +313,20 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            // Ya estamos en la escena LEVEL, proceder con el evento
-            ExecuteEventInLevel(currentEvent);
+            // Stop timer for non-Gameplay events
+            StopGameplayTimer();
+            
+            if (SceneManager.GetActiveScene().buildIndex != (int)Scenes.LEVEL)
+            {
+                // Si no estamos en la escena LEVEL, cargarla primero
+                SceneManager.sceneLoaded += OnLevelSceneLoaded;
+                goToLevelScene();
+            }
+            else
+            {
+                // Ya estamos en la escena LEVEL, proceder con el evento
+                ExecuteEventInLevel(currentEvent);
+            }
         }
     }
 
@@ -426,19 +471,22 @@ public class GameManager : MonoBehaviour
         Debug.Log($"Checking demands - Event demands count: {eventDemands.Count}, Line demands count: {lineDemands.Count}");
         
         // Verificar si todas las demandas del evento están en la línea
-        foreach (Demand eventDemand in eventDemands)
+        for (int j = eventDemands.Count - 1; j >= 0; j--)
         {
-            Debug.Log($"Checking event demand - Color: {eventDemand.colorType}, Shape: {eventDemand.shapeType}");
+            Debug.Log($"Checking event demand - Color: {eventDemands[j].colorType}, Shape: {eventDemands[j].shapeType}");
             bool found = false;
-            for (int i = 0; i < lineDemands.Count; i++)
+            for (int i = lineDemands.Count - 1; i >= 0; i--)
             {
                 Debug.Log($"Comparing with line item {i} - Color: {lineDemands[i].colorType}, Shape: {lineDemands[i].shapeType}");
-                if (lineDemands[i].colorType == eventDemand.colorType && 
-                    lineDemands[i].shapeType == eventDemand.shapeType)
+                if (lineDemands[i].colorType == eventDemands[j].colorType && 
+                    lineDemands[i].shapeType == eventDemands[j].shapeType)
                 {
                     lineDemands.RemoveAt(i);
-                    Debug.Log("Match found! Removing from line demands");
+                    eventDemands.RemoveAt(j);
+                    Debug.Log("Match found! Removing from both lists");
                     found = true;
+                    Debug.Log(lineDemands.Count);
+                    Debug.Log(eventDemands.Count);
                     break;
                 }
             }
@@ -449,7 +497,7 @@ public class GameManager : MonoBehaviour
             }
         }
         
-        return true;
+        return eventDemands.Count == 0;
     }
     
     public bool isLastDemand()
@@ -570,27 +618,46 @@ public class GameManager : MonoBehaviour
         }
     }
     
-    // ITEMS IN LINE MANAGEMENT
-    public void AddResourceToLine(Resource resource)
+    // GAMEPLAY TIMER METHODS
+    private void StartGameplayTimer()
     {
-        if (resource == null) return;
-        
-        var demand = new Demand
-        {
-            colorType = resource.currentColor,
-            shapeType = resource.currentShape
-        };
-        
-        itemsInLine.Add(demand);
-        
+        gameplayTimer = 0f;
+        isGameplayTimerActive = true;
+        Debug.Log("Gameplay timer started - 2 minutes countdown");
     }
     
-    public void UpdateResourceInLine(Resource resource, int index)
+    private void StopGameplayTimer()
     {
-        if (resource == null || index < 0 || index >= itemsInLine.Count) return;
+        isGameplayTimerActive = false;
+        gameplayTimer = 0f;
+        Debug.Log("Gameplay timer stopped");
+    }
+    
+    public float GetGameplayTimeRemaining()
+    {
+        if (!isGameplayTimerActive) return 0f;
+        return Mathf.Max(0f, GAMEPLAY_TIME_LIMIT - gameplayTimer);
+    }
+    
+    public bool IsGameplayTimerActive()
+    {
+        return isGameplayTimerActive;
+    }
+    
+    public void UpdateResourceInLine()
+    {
+        itemsInLine = new List<Demand>();
+        GameObject[] gameObjectsWithTagResource = GameObject.FindGameObjectsWithTag("resource tag");
+        Debug.Log($"Found {gameObjectsWithTagResource.Length} resource objects");
+        foreach(GameObject obj in gameObjectsWithTagResource)
+        {
+            itemsInLine.Add(new Demand
+            {
+                colorType = obj.GetComponent<Resource>().currentColor,
+                shapeType = obj.GetComponent<Resource>().currentShape
+            });
+        }
         
-        itemsInLine[index].colorType = resource.currentColor;
-        itemsInLine[index].shapeType = resource.currentShape;
         
     }
     

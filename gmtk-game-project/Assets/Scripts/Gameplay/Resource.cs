@@ -21,7 +21,6 @@ public class Resource : MonoBehaviour
             TransformShape(shape);
 
         }
-        gameObject.tag = "resource";
     }
     
     void Start()
@@ -42,7 +41,6 @@ public class Resource : MonoBehaviour
         {
             var itemsInLine = GameManager.Instance.GetItemsInLine();
             lineIndex = itemsInLine.Count;
-            GameManager.Instance.AddResourceToLine(this);
             isRegisteredInLine = true;
         }
     }
@@ -57,13 +55,6 @@ public class Resource : MonoBehaviour
         }
     }
     
-    private void UpdateInLine()
-    {
-        if (GameManager.Instance != null && isRegisteredInLine && lineIndex >= 0)
-        {
-            GameManager.Instance.UpdateResourceInLine(this, lineIndex);
-        }
-    }
 
     public void TransformShape(Shape newShape)
     {
@@ -71,21 +62,28 @@ public class Resource : MonoBehaviour
         switch (currentShape = newShape.shapeType)
         {
             case Shape.ShapeType.TRIANGLE:
+                GameManager.Instance.UpdateResourceInLine();
                 spriteRenderer.sprite = newShape.triangleSprite;
                 break;
             case Shape.ShapeType.SQUARE:
+                GameManager.Instance.UpdateResourceInLine();
                 spriteRenderer.sprite = newShape.squareSprite;
                 break;
             case Shape.ShapeType.CIRCLE:
+                GameManager.Instance.UpdateResourceInLine();
                 spriteRenderer.sprite = newShape.circleSprite;
                 break;
             case Shape.ShapeType.NONE:
                 spriteRenderer.sprite = newShape.defaultShape;
                 break;
+               
         }
+
+
+
         
         // Actualizar en itemsInLine cuando cambia la forma
-        UpdateInLine();
+
     }
 
     public void TransformColor(ResourceColor newColor)
@@ -93,24 +91,29 @@ public class Resource : MonoBehaviour
         switch (currentColor = newColor.colorType)
         {
             case ResourceColor.ColorType.RED:
+                    GameManager.Instance.UpdateResourceInLine();
                 spriteRenderer.color = Color.red;
                 break;
             case ResourceColor.ColorType.GREEN:
+                    GameManager.Instance.UpdateResourceInLine();
                 spriteRenderer.color = Color.green;
                 break;
             case ResourceColor.ColorType.BLUE:
+                    GameManager.Instance.UpdateResourceInLine();
                 spriteRenderer.color = Color.blue;
                 break;
             case ResourceColor.ColorType.NONE:
+                    GameManager.Instance.UpdateResourceInLine();
                 spriteRenderer.color = Color.white;
                 break;
             default:
                 spriteRenderer.color = Color.white;
                 break;
+            
         }
+
+
         
-        // Actualizar en itemsInLine cuando cambia el color
-        UpdateInLine();
     }
     
     // Método público para obtener el índice en la línea

@@ -3098,6 +3098,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1794052602641212326, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
+      propertyPath: GAMEPLAY_TIME_LIMIT
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1794052602641212326, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
       propertyPath: currentLoop.days.Array.data[0].events.Array.data[0].eventConfiguration
       value: 
       objectReference: {fileID: 11400000, guid: 2b91e30c1f67d1b4ebd75ac221c954bd, type: 2}
