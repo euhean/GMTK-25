@@ -9,7 +9,8 @@ public enum SoundType
     Collect,
     OfficeBackground,
     MachineOn,
-    MachineOff
+    MachineOff,
+    Music
 }
 
 [System.Serializable]
@@ -37,6 +38,12 @@ public class AudioManager : MonoBehaviour
     
     [Header("Click Sound Variations")]
     [SerializeField] private List<AudioClip> clickVariations = new List<AudioClip>();
+    
+    [Header("Music Configuration")]
+    [SerializeField] private AudioClip backgroundMusic;
+    [SerializeField] [Range(0f, 1f)] private float musicVolume = 0.5f;
+    private AudioSource musicSource;
+    private bool musicWasPlaying = false;
 
     private void Awake()
     {
@@ -46,6 +53,7 @@ public class AudioManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
             InitializeSounds();
+            InitializeMusic();
         }
         else
         {
@@ -66,6 +74,68 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    private void InitializeMusic()
+    {
+        // Create dedicated AudioSource for music
+        musicSource = gameObject.AddComponent<AudioSource>();
+        musicSource.clip = backgroundMusic;
+        musicSource.volume = musicVolume;
+        musicSource.loop = true;
+        musicSource.spatialBlend = 0f; // 2D sound
+        
+        // Add music to the sounds list for compatibility
+        Sound musicSound = sounds.FirstOrDefault(s => s.soundType == SoundType.Music);
+        if (musicSound == null)
+        {
+            musicSound = new Sound
+            {
+                name = "Background Music",
+                soundType = SoundType.Music,
+                clip = backgroundMusic,
+                volume = musicVolume,
+                loop = true,
+                spatialBlend = 0f
+            };
+            musicSound.source = musicSource;
+            sounds.Add(musicSound);
+        }
+        
+        // Start playing music by default
+        PlayMusic();
+    }
+
+    public void PlayMusic()
+    {
+        if (musicSource != null && !musicSource.isPlaying)
+        {
+            musicSource.Play();
+        }
+    }
+
+    public void PauseMusic()
+    {
+        if (musicSource != null && musicSource.isPlaying)
+        {
+            musicSource.Pause();
+        }
+    }
+
+    public void StopMusic()
+    {
+        if (musicSource != null)
+        {
+            musicSource.Stop();
+        }
+    }
+
+    public void ResumeMusic()
+    {
+        if (musicSource != null && !musicSource.isPlaying)
+        {
+            musicSource.UnPause();
+        }
+    }
+
     public void PlaySound(SoundType type)
     {
         Sound sound = sounds.FirstOrDefault(s => s.soundType == type);
@@ -79,6 +149,13 @@ public class AudioManager : MonoBehaviour
             }
             
             sound.source.Play();
+            
+            // Handle music when OfficeBackground plays
+            if (type == SoundType.OfficeBackground)
+            {
+                musicWasPlaying = musicSource.isPlaying;
+                StopMusic();
+            }
         }
         else
         {
@@ -105,6 +182,12 @@ public class AudioManager : MonoBehaviour
         if (sound != null && sound.source.isPlaying)
         {
             sound.source.Stop();
+            
+            // Resume music when OfficeBackground stops
+            if (type == SoundType.OfficeBackground && musicWasPlaying)
+            {
+                PlayMusic();
+            }
         }
     }
 

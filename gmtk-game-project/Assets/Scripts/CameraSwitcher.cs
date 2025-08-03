@@ -81,10 +81,12 @@ public class CameraSwitcher : MonoBehaviour
                 if (!useCameraGameplay)
                 {
                     AudioManager.Instance.PlaySound(SoundType.OfficeBackground);
+                    // Music is automatically paused when OfficeBackground plays
                 }
                 else
                 {
                     AudioManager.Instance.StopSound(SoundType.OfficeBackground);
+                    // Music is automatically resumed when OfficeBackground stops
                 }
             }
 
