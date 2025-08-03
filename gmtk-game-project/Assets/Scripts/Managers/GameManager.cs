@@ -30,7 +30,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private bool narrativeQuotaBool = true;
 
     [SerializeField] private List<Demand> itemsInLine = new List<Demand>();
-    [SerializeField] private List<Demand> demandToComplete = new List<Demand>();
+    [SerializeField] private List<List<Demand>> demandToComplete = new List<List<Demand>>();
+
 
     // Estructuras de datos movidas desde LoopManager
     [System.Serializable]
@@ -47,16 +48,7 @@ public class GameManager : MonoBehaviour
 
     public enum EventType { Narrative, Gameplay, Dialog };
     
-    [System.Serializable] 
-    public class Demand{
-        [SerializeField] public ResourceColor.ColorType colorType;
-        [SerializeField] public Shape.ShapeType shapeType;
-
-        public override string ToString()
-        {
-            return $"colorType: {colorType.ToString()}, shapeType: {shapeType.ToString()}";
-        }
-    }
+    public int currentDemandIndex = 0;
 
     [System.Serializable]
     public class MachineInfo
@@ -121,9 +113,9 @@ public class GameManager : MonoBehaviour
         /// <summary>
         /// Obtiene las demandas del evento
         /// </summary>
-        public List<Demand> GetDemands()
+        public List<List<Demand>> GetDemands()
         {
-            return eventConfiguration != null ? eventConfiguration.demands : new List<Demand>();
+            return eventConfiguration != null ? eventConfiguration.demands.Select(d => d.demands).ToList() : new List<List<Demand>>();
         }
         
         /// <summary>
@@ -261,6 +253,7 @@ public class GameManager : MonoBehaviour
     {
         var currentEvent = GetCurrentEvent();
         if (currentEvent == null) return;
+        currentDemandIndex = 0;
         demandToComplete = currentEvent.GetDemands();
         
         if(currentEvent.GetEventType() == EventType.Narrative)
@@ -332,14 +325,25 @@ public class GameManager : MonoBehaviour
 
     }
 
-    public List<Demand> getCurrentDemands()
+    public List<Demand> getCurrentDemand()
+    {
+        if (currentDemandIndex < demandToComplete.Count)
+        {
+            return demandToComplete[currentDemandIndex];
+        }
+        return new List<Demand>();
+    }
+
+
+
+    public List<List<Demand>> getCurrentDemands()
     {
         GenericEvent currentEvent = GetCurrentEvent();
         if (currentEvent != null)
         {
             return currentEvent.GetDemands();
         }
-        return new List<Demand>();
+        return new List<List<Demand>>();
     }
 
     public bool isDemandCompleted()
@@ -347,7 +351,7 @@ public class GameManager : MonoBehaviour
         GenericEvent currentEvent = GetCurrentEvent();
         if (currentEvent == null) return false;
         
-        List<Demand> eventDemands = new List<Demand>(currentEvent.GetDemands());
+        List<Demand> eventDemands = new List<Demand>(getCurrentDemand());
         List<Demand> lineDemands = new List<Demand>(GetItemsInLine());
         
         // Verificar si todas las demandas del evento están en la línea
@@ -370,13 +374,32 @@ public class GameManager : MonoBehaviour
         return true;
     }
     
+    public bool isLastDemand()
+    {
+        return currentDemandIndex >= GetCurrentEvent().GetDemands().Count - 1;
+    }
+
+    public void nextDemand()
+    {
+        if (currentDemandIndex < GetCurrentEvent().GetDemands().Count - 1)
+        {
+            currentDemandIndex++;
+        }
+        else
+        {
+            Debug.LogWarning("No hay más demandas para procesar.");
+        }
+    }
+    
     // SCENE MANAGEMENT
-    public void goToMenuScene() 
+    public void goToMenuScene()
     {
         if (fadeManager != null)
         {
-            fadeManager.FadeIn(() => {
-                SceneManager.LoadSceneAsync((int)Scenes.MENU).completed += (op) => {
+            fadeManager.FadeIn(() =>
+            {
+                SceneManager.LoadSceneAsync((int)Scenes.MENU).completed += (op) =>
+                {
                     fadeManager.FadeOut();
                 };
             });
