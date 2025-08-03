@@ -244,8 +244,11 @@ MonoBehaviour:
     days:
     - dayName: Day 1
       events:
-      - eventConfiguration: {fileID: 11400000, guid: 81cd39d7d052cf647928fe2bf41191e3, type: 2}
       - eventConfiguration: {fileID: 11400000, guid: 5efec7763e3e66b47ab29c98059b0b3f, type: 2}
+      - eventConfiguration: {fileID: 11400000, guid: 2b91e30c1f67d1b4ebd75ac221c954bd, type: 2}
+      - eventConfiguration: {fileID: 11400000, guid: bbc9aeea770375f4597321d89f773a61, type: 2}
+      - eventConfiguration: {fileID: 11400000, guid: e4c44b5200428e849a3b0ceab58535a9, type: 2}
+      - eventConfiguration: {fileID: 11400000, guid: c392a67c7221dc34681a8890dde39670, type: 2}
   currentDayIndex: 0
   currentEvent:
     eventConfiguration: {fileID: 11400000, guid: 81cd39d7d052cf647928fe2bf41191e3, type: 2}

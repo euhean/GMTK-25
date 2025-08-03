@@ -57,16 +57,6 @@ public class CameraSwitcher : MonoBehaviour
         Cursor.visible = false;
     }
 
-    // DEBUGGING: Toggle camera mode with space key
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            useCameraGameplay = !useCameraGameplay;
-            
-        }
-    }
-
     [ContextMenu("Switch Cameras")]
     private void SwitchCameras()
     {
