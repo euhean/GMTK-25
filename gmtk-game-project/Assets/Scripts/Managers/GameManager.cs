@@ -304,8 +304,15 @@ public class GameManager : MonoBehaviour
             {
                 Debug.LogError("No se encontró DeskManager en la escena para el evento de gameplay");
             }
+        }
+        else
+        {
+            // Stop timer for non-Gameplay events
+            StopGameplayTimer();
+        }
+
         // Si no estamos en la escena LEVEL, cargarla primero independientemente del tipo de evento
-        else if (SceneManager.GetActiveScene().buildIndex != (int)Scenes.LEVEL)
+        if (SceneManager.GetActiveScene().buildIndex != (int)Scenes.LEVEL)
         {
             // Registrar el evento para que se ejecute después de cargar la escena
             SceneManager.sceneLoaded += OnLevelSceneLoaded;
@@ -313,20 +320,8 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            // Stop timer for non-Gameplay events
-            StopGameplayTimer();
-            
-            if (SceneManager.GetActiveScene().buildIndex != (int)Scenes.LEVEL)
-            {
-                // Si no estamos en la escena LEVEL, cargarla primero
-                SceneManager.sceneLoaded += OnLevelSceneLoaded;
-                goToLevelScene();
-            }
-            else
-            {
-                // Ya estamos en la escena LEVEL, proceder con el evento
-                ExecuteEventInLevel(currentEvent);
-            }
+            // Ya estamos en la escena LEVEL, proceder con el evento
+            ExecuteEventInLevel(currentEvent);
         }
     }
 
