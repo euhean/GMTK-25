@@ -858,6 +858,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fbaa00d5534e6043942b83226db784b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textComponent: {fileID: 697673904}
+  csvFile: {fileID: 4900000, guid: 0691dc52660d8f94b806d3768891fa60, type: 3}
 --- !u!4 &1221918784
 Transform:
   m_ObjectHideFlags: 0
