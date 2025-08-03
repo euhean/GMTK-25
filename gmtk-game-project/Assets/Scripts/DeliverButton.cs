@@ -5,13 +5,11 @@ public class DeliverButton : MonoBehaviour
 {
     private PlayerController playerController;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         playerController = FindFirstObjectByType<PlayerController>();
     }
 
-    // Update is called once per frame
     void Update()
     {
 
@@ -19,19 +17,22 @@ public class DeliverButton : MonoBehaviour
 
     public void Deliver()
     {
-        Debug.Log("Deliver button pressed");
         playerController.sendDemand();
     }
 
     void OnMouseDown()
     {
-        if (playerController != null && playerController.TryGetInnerRay(out Ray innerRay))
+        if (playerController != null)
         {
-            if (Physics.Raycast(innerRay, out var hit, 100f))
+            if (playerController.TryGetInnerRay(out Ray innerRay))
             {
-                if (hit.collider.gameObject == gameObject)
+                if (Physics.Raycast(innerRay, out var hit, 100f))
                 {
-                    Deliver();
+                    if (hit.collider.gameObject == gameObject)
+                    {
+                        Debug.Log("Hit deliver button");
+                        Deliver();
+                    }
                 }
             }
         }

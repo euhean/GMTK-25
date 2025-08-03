@@ -16,8 +16,13 @@ MonoBehaviour:
   eventType: 1
   description: test
   isCompleted: 0
+  dialogCutsceneName: 
   demands:
   - demands:
+    - colorType: 2
+      shapeType: 1
+    - colorType: 2
+      shapeType: 1
     - colorType: 2
       shapeType: 1
   orbitConfig:

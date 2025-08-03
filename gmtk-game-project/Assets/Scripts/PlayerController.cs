@@ -50,12 +50,21 @@ public class PlayerController : MonoBehaviour
             if (Physics.Raycast(innerRay, out var innerHit, 100f, machineLayerMask))
             {
                 var machine = innerHit.collider.GetComponent<MachineObject>();
+                var deliverButton = innerHit.collider.GetComponent<DeliverButton>();
+
                 // if (machine && machine.iconRenderer) { machine.iconRenderer.enabled = true; lastHover = machine; }
 
-                if (Input.GetMouseButtonDown(0) && machine)
+                if (Input.GetMouseButtonDown(0))
                 {
-                    // Siempre se alterna el estado, afectando también el recurso presente.
-                    machine.ToggleMachine();
+                    if (machine)
+                    {
+                        // Siempre se alterna el estado, afectando también el recurso presente.
+                        machine.ToggleMachine();
+                    }
+                    else if (deliverButton)
+                    {
+                        deliverButton.Deliver();
+                    }
                 }
             }
         }
