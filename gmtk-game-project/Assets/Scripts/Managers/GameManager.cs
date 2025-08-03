@@ -349,26 +349,39 @@ public class GameManager : MonoBehaviour
     public bool isDemandCompleted()
     {
         GenericEvent currentEvent = GetCurrentEvent();
-        if (currentEvent == null) return false;
+        if (currentEvent == null)
+        {
+            Debug.Log("No current event found");
+            return false;
+        }
         
         List<Demand> eventDemands = new List<Demand>(getCurrentDemand());
         List<Demand> lineDemands = new List<Demand>(GetItemsInLine());
+
+        Debug.Log($"Checking demands - Event demands count: {eventDemands.Count}, Line demands count: {lineDemands.Count}");
         
         // Verificar si todas las demandas del evento están en la línea
         foreach (Demand eventDemand in eventDemands)
         {
+            Debug.Log($"Checking event demand - Color: {eventDemand.colorType}, Shape: {eventDemand.shapeType}");
             bool found = false;
             for (int i = 0; i < lineDemands.Count; i++)
             {
+                Debug.Log($"Comparing with line item {i} - Color: {lineDemands[i].colorType}, Shape: {lineDemands[i].shapeType}");
                 if (lineDemands[i].colorType == eventDemand.colorType && 
                     lineDemands[i].shapeType == eventDemand.shapeType)
                 {
                     lineDemands.RemoveAt(i);
+                    Debug.Log("Match found! Removing from line demands");
                     found = true;
                     break;
                 }
             }
-            if (!found) return false;
+            if (!found)
+            {
+                Debug.Log("Required demand not found in line - Demand not completed");
+                return false;
+            }
         }
         
         return true;

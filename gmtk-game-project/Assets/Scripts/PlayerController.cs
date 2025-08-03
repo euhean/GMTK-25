@@ -109,17 +109,23 @@ public class PlayerController : MonoBehaviour
         }
 
         // Tu lógica extra (tecla espacio, etc.)
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.C))
         {
-            if (GameManager.Instance.isDemandCompleted())
+            Debug.Log("C");
+            if (GameManager.Instance.isDemandCompleted()){
+                            Debug.Log("isDemandCompleted");
                 if (GameManager.Instance.isLastDemand())
                 {
+                    Debug.Log("isLastDemand");
                     GameManager.Instance.AdvanceToNextEvent();
                 }
                 else 
                 {
+                    Debug.Log("nextDemand");
                     GameManager.Instance.nextDemand();
                 }
+            }
+
         }
     }
 
