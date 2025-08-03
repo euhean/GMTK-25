@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using HisaGames.CutsceneManager;
 
 
 namespace HisaGames.Character
@@ -8,22 +7,7 @@ namespace HisaGames.Character
     [System.Serializable]
     public class EcCharacter : MonoBehaviour
     {
-        public enum CharacterState
-        {
-            StayInScene,
-            Moving
-        }
-
-        [Header("State Settings")]
-        [HideInInspector]
-        [Tooltip("Current state of the character (StayInScene, MoveIn, MoveOut).")]
-        public CharacterState characterState;
-
-        [Tooltip("Target position for the character when moving.")]
-        private Vector3 targetMovePosition;
-
         [Header("Sprite Settings")]
-        [HideInInspector]
         [Tooltip("SpriteRenderer component for displaying character sprites.")]
         public SpriteRenderer spriteRenderer;
 
@@ -66,45 +50,6 @@ namespace HisaGames.Character
             else
             {
                 Debug.LogWarning("spriteRenderer is null.");
-            }
-        }
-
-        /// <summary>
-        /// Check and update the character's state during runtime.
-        /// </summary>
-        public void CheckingCharacterState()
-        {
-            var step = EcCutsceneManager.instance.characterTransitionSpeed * Time.deltaTime;
-
-            switch (characterState)
-            {
-                case CharacterState.Moving:
-                    transform.position = Vector3.MoveTowards(transform.position, targetMovePosition, step);
-
-                    if (targetMovePosition == transform.position)
-                    {
-                        characterState = CharacterState.StayInScene;
-                        
-                    }
-
-                    break;
-                case CharacterState.StayInScene:
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// Set the character to move into the scene with a specific position and movement type.
-        /// </summary>
-        /// <param name="targetPosition">Target position for the character.</param>
-        /// <param name="transformType">Movement type (e.g., LeftIn, RightIn).</param>
-        public void SetCharacterMove(Vector3 targetPosition, Vector3 targetRotation, Vector3 targetScale)
-        {
-            targetMovePosition = targetPosition;
-            if (transform.position != targetMovePosition)
-            {
-                characterState = CharacterState.Moving;
-                
             }
         }
     }

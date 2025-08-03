@@ -247,24 +247,73 @@ public class GameManager : MonoBehaviour
             runEvent();
         }
     }
-    
-    
+
+
     public void runEvent()
     {
         var currentEvent = GetCurrentEvent();
         if (currentEvent == null) return;
         currentDemandIndex = 0;
         demandToComplete = currentEvent.GetDemands();
-        
-        if(currentEvent.GetEventType() == EventType.Narrative)
+
+        if (currentEvent.GetEventType() == EventType.Gameplay)
+        {
+            // Buscar una instancia del DeskManager en la escena
+            DeskManager deskManager = FindFirstObjectByType<DeskManager>();
+            if (deskManager != null)
+            {
+                deskManager.StartGameplayEvent();
+            }
+            else
+            {
+                Debug.LogError("No se encontró DeskManager en la escena para el evento de gameplay");
+            }
+        }
+        else if (SceneManager.GetActiveScene().buildIndex != (int)Scenes.LEVEL)
+        {
+            // Si no estamos en la escena LEVEL, cargarla primero
+            SceneManager.sceneLoaded += OnLevelSceneLoaded;
+            goToLevelScene();
+        }
+        else
+        {
+            // Ya estamos en la escena LEVEL, proceder con el evento
+            ExecuteEventInLevel(currentEvent);
+        }
+    }
+
+    private void OnLevelSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.buildIndex == (int)Scenes.LEVEL)
+        {
+            SceneManager.sceneLoaded -= OnLevelSceneLoaded;
+            ExecuteEventInLevel(GetCurrentEvent());
+        }
+    }
+
+    private void ExecuteEventInLevel(GenericEvent currentEvent)
+    {
+        if (currentEvent.GetEventType() == EventType.Narrative)
         {
             goToNarrativeScene();
         }
-        else if(currentEvent.GetEventType() == EventType.Gameplay)
+        else if (currentEvent.GetEventType() == EventType.Dialog)
         {
-            goToLevelScene();
+            DeskManager deskManager = FindFirstObjectByType<DeskManager>();
+            if (deskManager != null)
+            {
+                string dialogCutsceneName = "";
+                if (currentEvent.eventConfiguration != null)
+                {
+                    dialogCutsceneName = currentEvent.eventConfiguration.dialogCutsceneName;
+                }
+                deskManager.StartDialogEvent(dialogCutsceneName);
+            }
+            else
+            {
+                Debug.LogError("No se encontró DeskManager en la escena para el evento de diálogo");
+            }
         }
-        
     }
 
     public void AdvanceToNextDay()
