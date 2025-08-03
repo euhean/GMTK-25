@@ -47,10 +47,19 @@ public class DeskManager : MonoBehaviour
     [SerializeField] private Transform alertStartPosition;  // Transform donde empieza el alert
     [SerializeField] private Transform alertEndPosition;    // Transform donde termina el alert
     
+    [Header("Phone Animation Settings")]
+    [SerializeField] public GameObject phoneObjectToAnimate; // GameObject que se animará como teléfono
+
     [SerializeField] private bool interactionEnabled = true; // Controla si la interacción está habilitada
 
     private bool hasInteractedWithPhone = false;
     
+    // Guarda la referencia de la vibración activa para detenerla
+    private Tween phoneVibrationTween;
+
+    // Guarda la posición original del teléfono
+    private Vector3 phoneOriginalPosition;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -202,6 +211,22 @@ public class DeskManager : MonoBehaviour
                 callAlertSound.Play(); // Solo aquí empieza el sonido
             }
 
+            // Iniciar animación de vibración en el teléfono usando la variable
+            if (phoneObjectToAnimate != null)
+            {
+                phoneVibrationTween?.Kill();
+                // Guardar posición original antes de vibrar
+                phoneOriginalPosition = phoneObjectToAnimate.transform.localPosition;
+                phoneVibrationTween = phoneObjectToAnimate.transform.DOShakePosition(
+                    duration: 5f,
+                    strength: new Vector3(0.01f, 0.01f, 0),
+                    vibrato: 60,
+                    randomness: 10,
+                    snapping: false,
+                    fadeOut: false
+                ).SetLoops(-1, LoopType.Restart);
+            }
+
             StartCoroutine(ReturnAlertAfterDelay());
         }
         
@@ -322,6 +347,17 @@ public class DeskManager : MonoBehaviour
                 callAlertSound.Stop(); // Solo aquí se detiene el sonido
             }
 
+            // Detener la vibración del teléfono usando la variable
+            if (phoneVibrationTween != null)
+            {
+                phoneVibrationTween.Kill();
+                phoneVibrationTween = null;
+                if (phoneObjectToAnimate != null)
+                {
+                    phoneObjectToAnimate.transform.localPosition = phoneOriginalPosition;
+                }
+            }
+
             // Iniciar el cutscene con el nombre guardado
             StartCutscene(pendingDialogCutscene);
             pendingDialogCutscene = null;
@@ -334,6 +370,16 @@ public class DeskManager : MonoBehaviour
             if (callAlertSound != null)
             {
                 callAlertSound.Stop();
+            }
+            // Detener la vibración si está activa
+            if (phoneVibrationTween != null)
+            {
+                phoneVibrationTween.Kill();
+                phoneVibrationTween = null;
+                if (phoneObjectToAnimate != null)
+                {
+                    phoneObjectToAnimate.transform.localPosition = phoneOriginalPosition;
+                }
             }
         }
     }
