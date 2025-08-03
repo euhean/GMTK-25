@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Cinemachine;
+using DG.Tweening; // Añade DOTween
 
 public class CameraSwitcher : MonoBehaviour
 {
@@ -8,6 +9,13 @@ public class CameraSwitcher : MonoBehaviour
     [SerializeField] private GameObject playerController;
     [SerializeField] private bool _useCameraGameplay = true;
     [SerializeField] private DeskManager deskManager;
+
+    [Header("Gameplay Camera Transition")]
+    [SerializeField] public GameObject gameplayCameraTransitionStart;
+    [SerializeField] public GameObject gameplayCameraTransitionEnd;
+    [SerializeField] public GameObject cameraToAnimate; // Cámara a animar desde el editor
+    [SerializeField] private float cameraTransitionDuration = 0.9f; // Duración de transición editable
+    private Tween gameplayCameraTween;
 
     public bool useCameraGameplay
     {
@@ -66,6 +74,30 @@ public class CameraSwitcher : MonoBehaviour
         {
             camera_desk.gameObject.SetActive(!useCameraGameplay);
             camera_gameplay.gameObject.SetActive(useCameraGameplay);
+
+            // Animación DOTween para la cámara asignada desde el editor
+            if (cameraToAnimate != null)
+            {
+                if (!useCameraGameplay && gameplayCameraTransitionEnd != null)
+                {
+                    gameplayCameraTween?.Kill();
+                    cameraToAnimate.transform.position = gameplayCameraTransitionStart != null
+                        ? gameplayCameraTransitionStart.transform.position
+                        : cameraToAnimate.transform.position;
+                    gameplayCameraTween = cameraToAnimate.transform.DOMove(
+                        gameplayCameraTransitionEnd.transform.position,
+                        cameraTransitionDuration
+                    ).SetEase(Ease.Linear);
+                }
+                else if (useCameraGameplay && gameplayCameraTransitionStart != null)
+                {
+                    gameplayCameraTween?.Kill();
+                    gameplayCameraTween = cameraToAnimate.transform.DOMove(
+                        gameplayCameraTransitionStart.transform.position,
+                        cameraTransitionDuration
+                    ).SetEase(Ease.Linear);
+                }
+            }
         }
         else
         {
