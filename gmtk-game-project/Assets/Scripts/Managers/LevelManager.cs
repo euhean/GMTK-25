@@ -142,14 +142,8 @@ public class LevelManager : BaseManager
         // Delegate to existing NarrativeManager
         if (narrativeManager != null)
         {
-            // Use GameManager's narrative configuration as before
-            narrativeManager.UpdateData(
-                GameManager.Instance.GetNarrativeCsv(), 
-                GameManager.Instance.currentDay, 
-                GameManager.Instance.GetNarrativeStartEnd(), 
-                GameManager.Instance.GetNarrativeQuotaBool()
-            );
-            narrativeManager.StartText();
+            // Let NarrativeManager handle its own initialization
+            narrativeManager.InitializeFromGameManager();
             Debug.Log("[LevelManager] Narrative display started");
         }
         else

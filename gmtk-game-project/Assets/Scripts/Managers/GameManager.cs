@@ -469,18 +469,17 @@ public class GameManager : MonoBehaviour
         }
     }
     
-    // ORBIT AND MACHINE INSTANTIATION METHODS - Delegated to LevelManager
-    public void InstantiateCurrentEventObjects(Transform centerTransform)
+    // Day Management Methods - Delegate to managers
+    public void runEvent()
     {
-        var levelManager = GetManager<LevelManager>();
-        if (levelManager != null)
-        {
-            levelManager.InstantiateCurrentEventObjects(centerTransform);
-        }
-        else
-        {
-            Debug.LogWarning("[GameManager] LevelManager not found - cannot instantiate event objects");
-        }
+        var dayManager = GetManager<DayManager>();
+        dayManager?.RunCurrentEvent();
+    }
+    
+    public void AdvanceToNextDay()
+    {
+        var loopManager = GetManager<LoopManager>();
+        loopManager?.AdvanceToNextDay();
     }
     
     // Método para obtener la configuración orbital del evento actual

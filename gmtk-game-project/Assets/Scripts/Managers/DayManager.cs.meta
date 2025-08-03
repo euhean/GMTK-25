@@ -1,6 +1,11 @@
 fileFormatVersion: 2
-<<<<<<< HEAD
 guid: c0cbb9122fcdf7c4eb04be0baf9cbdd2
-=======
-guid: 84d98d6abf9962949ace961aa27b8032
->>>>>>> origin/Jon-ui-logic
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

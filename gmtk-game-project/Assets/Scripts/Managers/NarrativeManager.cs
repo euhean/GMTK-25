@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 using BitWave_Labs.AnimatedTextReveal;
 
@@ -31,34 +30,26 @@ public class NarrativeManager : BaseManager
     }
     
     /// <summary>
-    /// Initializes the NarrativeManager with data from GameManager
+    /// Initializes the NarrativeManager from GameManager with placeholder values
+    /// TODO: Implement proper narrative data loading from EventConfiguration
     /// </summary>
     public void InitializeFromGameManager()
     {
         if (GameManager.Instance != null)
         {
-            // Get values from GameManager
-            TextAsset narrativeCsv = GameManager.Instance.GetNarrativeCsv();
-            int currentDay = GameManager.Instance.currentDay;
-            bool narrativeStartEnd = GameManager.Instance.GetNarrativeStartEnd();
-            bool narrativeQuotaBool = GameManager.Instance.GetNarrativeQuotaBool();
+            // Use placeholder values since narrative system needs to be properly configured
+            TextAsset narrativeCsv = csvFile; // Use existing csvFile for now
+            int currentDay = 1; // TODO: Should come from DayManager
+            bool narrativeStartEnd = true; // TODO: Should be configurable
+            bool narrativeQuotaBool = true; // TODO: Should be based on actual game state
             
-            // Update local values if GameManager has data
-            if (narrativeCsv != null)
-            {
-                UpdateData(narrativeCsv, currentDay, narrativeStartEnd, narrativeQuotaBool);
-                // Start displaying the text
-                StartText();
-                Debug.Log($"[NarrativeManager] Initialized from GameManager: Day {currentDay}, StartEnd: {narrativeStartEnd}, Quota: {narrativeQuotaBool}");
-            }
-            else
-            {
-                Debug.LogWarning("[NarrativeManager] GameManager has no narrative CSV configured");
-            }
+            // Update local values with defaults for now
+            UpdateData(narrativeCsv, currentDay, narrativeStartEnd, narrativeQuotaBool);
+            StartText();
         }
         else
         {
-            Debug.LogWarning("[NarrativeManager] GameManager.Instance not found - using default values");
+            Debug.LogWarning("[NarrativeManager] GameManager not found - using default values");
         }
     }
 
