@@ -14,6 +14,9 @@ public class EventConfiguration : ScriptableObject
     [SerializeField] public string description = "";
     [SerializeField] public bool isCompleted = false;
     
+    [Header("Dialog Configuration")]
+    [SerializeField] public string dialogCutsceneName = ""; // Nombre del cutscene para eventos de diálogo
+    
     [Header("Demands")]
     [SerializeField] public List<DemandList> demands = new List<DemandList>();
 

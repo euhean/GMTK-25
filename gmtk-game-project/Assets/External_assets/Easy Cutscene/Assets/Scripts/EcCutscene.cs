@@ -133,11 +133,18 @@ namespace HisaGames.Cutscene
             if (startTyping)
                 StartTypingAnimation(chatText, chatTextString);
 
-            for (int i = 0; i < cutsceneData[currentID].charactersData.Length; i++)
+            // Check if there are characters in the current cutscene
+            if (cutsceneData[currentID].charactersData != null && cutsceneData[currentID].charactersData.Length > 0)
             {
-                string tempName = cutsceneData[currentID].charactersData[i].name;
-                EcCharacter character = EcCutsceneManager.instance.getCharacterObject(tempName);
-                character.CheckingCharacterState();
+                for (int i = 0; i < cutsceneData[currentID].charactersData.Length; i++)
+                {
+                    string tempName = cutsceneData[currentID].charactersData[i].name;
+                    EcCharacter character = EcCutsceneManager.instance.getCharacterObject(tempName);
+                    if (character != null)
+                    {
+                        character.CheckingCharacterState();
+                    }
+                }
             }
 
             if (activePropsData != null)
@@ -145,7 +152,10 @@ namespace HisaGames.Cutscene
                 for (int i = 0; i < activePropsData.Length; i++)
                 {
                     EcProps props = EcCutsceneManager.instance.getPropObject(activePropsData[i].name);
-                    props.PropUpdate();
+                    if (props != null)
+                    {
+                        props.PropUpdate();
+                    }
                 }
             }
         }

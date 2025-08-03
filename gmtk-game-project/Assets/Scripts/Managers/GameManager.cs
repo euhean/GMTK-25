@@ -247,22 +247,47 @@ public class GameManager : MonoBehaviour
             runEvent();
         }
     }
-    
-    
+
+
     public void runEvent()
     {
         var currentEvent = GetCurrentEvent();
         if (currentEvent == null) return;
         currentDemandIndex = 0;
         demandToComplete = currentEvent.GetDemands();
-        
-        if(currentEvent.GetEventType() == EventType.Narrative)
+
+        if (currentEvent.GetEventType() == EventType.Narrative)
         {
             goToNarrativeScene();
         }
-        else if(currentEvent.GetEventType() == EventType.Gameplay)
+        else if (currentEvent.GetEventType() == EventType.Gameplay)
         {
             goToLevelScene();
+        }
+        else if (currentEvent.GetEventType() == EventType.Dialog)
+        {
+            // Buscar una instancia del DeskManager en la escena
+            DeskManager deskManager = FindFirstObjectByType<DeskManager>();
+            if (deskManager != null)
+            {
+                // Obtener el nombre del cutscene de diálogo desde la configuración del evento
+                string dialogCutsceneName = "";
+                if (currentEvent.eventConfiguration != null)
+                {
+                    dialogCutsceneName = currentEvent.eventConfiguration.dialogCutsceneName;
+                }
+                
+                // Iniciar el evento de diálogo
+                deskManager.StartDialogEvent(dialogCutsceneName);
+            }
+            else
+            {
+                Debug.LogError("No se encontró DeskManager en la escena para el evento de diálogo");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Tipo de evento desconocido: " + currentEvent.GetEventType());
         }
         
     }

@@ -30,6 +30,13 @@ public class DeskManager : MonoBehaviour
     [SerializeField] private float activationDelay = 0.5f; // Delay before activating the canvas
     [SerializeField] private float deactivationDelay = 0.5f; // Delay before deactivating the canvas
 
+    [Header("Dialog Event Settings")]
+    [SerializeField] private GameObject callAlert; // GameObject to activate for call alerts
+    [SerializeField] private AudioSource callAlertSound; // Sound to play for call alerts
+    [SerializeField] private CameraSwitcher cameraSwitcher; // Reference to camera switcher
+    private bool waitingForPhoneInteraction = false;
+    private string pendingDialogCutscene = null;
+
     [Header("Interactable Objects")]
     public List<InteractableElement> interactableObjects; // Lista de objetos interactuables
     
@@ -53,6 +60,10 @@ public class DeskManager : MonoBehaviour
         {
             phoneDialogCanvas.gameObject.SetActive(false);
         }
+        
+        // If cameraSwitcher is not assigned, try to find it in the scene
+        if (cameraSwitcher == null)
+            cameraSwitcher = FindFirstObjectByType<CameraSwitcher>();
     }
 
     void Awake()
@@ -142,6 +153,47 @@ public class DeskManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Inicia un evento de diálogo que requiere interacción con el teléfono
+    /// </summary>
+    /// <param name="dialogCutsceneName">Nombre del cutscene a reproducir cuando se interactúe con el teléfono</param>
+    public void StartDialogEvent(string dialogCutsceneName)
+    {
+        pendingDialogCutscene = dialogCutsceneName;
+        waitingForPhoneInteraction = true;
+        
+        // 1. Activar el CallAlert y reproducir sonido
+        if (callAlert != null)
+        {
+            callAlert.SetActive(true);
+            
+            if (callAlertSound != null)
+            {
+                callAlertSound.Play();
+            }
+        }
+        
+        // 2. Cambiar la cámara activa a desktop después de 2 segundos
+        StartCoroutine(SwitchToDesktopCamera());
+    }
+    
+    /// <summary>
+    /// Cambia a la cámara de escritorio después de un delay
+    /// </summary>
+    private IEnumerator SwitchToDesktopCamera()
+    {
+        yield return new WaitForSeconds(2.0f);
+        
+        if (cameraSwitcher != null)
+        {
+            cameraSwitcher.useCameraGameplay = false; // Switch to desk camera
+        }
+        else
+        {
+            Debug.LogWarning("Camera Switcher reference is missing!");
+        }
+    }
+
+    /// <summary>
     /// Verifica si el objeto es interactuable y realiza la interacción correspondiente.
     /// </summary>
     /// <param name="obj">El objeto a interactuar.</param>
@@ -193,8 +245,24 @@ public class DeskManager : MonoBehaviour
     /// <param name="element">El elemento interactuable de tipo PHONE.</param>
     private void InteractWithPhone(InteractableElement element)
     {
-        
-        // Lógica específica para interactuar con teléfono
+        // Si estamos esperando interacción de teléfono para un evento de diálogo
+        if (waitingForPhoneInteraction && !string.IsNullOrEmpty(pendingDialogCutscene))
+        {
+            // Desactivar el estado de espera y el callAlert
+            waitingForPhoneInteraction = false;
+            if (callAlert != null)
+            {
+                callAlert.SetActive(false);
+            }
+            
+            // Iniciar el cutscene con el nombre guardado
+            StartCutscene(pendingDialogCutscene);
+            pendingDialogCutscene = null;
+        }
+        else
+        {
+            // Lógica específica para interactuar con teléfono en otros casos
+        }
     }
 
     /// <summary>

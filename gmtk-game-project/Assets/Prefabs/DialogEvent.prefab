@@ -448,9 +448,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1a1bda4f59ad0c4e8c5b3c3df6d8c0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterPrefabs:
-  - {fileID: 5402007523096397617, guid: 0db9b1d9698508f4ca7f8698b95ccc9e, type: 3}
-  - {fileID: 4877161689065050184, guid: ebf687764fe2f394c99b1cbb277cf7e5, type: 3}
+  characterPrefabs: []
   propPrefabs: []
   cutscenes:
   - {fileID: 238350298627909202}
