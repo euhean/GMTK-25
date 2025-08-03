@@ -3,12 +3,13 @@ using System.Collections.Generic;
 
 public abstract class MachineObject : MonoBehaviour, IMachine
 {
-    public bool isOn = false;
+    public bool isOn = true;
     public ScriptableObject machineData;
     public MachinePurpose purpose;
     public Resource currentResource;
     public List<Resource> resourceLog = new List<Resource>();
     public SpriteRenderer iconRenderer;
+    public MachineConfiguration machineConfiguration; // Referencia a la configuración para sprites
 
     public bool IsOn { get => isOn; set => isOn = value; }
     public ScriptableObject MachineData { get => machineData; set => machineData = value; }
@@ -16,35 +17,16 @@ public abstract class MachineObject : MonoBehaviour, IMachine
 
     public abstract void Interact(Resource resource);
 
-    private Renderer statusIndicatorRenderer;
-
     void Start()
     {
-        // Buscar el indicador de estado
-        Transform statusIndicator = transform.Find("StatusIndicator");
-        if (statusIndicator != null)
-        {
-            statusIndicatorRenderer = statusIndicator.GetComponent<Renderer>();
-            if (statusIndicatorRenderer != null && statusIndicatorRenderer.material != null)
-            {
-                // Crear una instancia única del material para evitar modificar el material compartido
-                statusIndicatorRenderer.material = new Material(statusIndicatorRenderer.material);
-                Debug.Log($"Machine {gameObject.name}: Found status indicator");
-            }
-        }
-        else
-        {
-            Debug.LogWarning($"Machine {gameObject.name}: No status indicator found");
-        }
-        
-        // Establecer el color inicial basado en el estado
-        UpdateMachineColor();
+        // Establecer el sprite inicial basado en el estado
+        UpdateMachineSprite();
     }
 
     public void ToggleMachine()
     {
         isOn = !isOn;
-        UpdateMachineColor();
+        UpdateMachineSprite();
         Debug.Log($"Machine {gameObject.name} is now {(isOn ? "ON" : "OFF")}");
         // Si se activa y hay un recurso en trigger, se procesa la interacción de inmediato
         if (isOn && currentResource != null)
@@ -53,17 +35,25 @@ public abstract class MachineObject : MonoBehaviour, IMachine
         }
     }
 
-    void UpdateMachineColor()
+    void UpdateMachineSprite()
     {
-        if (statusIndicatorRenderer != null && statusIndicatorRenderer.material != null)
-        {
-            Color targetColor = isOn ? Color.green : Color.red;
-            statusIndicatorRenderer.material.color = targetColor;
-            Debug.Log($"Machine {gameObject.name}: Status indicator color changed to {targetColor}");
+        if (iconRenderer != null && machineConfiguration != null)
+        {   
+            Sprite targetSprite = isOn ? machineConfiguration.activeSprite : machineConfiguration.inactiveSprite;
+            Debug.Log($"Machine {gameObject.name}: Sprite changed to {targetSprite.name} (isOn: {isOn})");
+            if (targetSprite != null)
+            {
+                iconRenderer.sprite = targetSprite;
+                Debug.Log($"Machine {gameObject.name}: Sprite changed to {targetSprite.name} (isOn: {isOn})");
+            }
+            else
+            {
+                Debug.LogWarning($"Machine {gameObject.name}: {(isOn ? "Active" : "Inactive")} sprite not assigned in MachineConfiguration");
+            }
         }
         else
         {
-            Debug.LogWarning($"Machine {gameObject.name}: No status indicator renderer found for color change");
+            Debug.LogWarning($"Machine {gameObject.name}: No iconRenderer or MachineConfiguration found for sprite change");
         }
     }
 

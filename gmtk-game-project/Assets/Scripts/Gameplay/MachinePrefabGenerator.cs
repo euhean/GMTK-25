@@ -53,9 +53,6 @@ public static class MachinePrefabGenerator
         // Configurar colliders como triggers
         ConfigureColliders(machineInstance);
         
-        // Crear indicador de estado
-        CreateStatusIndicator(machineInstance);
-        
         return machineInstance;
     }
     
@@ -99,6 +96,8 @@ public static class MachinePrefabGenerator
             CreateMachineData(machineComponent, config);
             machineComponent.purpose = config.purpose;
             machineComponent.isOn = true;
+            // Asignar la configuración para acceso a sprites
+            machineComponent.machineConfiguration = config;
         }
     }
     
@@ -221,72 +220,9 @@ public static class MachinePrefabGenerator
         }
     }
     
-    /// <summary>
-    /// Crea un indicador de estado circular encima de la máquina
-    /// </summary>
-    private static void CreateStatusIndicator(GameObject machineInstance)
-    {
-        // Crear un quad como indicador de estado (sprite plano)
-        GameObject statusIndicator = GameObject.CreatePrimitive(PrimitiveType.Quad);
-        statusIndicator.name = "StatusIndicator";
-        
-        // Configurar como hijo de la máquina
-        statusIndicator.transform.SetParent(machineInstance.transform);
-        
-        // Posicionar encima del centro de la máquina
-        Bounds machineBounds = GetMachineBounds(machineInstance);
-        Vector3 indicatorPosition = new Vector3(0, machineBounds.size.y / 2 + 0.3f, 0);
-        statusIndicator.transform.localPosition = indicatorPosition;
-        
-        // Rotar para que sea horizontal (mirando hacia arriba)
-        statusIndicator.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-        
-        // Escalar para hacer un círculo pequeño
-        statusIndicator.transform.localScale = new Vector3(0.4f, 0.4f, 1f);
-        
-        // Crear material para el indicador con shader Unlit para mejor visibilidad
-        Renderer indicatorRenderer = statusIndicator.GetComponent<Renderer>();
-        if (indicatorRenderer != null)
-        {
-            Material indicatorMaterial = new Material(Shader.Find("Unlit/Color"));
-            indicatorMaterial.color = Color.green; // Estado inicial activo
-            indicatorRenderer.material = indicatorMaterial;
-        }
-        
-        // Remover el collider del indicador para que no interfiera
-        Collider indicatorCollider = statusIndicator.GetComponent<Collider>();
-        if (indicatorCollider != null)
-        {
-            Object.DestroyImmediate(indicatorCollider);
-        }
-        
-        Debug.Log($"MachinePrefabGenerator: Created flat status indicator for {machineInstance.name}");
-    }
+
     
-    /// <summary>
-    /// Obtiene los bounds de la máquina para posicionar el indicador
-    /// </summary>
-    private static Bounds GetMachineBounds(GameObject machineInstance)
-    {
-        Renderer[] renderers = machineInstance.GetComponentsInChildren<Renderer>();
-        if (renderers.Length == 0)
-        {
-            return new Bounds(Vector3.zero, Vector3.one);
-        }
-        
-        Bounds bounds = renderers[0].bounds;
-        foreach (Renderer renderer in renderers)
-        {
-            if (renderer.gameObject.name != "StatusIndicator") // Excluir el propio indicador
-            {
-                bounds.Encapsulate(renderer.bounds);
-            }
-        }
-        
-        // Convertir a espacio local
-        bounds.center = machineInstance.transform.InverseTransformPoint(bounds.center);
-        return bounds;
-    }
+
     
     /// <summary>
     /// Configura el icono de la máquina
@@ -299,59 +235,52 @@ public static class MachinePrefabGenerator
             return;
         }
         
-        // Verificar que el GameObject siga siendo válido
-        if (machineInstance == null || !machineInstance)
+        // Buscar el hijo MachineSprite
+        Transform machineSprite = machineInstance.transform.Find("MachineSprite");
+        Transform iconSprite = machineInstance.transform.Find("Icon");
+
+
+        if (machineSprite != null)
         {
-            Debug.LogError("MachinePrefabGenerator.ConfigureIcon: machineInstance became invalid during execution");
-            return;
-        }
-        
-        // Verificar si ya existe un MeshRenderer (que conflictuaría con SpriteRenderer)
-        MeshRenderer meshRenderer = machineInstance.GetComponent<MeshRenderer>();
-        if (meshRenderer != null)
-        {
-            // Si hay MeshRenderer, crear un GameObject hijo para el icono
-            CreateIconChild(machineInstance, config);
-            return;
-        }
-        
-        SpriteRenderer iconRenderer = machineInstance.GetComponent<SpriteRenderer>();
-        
-        // Si no existe, crear uno
-        if (iconRenderer == null)
-        {
-            iconRenderer = machineInstance.AddComponent<SpriteRenderer>();
-            if (iconRenderer == null)
+
+            
+            // Obtener el SpriteRenderer del hijo MachineSprite
+            SpriteRenderer machineSpriteRenderer = machineSprite.GetComponent<SpriteRenderer>();
+            SpriteRenderer iconSpriteRenderer = iconSprite.GetComponent<SpriteRenderer>();
+
+            if(config.machineType == MachineConfiguration.MachineType.Huehopper){
+                machineSpriteRenderer.color = config.machineColor;
+                iconSpriteRenderer.enabled = false;
+            }
+            if(config.machineType == MachineConfiguration.MachineType.Shapeshifter){
+                iconSpriteRenderer.enabled = true;
+                iconSpriteRenderer.color = config.iconColor;
+                iconSpriteRenderer.sprite = config.iconSprite;
+
+            }
+            if (machineSpriteRenderer != null)
             {
-                Debug.LogError("MachinePrefabGenerator.ConfigureIcon: Failed to add SpriteRenderer component");
-                return;
+                // Asignar el iconRenderer al componente MachineObject para que UpdateMachineSprite pueda controlarlo
+                MachineObject machineComponent = machineInstance.GetComponent<MachineObject>();
+                if (machineComponent != null)
+                {
+                    machineComponent.iconRenderer = machineSpriteRenderer;
+                    Debug.Log($"Asignado SpriteRenderer de MachineSprite a {machineInstance.name}");
+                }
+            }
+            else
+            {
+                Debug.LogError($"MachinePrefabGenerator.ConfigureIcon: MachineSprite no tiene SpriteRenderer en {machineInstance.name}");
             }
         }
-        
-        // Configurar sprite si está especificado
-        if (config.iconSprite != null)
-        {
-            iconRenderer.sprite = config.iconSprite;
-        }
         else
         {
-            // Usar sprites por defecto basados en el propósito
-            SetDefaultIcon(iconRenderer, config);
-        }
-        
-        // Aplicar color (verificar que ambos objetos sean válidos)
-        if (config != null && iconRenderer != null)
-        {
-            iconRenderer.color = config.iconColor;
-        }
-        else
-        {
-            Debug.LogError($"MachinePrefabGenerator.ConfigureIcon: config is null: {config == null}, iconRenderer is null: {iconRenderer == null}");
+            Debug.LogError($"MachinePrefabGenerator.ConfigureIcon: No se encontró hijo MachineSprite en {machineInstance.name}");
         }
     }
     
     /// <summary>
-    /// Configura el icono usando el hijo "Icon" existente o crea uno nuevo si no existe
+    /// Configura el icono usando el hijo "MachineSprite" existente o crea uno nuevo si no existe
     /// </summary>
     private static void CreateIconChild(GameObject parent, MachineConfiguration config)
     {
@@ -361,10 +290,16 @@ public static class MachinePrefabGenerator
             return;
         }
         
-        // Buscar primero el hijo "Icon" (nombre preferido)
-        Transform existingIcon = parent.transform.Find("Icon");
+        // Buscar primero el hijo "MachineSprite" (nombre preferido)
+        Transform existingIcon = parent.transform.Find("MachineSprite");
         
-        // Si no existe "Icon", buscar "MachineIcon" (compatibilidad con versiones anteriores)
+        // Si no existe "MachineSprite", buscar "Icon" (compatibilidad con versiones anteriores)
+        if (existingIcon == null)
+        {
+            existingIcon = parent.transform.Find("Icon");
+        }
+        
+        // Si tampoco existe "Icon", buscar "MachineIcon" (compatibilidad con versiones anteriores)
         if (existingIcon == null)
         {
             existingIcon = parent.transform.Find("MachineIcon");
@@ -379,8 +314,8 @@ public static class MachinePrefabGenerator
         }
         else
         {
-            // Crear nuevo GameObject hijo para el icono con el nombre "Icon"
-            iconChild = new GameObject("Icon");
+            // Crear nuevo GameObject hijo para el icono con el nombre "MachineSprite"
+            iconChild = new GameObject("MachineSprite");
             iconChild.transform.SetParent(parent.transform);
             
             // Posicionar el icono centrado y ligeramente encima del cubo
@@ -389,7 +324,7 @@ public static class MachinePrefabGenerator
             iconChild.transform.localRotation = UnityEngine.Quaternion.Euler(90, 0, 0);
             iconChild.transform.localScale = UnityEngine.Vector3.one;
             
-            Debug.Log("Creado nuevo hijo 'Icon' para el icono");
+            Debug.Log("Creado nuevo hijo 'MachineSprite' para el icono");
         }
         
         // Configurar el SpriteRenderer del icono
@@ -397,11 +332,11 @@ public static class MachinePrefabGenerator
         if (iconRenderer == null)
         {
             iconRenderer = iconChild.AddComponent<SpriteRenderer>();
-            Debug.Log("Agregado SpriteRenderer al hijo Icon");
+            Debug.Log("Agregado SpriteRenderer al hijo MachineSprite");
         }
         else
         {
-            Debug.Log("Usando SpriteRenderer existente en el hijo Icon");
+            Debug.Log("Usando SpriteRenderer existente en el hijo MachineSprite");
         }
         
         // Aplicar sprite y color
@@ -414,10 +349,17 @@ public static class MachinePrefabGenerator
             SetDefaultIcon(iconRenderer, config);
         }
         
-        iconRenderer.color = config.iconColor;
+        iconRenderer.color = config.machineColor;
         
         // Asegurar que el icono se renderice por encima
         iconRenderer.sortingOrder = 10;
+        
+        // Asignar el iconRenderer al componente MachineObject del padre
+        MachineObject machineComponent = parent.GetComponent<MachineObject>();
+        if (machineComponent != null && iconRenderer != null)
+        {
+            machineComponent.iconRenderer = iconRenderer;
+        }
     }
     
     /// <summary>
@@ -434,7 +376,7 @@ public static class MachinePrefabGenerator
         // Para MeshRenderer, configuramos el color del material
         if (meshRenderer.material != null)
         {
-            meshRenderer.material.color = config.iconColor;
+            meshRenderer.material.color = config.machineColor;
         }
         else
         {
@@ -470,7 +412,7 @@ public static class MachinePrefabGenerator
             iconRenderer.sprite = config.targetSprite;
         }
         
-        // Para Huehopper, el color se maneja en el iconColor
+        // Para Huehopper, el color se maneja en el machineColor
         // No necesita sprite específico, solo el color
     }
     

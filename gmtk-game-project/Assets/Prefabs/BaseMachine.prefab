@@ -164,6 +164,7 @@ MonoBehaviour:
   currentResource: {fileID: 0}
   resourceLog: []
   iconRenderer: {fileID: 0}
+  machineConfiguration: {fileID: 0}
 --- !u!65 &5545998003687877943
 BoxCollider:
   m_ObjectHideFlags: 0

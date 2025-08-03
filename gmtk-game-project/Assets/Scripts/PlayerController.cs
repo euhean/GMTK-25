@@ -38,7 +38,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         // Limpia hover anterior (mucho más barato que buscar todos cada frame)
-        if (lastHover && lastHover.iconRenderer) lastHover.iconRenderer.enabled = false;
+        // if (lastHover && lastHover.iconRenderer) lastHover.iconRenderer.enabled = false;
         lastHover = null;
 
         // 1) ¿Estamos apuntando al monitor?
@@ -50,7 +50,7 @@ public class PlayerController : MonoBehaviour
             if (Physics.Raycast(innerRay, out var innerHit, 100f, machineLayerMask))
             {
                 var machine = innerHit.collider.GetComponent<MachineObject>();
-                if (machine && machine.iconRenderer) { machine.iconRenderer.enabled = true; lastHover = machine; }
+                // if (machine && machine.iconRenderer) { machine.iconRenderer.enabled = true; lastHover = machine; }
 
                 if (Input.GetMouseButtonDown(0) && machine)
                 {
@@ -69,7 +69,7 @@ public class PlayerController : MonoBehaviour
             if (Physics.Raycast(ray, out var hit, 100f, machineLayerMask))
             {
                 var machine = hit.collider.GetComponent<MachineObject>();
-                if (machine && machine.iconRenderer) { machine.iconRenderer.enabled = true; lastHover = machine; }
+               //  if (machine && machine.iconRenderer) { machine.iconRenderer.enabled = true; lastHover = machine; }
 
                 if (Input.GetMouseButtonDown(0) && machine)
                 {

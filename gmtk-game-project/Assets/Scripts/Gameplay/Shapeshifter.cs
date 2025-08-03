@@ -14,7 +14,7 @@ public class Shapeshifter : MachineObject
             if (iconRenderer == null)
                 iconRenderer = GetComponent<SpriteRenderer>() ?? gameObject.AddComponent<SpriteRenderer>();
 
-            switch (purpose)
+           /* switch (purpose)
             {
                 case MachinePurpose.TRIANGLE:
                     iconRenderer.sprite = shapeData.triangleSprite;
@@ -25,7 +25,7 @@ public class Shapeshifter : MachineObject
                 case MachinePurpose.SQUARE:
                     iconRenderer.sprite = shapeData.squareSprite;
                     break;
-            }
+            } */
         }
         else Debug.LogWarning($"Shapeshifter: machineData is not a Shape ScriptableObject.");
     }

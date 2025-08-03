@@ -40,7 +40,5 @@ MonoBehaviour:
     machineInfos:
     - machineConfiguration: {fileID: 11400000, guid: 8d2d369cb764f1d439155ae5b0ef8299, type: 2}
       angleDegrees: 36
-    - machineConfiguration: {fileID: 11400000, guid: add719bc3260b7a46abe3eb5f85e6d24, type: 2}
-      angleDegrees: 216
-    - machineConfiguration: {fileID: 11400000, guid: 8d2d369cb764f1d439155ae5b0ef8299, type: 2}
-      angleDegrees: 0
+    - machineConfiguration: {fileID: 11400000, guid: f37df7509c7e81b4fa05921ef6be6e4f, type: 2}
+      angleDegrees: 180

@@ -14,8 +14,10 @@ public class MachineConfiguration : ScriptableObject
     public Material machineMaterial;
     public Sprite iconSprite; // Sprite que se mostrará como icono de la máquina
     public Sprite targetSprite; // Sprite al que convertirá los recursos
-    public Color iconColor = Color.white;
-    public Color targetColor = Color.white; // Color al que convertirá los recursos (para Huehopper)
+    public Sprite activeSprite; 
+    public Sprite inactiveSprite; 
+    public Color machineColor = Color.white;
+    public Color iconColor  = Color.white; // Color al que convertirá los recursos (para Huehopper)
     
     [Header("Transform Settings")]
     public Vector3 scale = Vector3.one;

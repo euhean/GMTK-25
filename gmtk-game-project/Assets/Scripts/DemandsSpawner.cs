@@ -62,14 +62,14 @@ public class DemandsSpawner : MonoBehaviour
     // Clear existing demands and spawn new ones
     public void RefreshDemands()
     {
-        Debug.Log("Refreshing demands display");
+        // Debug.Log("Refreshing demands display");
         ClearSpawnedDemands();
 
         if (GameManager.Instance == null)
             return;
 
         List<Demand> allDemands = GameManager.Instance.getCurrentDemand();
-        Debug.Log($"Got {allDemands.Count} demand lists to display");
+        // Debug.Log($"Got {allDemands.Count} demand lists to display");
                 List<Demand> flattenedDemands = new List<Demand>();
         foreach (var demandList in allDemands)
         {
@@ -91,11 +91,11 @@ public class DemandsSpawner : MonoBehaviour
         if (resourcePrefab == null || shapeAssets == null || colorAssets == null || 
             shapeAssets.Count == 0 || colorAssets.Count == 0)
         {
-            Debug.LogWarning("Missing required references in DemandsSpawner");
+            // Debug.LogWarning("Missing required references in DemandsSpawner");
             return;
         }
 
-        Debug.Log($"Spawning {demands.Count} demands");
+        // Debug.Log($"Spawning {demands.Count} demands");
         for (int i = 0; i < demands.Count; i++)
         {
             Vector3 position = spawnPoint.position + Vector3.forward * (i * verticalSpacing);
@@ -104,7 +104,7 @@ public class DemandsSpawner : MonoBehaviour
             demandObj.transform.localScale = displayScale;
             spawnedDemands.Add(demandObj);
             
-            Debug.Log($"Spawned demand {i+1}/{demands.Count} - Shape: {demands[i].shapeType}, Color: {demands[i].colorType}");
+           //  Debug.Log($"Spawned demand {i+1}/{demands.Count} - Shape: {demands[i].shapeType}, Color: {demands[i].colorType}");
             
             // Configure the resource according to demand
             Resource resource = demandObj.GetComponent<Resource>();
