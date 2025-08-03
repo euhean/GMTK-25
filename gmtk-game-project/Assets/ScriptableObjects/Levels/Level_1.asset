@@ -25,8 +25,6 @@ MonoBehaviour:
       shapeType: 1
     - colorType: 3
       shapeType: 1
-    - colorType: 3
-      shapeType: 1
   - demands:
     - colorType: 3
       shapeType: 1

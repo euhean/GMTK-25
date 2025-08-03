@@ -68,11 +68,12 @@ MonoBehaviour:
     - colorType: 0
       shapeType: 1
   orbitConfig:
-    resourcePrefabs: []
-    numberOfOrbitingObjects: 6
+    resourcePrefabs:
+    - {fileID: 538977329041564931, guid: cd6717e7acd87a447bc50e96b090f281, type: 3}
+    numberOfOrbitingObjects: 3
     orbitRadius: 4
     angularSpeed: 1
-    angularSeparation: 60
+    angularSeparation: 120
     machineInfos:
     - machineConfiguration: {fileID: 11400000, guid: 03e4b1be2ac870b4a89a711700bc50be, type: 2}
       angleDegrees: 0
