@@ -29,6 +29,15 @@ public class GameManager : MonoBehaviour
     [SerializeField] private bool narrativeStartEnd = true;
     [SerializeField] private bool narrativeQuotaBool = true;
 
+    [Header("Gameplay Timer Configuration")]
+    [SerializeField] private float gameplayTimerDuration = 120f; // 2 minutes by default
+    private float currentGameplayTimer = 0f;
+    private bool isGameplayTimerActive = false;
+    private bool isAssemblyLinePaused = false;
+    
+    // Track completion of individual demand sequences within the current event
+    [SerializeField] private List<bool> currentEventSequenceResults = new List<bool>();
+
     [SerializeField] private List<Demand> itemsInLine = new List<Demand>();
     [SerializeField] private List<List<Demand>> demandToComplete = new List<List<Demand>>();
 
@@ -182,7 +191,16 @@ public class GameManager : MonoBehaviour
     
     private void Update()
     {
-
+        // Update gameplay timer if active
+        if (isGameplayTimerActive)
+        {
+            currentGameplayTimer -= Time.deltaTime;
+            
+            if (currentGameplayTimer <= 0f)
+            {
+                OnGameplayTimerExpired();
+            }
+        }
     }
     
     // LOOP MANAGEMENT METHODS
@@ -255,6 +273,9 @@ public class GameManager : MonoBehaviour
         if (currentEvent == null) return;
         currentDemandIndex = 0;
         demandToComplete = currentEvent.GetDemands();
+        
+        // Clear previous sequence results for this event
+        currentEventSequenceResults.Clear();
 
         if (currentEvent.GetEventType() == EventType.Narrative)
         {
@@ -262,6 +283,7 @@ public class GameManager : MonoBehaviour
         }
         else if (currentEvent.GetEventType() == EventType.Gameplay)
         {
+            StartGameplayTimer(); // Start timer for gameplay events
             goToLevelScene();
         }
         else if (currentEvent.GetEventType() == EventType.Dialog)
@@ -656,5 +678,180 @@ public class GameManager : MonoBehaviour
     public TextAsset GetNarrativeCsv() => narrativeCsv;
     public bool GetNarrativeStartEnd() => narrativeStartEnd;
     public bool GetNarrativeQuotaBool() => narrativeQuotaBool;
+    
+    // GAMEPLAY TIMER MANAGEMENT
+    
+    /// <summary>
+    /// Starts the gameplay timer for the current event
+    /// </summary>
+    public void StartGameplayTimer()
+    {
+        if (GetCurrentEvent()?.GetEventType() == EventType.Gameplay)
+        {
+            currentGameplayTimer = gameplayTimerDuration;
+            isGameplayTimerActive = true;
+            isAssemblyLinePaused = false;
+            Debug.Log($"[GameManager] Gameplay timer started: {gameplayTimerDuration} seconds");
+        }
+    }
+    
+    /// <summary>
+    /// Stops the gameplay timer
+    /// </summary>
+    public void StopGameplayTimer()
+    {
+        isGameplayTimerActive = false;
+        currentGameplayTimer = 0f;
+        Debug.Log("[GameManager] Gameplay timer stopped");
+    }
+    
+    /// <summary>
+    /// Pauses or resumes assembly line movement and machine activity
+    /// </summary>
+    public void SetAssemblyLinePaused(bool paused)
+    {
+        isAssemblyLinePaused = paused;
+        
+        // Find MultiOrbit (CintaController) and pause the entire system
+        MultiOrbit multiOrbit = FindFirstObjectByType<MultiOrbit>();
+        if (multiOrbit != null)
+        {
+            multiOrbit.SetPaused(paused);
+        }
+        else
+        {
+            // Fallback: Find all orbiting objects and machines in the scene and pause/resume them individually
+            OrbitingObject[] orbitingObjects = FindObjectsByType<OrbitingObject>(FindObjectsSortMode.None);
+            foreach (var obj in orbitingObjects)
+            {
+                obj.SetPaused(paused);
+            }
+            
+            MachineObject[] machines = FindObjectsByType<MachineObject>(FindObjectsSortMode.None);
+            foreach (var machine in machines)
+            {
+                machine.SetPaused(paused);
+            }
+        }
+        
+        Debug.Log($"[GameManager] Assembly line {(paused ? "paused" : "resumed")}");
+    }
+    
+    /// <summary>
+    /// Called when the gameplay timer expires
+    /// </summary>
+    private void OnGameplayTimerExpired()
+    {
+        Debug.Log("[GameManager] Gameplay timer expired!");
+        
+        // Stop assembly line movement and machine activity
+        SetAssemblyLinePaused(true);
+        
+        // Record whether the current sequence was completed
+        bool wasCompleted = isDemandCompleted();
+        currentEventSequenceResults.Add(wasCompleted);
+        
+        // Stop the timer
+        StopGameplayTimer();
+        
+        // Mark the event as completed based on results
+        MarkEventCompleted();
+        
+        // End the current event
+        AdvanceToNextEvent();
+    }
+    
+    /// <summary>
+    /// Player manually delivers a completed sequence
+    /// </summary>
+    public void DeliverSequence()
+    {
+        if (!isGameplayTimerActive) return;
+        
+        bool wasCompleted = isDemandCompleted();
+        currentEventSequenceResults.Add(wasCompleted);
+        
+        Debug.Log($"[GameManager] Sequence delivered - Completed: {wasCompleted}");
+        
+        // Load next sequence if available
+        if (!isLastDemand())
+        {
+            nextDemand();
+            // Clear the line for the next sequence
+            itemsInLine.Clear();
+        }
+        else
+        {
+            // All sequences completed, mark event and advance
+            StopGameplayTimer();
+            MarkEventCompleted();
+            AdvanceToNextEvent();
+        }
+    }
+    
+    /// <summary>
+    /// Marks the current event as completed based on sequence results
+    /// </summary>
+    private void MarkEventCompleted()
+    {
+        var currentEvent = GetCurrentEvent();
+        if (currentEvent != null)
+        {
+            // Event is considered completed if at least one sequence was successful
+            bool eventCompleted = currentEventSequenceResults.Count > 0 && currentEventSequenceResults.Contains(true);
+            currentEvent.SetCompleted(eventCompleted);
+            
+            Debug.Log($"[GameManager] Event '{currentEvent.GetEventName()}' marked as {(eventCompleted ? "completed" : "failed")}. " +
+                     $"Sequences completed: {currentEventSequenceResults.Count(x => x)}/{currentEventSequenceResults.Count}");
+        }
+    }
+    
+    /// <summary>
+    /// Gets the current timer remaining time
+    /// </summary>
+    public float GetTimerRemainingTime()
+    {
+        return currentGameplayTimer;
+    }
+    
+    /// <summary>
+    /// Gets whether the timer is currently active
+    /// </summary>
+    public bool IsTimerActive()
+    {
+        return isGameplayTimerActive;
+    }
+    
+    /// <summary>
+    /// Gets whether assembly line is paused
+    /// </summary>
+    public bool IsAssemblyLinePaused()
+    {
+        return isAssemblyLinePaused;
+    }
+    
+    /// <summary>
+    /// Gets the sequence completion results for the current event
+    /// </summary>
+    public List<bool> GetCurrentEventSequenceResults()
+    {
+        return new List<bool>(currentEventSequenceResults);
+    }
+    
+    /// <summary>
+    /// Gets the total number of sequences completed successfully in the current event
+    /// </summary>
+    public int GetCurrentEventCompletedSequences()
+    {
+        return currentEventSequenceResults.Count(x => x);
+    }
+    
+    /// <summary>
+    /// Gets the total number of sequences attempted in the current event
+    /// </summary>
+    public int GetCurrentEventTotalSequences()
+    {
+        return currentEventSequenceResults.Count;
+    }
     
 }

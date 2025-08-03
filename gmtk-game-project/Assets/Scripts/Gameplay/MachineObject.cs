@@ -11,6 +11,7 @@ public abstract class MachineObject : MonoBehaviour, IMachine
     public SpriteRenderer machineRenderer;
     public GameObject allObjectComponentMachine;
     public MachineConfiguration machineConfiguration; // Referencia a la configuración para sprites
+    private bool isPaused = false;
 
     public bool IsOn { get => isOn; set => isOn = value; }
     public ScriptableObject MachineData { get => machineData; set => machineData = value; }
@@ -75,7 +76,7 @@ public abstract class MachineObject : MonoBehaviour, IMachine
     void OnTriggerEnter(Collider other)
     {
         Resource resource = other.GetComponent<Resource>();
-        if (resource != null && isOn)
+        if (resource != null && isOn && !isPaused)
         {
             currentResource = resource;
             // Llamar automáticamente a Interact cuando el objeto entra en el trigger
@@ -96,7 +97,7 @@ public abstract class MachineObject : MonoBehaviour, IMachine
     void OnTriggerStay(Collider other)
     {
         Resource resource = other.GetComponent<Resource>();
-        if (resource != null && isOn)
+        if (resource != null && isOn && !isPaused)
         {
             // Si el recurso es distinto o aun no se ha asignado, se actualiza y se procesa la interacción.
             if (currentResource == null || currentResource != resource)
@@ -127,5 +128,21 @@ public abstract class MachineObject : MonoBehaviour, IMachine
             if (!resourceLog.Contains(r))
                 resourceLog.Add(r);
         }
+    }
+    
+    /// <summary>
+    /// Pauses or resumes machine activity
+    /// </summary>
+    public void SetPaused(bool paused)
+    {
+        isPaused = paused;
+    }
+    
+    /// <summary>
+    /// Gets whether the machine is currently paused
+    /// </summary>
+    public bool IsPaused()
+    {
+        return isPaused;
     }
 }

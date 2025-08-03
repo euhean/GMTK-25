@@ -11,6 +11,7 @@ public class OrbitingObject : MonoBehaviour
     private float orbitRadius;
     private float angularSpeed;
     private bool isInitialized = false;
+    private bool isPaused = false;
     
     /// <summary>
     /// Inicializa el objeto orbitante con los parámetros necesarios
@@ -30,7 +31,7 @@ public class OrbitingObject : MonoBehaviour
     
     void Update()
     {
-        if (!isInitialized || centerTransform == null) return;
+        if (!isInitialized || centerTransform == null || isPaused) return;
         
         // Calcular la posición actual basada en el tiempo
         float currentAngle = baseAngle + (angularSpeed * Time.time);
@@ -78,5 +79,21 @@ public class OrbitingObject : MonoBehaviour
     {
         float currentAngle = baseAngle + (angularSpeed * Time.time);
         return (orbitRadius, angularSpeed, currentAngle);
+    }
+    
+    /// <summary>
+    /// Pauses or resumes the orbiting movement
+    /// </summary>
+    public void SetPaused(bool paused)
+    {
+        isPaused = paused;
+    }
+    
+    /// <summary>
+    /// Gets whether the orbiting object is currently paused
+    /// </summary>
+    public bool IsPaused()
+    {
+        return isPaused;
     }
 }
