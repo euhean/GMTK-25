@@ -17,6 +17,7 @@ public class MultiOrbit : MonoBehaviour
     private List<GameObject> orbitingObjects = new List<GameObject>();
     private List<float> baseAngles = new List<float>();
     private GameManager.OrbitConfiguration currentConfig;
+    private bool isPaused = false;
 
     private Vector3 GetOrbitPosition(float angleRad, float radius, float y)
     {
@@ -157,4 +158,42 @@ public class MultiOrbit : MonoBehaviour
 
     // El movimiento orbital ahora se maneja por el componente OrbitingObject
     // Este método Update ya no es necesario
+    
+    /// <summary>
+    /// Pauses or resumes all orbiting objects and machines in this orbit system
+    /// </summary>
+    public void SetPaused(bool paused)
+    {
+        isPaused = paused;
+        
+        // Pause/resume all orbiting objects
+        foreach (var obj in orbitingObjects)
+        {
+            if (obj != null)
+            {
+                var orbitingComponent = obj.GetComponent<OrbitingObject>();
+                if (orbitingComponent != null)
+                {
+                    orbitingComponent.SetPaused(paused);
+                }
+            }
+        }
+        
+        // Pause/resume all machines in the scene
+        MachineObject[] machines = FindObjectsByType<MachineObject>(FindObjectsSortMode.None);
+        foreach (var machine in machines)
+        {
+            machine.SetPaused(paused);
+        }
+        
+        Debug.Log($"[MultiOrbit] Assembly line {(paused ? "paused" : "resumed")}");
+    }
+    
+    /// <summary>
+    /// Gets whether the orbit system is currently paused
+    /// </summary>
+    public bool IsPaused()
+    {
+        return isPaused;
+    }
 }
