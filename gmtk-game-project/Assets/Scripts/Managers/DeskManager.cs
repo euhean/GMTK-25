@@ -47,6 +47,10 @@ public class DeskManager : MonoBehaviour
     [SerializeField] private Transform alertStartPosition;  // Transform donde empieza el alert
     [SerializeField] private Transform alertEndPosition;    // Transform donde termina el alert
     
+    [SerializeField] private bool interactionEnabled = true; // Controla si la interacción está habilitada
+
+    private bool hasInteractedWithPhone = false;
+    
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -114,6 +118,8 @@ public class DeskManager : MonoBehaviour
     [ContextMenu("Start Cutscene")]
     public void StartCutscene()
     {
+        hasInteractedWithPhone = false; // Reset the flag when starting a cutscene
+        
         if (cutsceneManager == null)
         {
             cutsceneManager = EcCutsceneManager.instance;
@@ -234,6 +240,8 @@ public class DeskManager : MonoBehaviour
     /// <param name="obj">El objeto a interactuar.</param>
     public void InteractObject(GameObject obj)
     {
+        if (!interactionEnabled) return; // Salir si la interacción está deshabilitada
+
         // Find the matching InteractableElement
         InteractableElement element = interactableObjects.Find(x => x.gameObject == obj);
         
@@ -270,7 +278,13 @@ public class DeskManager : MonoBehaviour
     /// <param name="element">El elemento interactuable de tipo PC.</param>
     private void InteractWithPC(InteractableElement element)
     {
-        
+        Debug.Log($"Interacting with PC: {element.gameObject.name}");
+        if (!hasInteractedWithPhone)
+        {
+            Debug.Log("Cannot interact with PC before phone interaction");
+            return;
+        }
+        interactionEnabled = false; // Deshabilitar interacción al iniciar el diálogo
         // Lógica específica para interactuar con PC
     }
 
@@ -280,28 +294,33 @@ public class DeskManager : MonoBehaviour
     /// <param name="element">El elemento interactuable de tipo PHONE.</param>
     private void InteractWithPhone(InteractableElement element)
     {
-        // Si estamos esperando interacción de teléfono para un evento de diálogo
+        Debug.Log($"Interacting with Phone: {element.gameObject.name}");
+        hasInteractedWithPhone = true; // Set the flag when phone is interacted with
+        interactionEnabled = false; // Deshabilitar interacción al iniciar el diálogo
+        
         if (waitingForPhoneInteraction && !string.IsNullOrEmpty(pendingDialogCutscene))
         {
+            Debug.Log($"Processing pending dialog cutscene: {pendingDialogCutscene}");
             // Desactivar el estado de espera y el callAlert
             waitingForPhoneInteraction = false;
             if (callAlert != null && alertStartPosition != null)
             {
                 callAlert.transform.DOMove(alertStartPosition.position, 0.5f).SetEase(Ease.InBack);
             }
-            
+
             // Detener el sonido de alerta
             if (callAlertSound != null)
             {
                 callAlertSound.Stop();
             }
-            
+
             // Iniciar el cutscene con el nombre guardado
             StartCutscene(pendingDialogCutscene);
             pendingDialogCutscene = null;
         }
         else
         {
+            Debug.Log("No pending dialog cutscene to process");
             // Lógica específica para interactuar con teléfono en otros casos
         }
     }
@@ -312,7 +331,8 @@ public class DeskManager : MonoBehaviour
     /// <param name="element">El elemento interactuable de tipo INSTRUCTIONS.</param>
     private void InteractWithInstructions(InteractableElement element)
     {
-        
+        Debug.Log($"Interacting with Instructions: {element.gameObject.name}");
+        interactionEnabled = false; // Deshabilitar interacción al iniciar el diálogo
         // Lógica específica para interactuar con instrucciones
     }
 
@@ -360,5 +380,7 @@ public class DeskManager : MonoBehaviour
         EndCutscene();
         pendingDialogCutscene = null;
         waitingForPhoneInteraction = false;
+        EnableOutlines();
+        interactionEnabled = true; // Rehabilitar interacción al terminar el diálogo
     }
 }
