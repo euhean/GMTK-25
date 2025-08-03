@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd8d94dfcdf049441a6370e037a19787, type: 3}
   m_Name: Level_2
   m_EditorClassIdentifier: 
-  eventName: Level 1
+  eventName: Level 2
   eventType: 1
   description: Level
   isCompleted: 0
+  dialogCutsceneName: 
   demands:
   - demands:
     - colorType: 0
@@ -40,5 +41,3 @@ MonoBehaviour:
     machineInfos:
     - machineConfiguration: {fileID: 11400000, guid: 8d2d369cb764f1d439155ae5b0ef8299, type: 2}
       angleDegrees: 36
-    - machineConfiguration: {fileID: 11400000, guid: f37df7509c7e81b4fa05921ef6be6e4f, type: 2}
-      angleDegrees: 180
