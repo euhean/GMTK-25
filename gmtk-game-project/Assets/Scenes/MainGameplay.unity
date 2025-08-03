@@ -523,8 +523,8 @@ MonoBehaviour:
     type: 0
   - gameObject: {fileID: 937820616}
     type: 0
-  alertStartPosition: {fileID: 1025891699}
-  alertEndPosition: {fileID: 2127661381}
+  alertStartPosition: {fileID: 2127661381}
+  alertEndPosition: {fileID: 1025891699}
 --- !u!4 &469366060
 Transform:
   m_ObjectHideFlags: 0

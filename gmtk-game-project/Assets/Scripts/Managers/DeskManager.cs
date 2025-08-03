@@ -79,8 +79,11 @@ public class DeskManager : MonoBehaviour
         }
     }
 
+    public static DeskManager Instance { get; private set; }
+
     void Awake()
     {
+        Instance = this;
         // Asignar el tag "Selectable" a todos los objetos interactuables
         foreach (var element in interactableObjects)
         {
@@ -347,5 +350,15 @@ public class DeskManager : MonoBehaviour
                 outline.enabled = false;
             }
         }
+    }
+
+    /// <summary>
+    /// Called when a dialogue cutscene ends to clean up state
+    /// </summary>
+    public void FinishDialogEvent()
+    {
+        EndCutscene();
+        pendingDialogCutscene = null;
+        waitingForPhoneInteraction = false;
     }
 }

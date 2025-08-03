@@ -133,6 +133,12 @@ namespace HisaGames.Cutscene
             if (startTyping)
                 StartTypingAnimation(chatText, chatTextString);
 
+            // Add mouse click detection
+            if (Input.GetMouseButtonDown(0)) 
+            {
+                PlayNextCutscene();
+            }
+            
             // Check if there are characters in the current cutscene
             if (cutsceneData[currentID].charactersData != null && cutsceneData[currentID].charactersData.Length > 0)
             {
@@ -366,8 +372,11 @@ namespace HisaGames.Cutscene
                 }
                 else
                 {
-                    
                     EcCutsceneManager.instance.closeCutscenes();
+                    if (DeskManager.Instance != null)
+                    {
+                        DeskManager.Instance.FinishDialogEvent();
+                    }
                 }
             }
             else
