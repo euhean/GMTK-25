@@ -245,13 +245,18 @@ MonoBehaviour:
     - dayName: Day 1
       events:
       - eventConfiguration: {fileID: 11400000, guid: 5efec7763e3e66b47ab29c98059b0b3f, type: 2}
-      - eventConfiguration: {fileID: 11400000, guid: 81cd39d7d052cf647928fe2bf41191e3, type: 2}
+      - eventConfiguration: {fileID: 11400000, guid: 2b91e30c1f67d1b4ebd75ac221c954bd, type: 2}
+      - eventConfiguration: {fileID: 11400000, guid: bbc9aeea770375f4597321d89f773a61, type: 2}
+      - eventConfiguration: {fileID: 11400000, guid: e4c44b5200428e849a3b0ceab58535a9, type: 2}
+      - eventConfiguration: {fileID: 11400000, guid: c392a67c7221dc34681a8890dde39670, type: 2}
   currentDayIndex: 0
   currentEvent:
     eventConfiguration: {fileID: 11400000, guid: 81cd39d7d052cf647928fe2bf41191e3, type: 2}
   currentEventIndex: 0
   autoSaveOnStart: 1
   fadeManager: {fileID: 7402595997789170133}
+  narrativeCsv: {fileID: 4900000, guid: fd379abaa0a494a4a9c5c163a532bfc1, type: 3}
+  narrativeStartEnd: 1
+  narrativeQuotaBool: 1
   itemsInLine: []
-  demandToComplete: []
-  narrativeCsv: {fileID: 4900000, guid: 35c4868b7678aac4c80b461522453c3d, type: 3}
+  currentDemandIndex: 0

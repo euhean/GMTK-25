@@ -37,8 +37,14 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        // Play click sound on any mouse click
+        if (Input.GetMouseButtonDown(0) && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySound(SoundType.Click);
+        }
+
         // Limpia hover anterior (mucho más barato que buscar todos cada frame)
-        if (lastHover && lastHover.iconRenderer) lastHover.iconRenderer.enabled = false;
+        // if (lastHover && lastHover.iconRenderer) lastHover.iconRenderer.enabled = false;
         lastHover = null;
 
         // 1) ¿Estamos apuntando al monitor?
@@ -50,12 +56,21 @@ public class PlayerController : MonoBehaviour
             if (Physics.Raycast(innerRay, out var innerHit, 100f, machineLayerMask))
             {
                 var machine = innerHit.collider.GetComponent<MachineObject>();
-                if (machine && machine.iconRenderer) { machine.iconRenderer.enabled = true; lastHover = machine; }
+                var deliverButton = innerHit.collider.GetComponent<DeliverButton>();
 
-                if (Input.GetMouseButtonDown(0) && machine)
+                // if (machine && machine.iconRenderer) { machine.iconRenderer.enabled = true; lastHover = machine; }
+
+                if (Input.GetMouseButtonDown(0))
                 {
-                    // Siempre se alterna el estado, afectando también el recurso presente.
-                    machine.ToggleMachine();
+                    if (machine)
+                    {
+                        // Siempre se alterna el estado, afectando también el recurso presente.
+                        machine.ToggleMachine();
+                    }
+                    else if (deliverButton)
+                    {
+                        deliverButton.Deliver();
+                    }
                 }
             }
         }
@@ -69,7 +84,7 @@ public class PlayerController : MonoBehaviour
             if (Physics.Raycast(ray, out var hit, 100f, machineLayerMask))
             {
                 var machine = hit.collider.GetComponent<MachineObject>();
-                if (machine && machine.iconRenderer) { machine.iconRenderer.enabled = true; lastHover = machine; }
+               //  if (machine && machine.iconRenderer) { machine.iconRenderer.enabled = true; lastHover = machine; }
 
                 if (Input.GetMouseButtonDown(0) && machine)
                 {
@@ -109,18 +124,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // Tu lógica extra (tecla espacio, etc.)
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            if (GameManager.Instance.isDemandCompleted())
-                if (GameManager.Instance.isLastDemand())
-                {
-                    GameManager.Instance.AdvanceToNextEvent();
-                }
-                else 
-                {
-                    GameManager.Instance.nextDemand();
-                }
-        }
+
     }
 
     // Aplica los márgenes internos a las coordenadas UV
@@ -130,6 +134,23 @@ public class PlayerController : MonoBehaviour
             Mathf.Clamp(uv.x, innerMargin, 1f - innerMargin),
             Mathf.Clamp(uv.y, innerMargin, 1f - innerMargin)
         );
+    }
+
+
+    public void sendDemand(){
+                    if (GameManager.Instance.isDemandCompleted()){
+                            Debug.Log("isDemandCompleted");
+                if (GameManager.Instance.isLastDemand())
+                {
+                    Debug.Log("isLastDemand");
+                    GameManager.Instance.AdvanceToNextEvent();
+                }
+                else 
+                {
+                    Debug.Log("nextDemand");
+                    GameManager.Instance.nextDemand();
+                }
+        }
     }
 
     // Proyecta el ratón real sobre el monitor y crea un ray desde la cámara secundaria
@@ -207,7 +228,7 @@ public class PlayerController : MonoBehaviour
     }
 
     // Crea un Ray desde la innerCamera usando la posición del mouse proyectada sobre el monitor
-    bool TryGetInnerRay(out Ray innerRay)
+    public bool TryGetInnerRay(out Ray innerRay)
     {
         innerRay = default;
         if (!innerCamera || !monitorCollider) return false;

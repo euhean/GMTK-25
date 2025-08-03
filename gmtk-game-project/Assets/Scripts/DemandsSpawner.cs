@@ -62,21 +62,22 @@ public class DemandsSpawner : MonoBehaviour
     // Clear existing demands and spawn new ones
     public void RefreshDemands()
     {
-        Debug.Log("Refreshing demands display");
+        // Debug.Log("Refreshing demands display");
         ClearSpawnedDemands();
 
         if (GameManager.Instance == null)
             return;
 
-        List<List<Demand>> allDemands = GameManager.Instance.getCurrentDemands();
-        Debug.Log($"Got {allDemands.Count} demand lists to display");
-        
-        // Aplanar todas las demandas en una sola lista para mostrarlas
+        List<Demand> allDemands = GameManager.Instance.getCurrentDemand();
+        // Debug.Log($"Got {allDemands.Count} demand lists to display");
         List<Demand> flattenedDemands = new List<Demand>();
         foreach (var demandList in allDemands)
         {
-            flattenedDemands.AddRange(demandList);
+            flattenedDemands.Add(demandList);
         }
+        
+        // Actualizar la lista de demandas actuales
+        currentDemands = new List<Demand>(flattenedDemands);
         
         SpawnDemands(flattenedDemands);
     }
@@ -86,25 +87,15 @@ public class DemandsSpawner : MonoBehaviour
     {
         if (GameManager.Instance == null)
             return;
-            
-        List<List<Demand>> allDemands = GameManager.Instance.getCurrentDemands();
-        if (allDemands.Count > 0)
+
+        List<Demand> newDemands = GameManager.Instance.getCurrentDemand();
+        
+        // Comparar las nuevas demandas con las actuales
+        if (!AreDemandListsEqual(currentDemands, newDemands))
         {
-            // Aplanar todas las demandas para comparar
-            List<Demand> newFlattenedDemands = new List<Demand>();
-            foreach (var demandList in allDemands)
-            {
-                newFlattenedDemands.AddRange(demandList);
-            }
-            
-            Debug.Log($"Checking demands - Total demands count: {newFlattenedDemands.Count}");
-            
-            if (!AreDemandListsEqual(currentDemands, newFlattenedDemands))
-            {
-                Debug.Log("Demands changed - Refreshing display");
-                currentDemands = new List<Demand>(newFlattenedDemands);
-                RefreshDemands();
-            }
+            // Solo refrescar si hay cambios
+            currentDemands = new List<Demand>(newDemands);
+            RefreshDemands();
         }
     }
 
@@ -114,20 +105,21 @@ public class DemandsSpawner : MonoBehaviour
         if (resourcePrefab == null || shapeAssets == null || colorAssets == null || 
             shapeAssets.Count == 0 || colorAssets.Count == 0)
         {
-            Debug.LogWarning("Missing required references in DemandsSpawner");
+            // Debug.LogWarning("Missing required references in DemandsSpawner");
             return;
         }
 
-        Debug.Log($"Spawning {demands.Count} demands");
+        // Debug.Log($"Spawning {demands.Count} demands");
         for (int i = 0; i < demands.Count; i++)
         {
             Vector3 position = spawnPoint.position + Vector3.forward * (i * verticalSpacing);
             
             GameObject demandObj = Instantiate(resourcePrefab, position, Quaternion.Euler(initialRotation), transform);
+            demandObj.tag = "resource";
             demandObj.transform.localScale = displayScale;
             spawnedDemands.Add(demandObj);
             
-            Debug.Log($"Spawned demand {i+1}/{demands.Count} - Shape: {demands[i].shapeType}, Color: {demands[i].colorType}");
+           //  Debug.Log($"Spawned demand {i+1}/{demands.Count} - Shape: {demands[i].shapeType}, Color: {demands[i].colorType}");
             
             // Configure the resource according to demand
             Resource resource = demandObj.GetComponent<Resource>();

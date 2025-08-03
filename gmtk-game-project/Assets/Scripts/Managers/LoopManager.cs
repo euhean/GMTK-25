@@ -6,6 +6,7 @@ public class LoopManager : MonoBehaviour
 {
     public TextMeshProUGUI textComponent; // Variable asignable desde el inspector para TMP
     public TextAsset csvFile; // Referencia directa al asset del archivo CSV
+    public bool useRandomName = true; // Nuevo bool para decidir si usar nombre random
 
     public void Continue()
     {
@@ -39,8 +40,16 @@ public class LoopManager : MonoBehaviour
             var lines = csvFile.text.Split('\n'); // Leer líneas del contenido del archivo CSV
             if (lines.Length > 0)
             {
-                var randomLine = lines[Random.Range(0, lines.Length)];
-                textComponent.text = randomLine; // Asignar texto aleatorio
+                string selectedLine;
+                if (useRandomName)
+                {
+                    selectedLine = lines[Random.Range(0, lines.Length)];
+                }
+                else
+                {
+                    selectedLine = lines[0];
+                }
+                textComponent.text = selectedLine; // Asignar texto
             }
             else
             {

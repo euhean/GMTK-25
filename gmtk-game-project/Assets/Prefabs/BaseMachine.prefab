@@ -74,7 +74,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 823494293
-  m_SortingLayer: 1
+  m_SortingLayer: -1
   m_SortingOrder: 10
   m_Sprite: {fileID: -5177388603050735206, guid: b4c075e8792f8bf40b73ef34cc91a623, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -142,7 +142,7 @@ CapsuleCollider:
   m_ProvidesContacts: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.63664305
+  m_Radius: 0.3
   m_Height: 2.43
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
@@ -163,7 +163,9 @@ MonoBehaviour:
   purpose: 3
   currentResource: {fileID: 0}
   resourceLog: []
-  iconRenderer: {fileID: 0}
+  machineRenderer: {fileID: 0}
+  allObjectComponentMachine: {fileID: 0}
+  machineConfiguration: {fileID: 0}
 --- !u!65 &5545998003687877943
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -183,8 +185,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 1.82, z: 0}
+  m_Size: {x: 1.3429711, y: 1, z: 2.7603679}
+  m_Center: {x: 0.0039880574, y: 1.8200002, z: 0.0066182613}
 --- !u!1 &5458494854171634416
 GameObject:
   m_ObjectHideFlags: 0
@@ -259,7 +261,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 823494293
-  m_SortingLayer: 1
+  m_SortingLayer: -1
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 13b4ae205daf5604482fde3033d23559, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
