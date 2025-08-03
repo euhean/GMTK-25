@@ -28,13 +28,17 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextAsset narrativeCsv;
     [SerializeField] private bool narrativeStartEnd = true;
     [SerializeField] private bool narrativeQuotaBool = true;
-
+    
     [Header("Gameplay Timer Configuration")]
     [SerializeField] private float gameplayTimerDuration = 120f; // 2 minutes by default
     private float currentGameplayTimer = 0f;
     private bool isGameplayTimerActive = false;
     private bool isAssemblyLinePaused = false;
+    public GameTimer<float> gameplayTimer;
     
+    [Header("Timer Progress Bar")]
+    [SerializeField] private TimerProgressBar timerProgressBar;
+
     // Track completion of individual demand sequences within the current event
     [SerializeField] private List<bool> currentEventSequenceResults = new List<bool>();
 
@@ -192,8 +196,9 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         // Update gameplay timer if active
-        if (isGameplayTimerActive)
+        if (isGameplayTimerActive && !isAssemblyLinePaused)
         {
+            gameplayTimer.Update(Time.deltaTime);
             currentGameplayTimer -= Time.deltaTime;
             
             if (currentGameplayTimer <= 0f)
@@ -677,7 +682,60 @@ public class GameManager : MonoBehaviour
     // Narrative Getters
     public TextAsset GetNarrativeCsv() => narrativeCsv;
     public bool GetNarrativeStartEnd() => narrativeStartEnd;
-    public bool GetNarrativeQuotaBool() => narrativeQuotaBool;
+    
+    /// <summary>
+    /// Gets the narrative quota boolean based on gameplay performance
+    /// Day 1 is always True, other days depend on completing at least half the deliveries
+    /// </summary>
+    public bool GetNarrativeQuotaBool() 
+    {
+        // Day 1 is always True (index 0 = Day 1)
+        if (currentDay <= 1)
+        {
+            return true;
+        }
+        
+        // For other days, check if at least half the sequences were completed in previous gameplay events
+        int totalCompletedSequences = 0;
+        int totalAttemptedSequences = 0;
+        
+        // Count completion from all gameplay events completed so far
+        var currentLoopRef = GetCurrentLoop();
+        if (currentLoopRef != null)
+        {
+            for (int dayIdx = 0; dayIdx < currentDayIndex; dayIdx++)
+            {
+                if (dayIdx < currentLoopRef.days.Count)
+                {
+                    var day = currentLoopRef.days[dayIdx];
+                    foreach (var evt in day.events)
+                    {
+                        if (evt.GetEventType() == EventType.Gameplay)
+                        {
+                            var demands = evt.GetDemands();
+                            totalAttemptedSequences += demands.Count;
+                            
+                            // Check if event was completed (simplified check)
+                            if (evt.GetIsCompleted())
+                            {
+                                totalCompletedSequences += demands.Count; // Assume all sequences completed if event is marked complete
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // If no gameplay events have been attempted yet, default to narrativeQuotaBool
+        if (totalAttemptedSequences == 0)
+        {
+            return narrativeQuotaBool;
+        }
+        
+        // Return true if at least half the sequences were completed
+        float completionRate = (float)totalCompletedSequences / totalAttemptedSequences;
+        return completionRate >= 0.5f;
+    }
     
     // GAMEPLAY TIMER MANAGEMENT
     
@@ -691,6 +749,17 @@ public class GameManager : MonoBehaviour
             currentGameplayTimer = gameplayTimerDuration;
             isGameplayTimerActive = true;
             isAssemblyLinePaused = false;
+            
+            // Reset progress bar for new event
+            if (timerProgressBar == null)
+            {
+                timerProgressBar = FindFirstObjectByType<TimerProgressBar>();
+            }
+            if (timerProgressBar != null)
+            {
+                timerProgressBar.ResetProgress();
+            }
+            
             Debug.Log($"[GameManager] Gameplay timer started: {gameplayTimerDuration} seconds");
         }
     }
@@ -773,6 +842,18 @@ public class GameManager : MonoBehaviour
         
         Debug.Log($"[GameManager] Sequence delivered - Completed: {wasCompleted}");
         
+        // Update progress bar with new completion
+        if (timerProgressBar != null)
+        {
+            var currentEvent = GetCurrentEvent();
+            if (currentEvent != null)
+            {
+                int totalDemands = currentEvent.GetDemands().Count;
+                int completedDemands = GetCurrentEventCompletedSequences();
+                timerProgressBar.SetDemandProgress(completedDemands, totalDemands);
+            }
+        }
+        
         // Load next sequence if available
         if (!isLastDemand())
         {
@@ -783,6 +864,10 @@ public class GameManager : MonoBehaviour
         else
         {
             // All sequences completed, mark event and advance
+            if (timerProgressBar != null)
+            {
+                timerProgressBar.CompleteProgress();
+            }
             StopGameplayTimer();
             MarkEventCompleted();
             AdvanceToNextEvent();

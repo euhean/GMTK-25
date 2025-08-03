@@ -76,19 +76,13 @@ public class NarrativeManager : MonoBehaviour
         textLines.Clear();
         isTextComplete = false;
 
-        string[] data;
-
-        // Get CSV data from TextAsset
-        if (csvFile != null)
-        {
-            data = csvFile.text.Split(new[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
-        }
-        else
+        if (csvFile == null)
         {
             Debug.LogError("No CSV file assigned!");
             return;
         }
 
+        string[] data = csvFile.text.Split(';');
         List<string> fallbackLines = new List<string>();
 
         // Skip header row
@@ -97,9 +91,6 @@ public class NarrativeManager : MonoBehaviour
             string[] row = data[i].Split(';');
             if (row.Length >= 4)
             {
-                // DEBUG log for current row and column
-                // 
-
                 // Parse the day value
                 if (int.TryParse(row[0], out int rowDay))
                 {
@@ -109,31 +100,32 @@ public class NarrativeManager : MonoBehaviour
                         bool rowStartEnd = row[1].Trim().ToLower() == "true";
                         bool rowQuota = row[2].Trim().ToLower() == "true";
 
-                        // DEBUG
-                        // 
-
                         if (rowStartEnd == startEnd)
                         {
                             if (rowQuota == quotaBool)
                             {
-                                // Debug log for matched row
-                                
-
-                                // Split text by line breaks if any are encoded in the text
-                                string[] splitLines = row[3].Split(new[] { "\\n" }, System.StringSplitOptions.None);
+                                // Split text by semicolons for multiple dialogue lines
+                                string[] splitLines = row[3].Split(';');
                                 foreach (string line in splitLines)
                                 {
-                                    
-                                    textLines.Add(line.Trim());
+                                    string cleanedLine = line.Trim().Trim('"');
+                                    if (!string.IsNullOrEmpty(cleanedLine))
+                                    {
+                                        textLines.Add(cleanedLine);
+                                    }
                                 }
                             }
                             else
                             {
                                 // Save fallback lines if quotaBool doesn't match
-                                string[] splitLines = row[3].Split(new[] { "\\n" }, System.StringSplitOptions.None);
+                                string[] splitLines = row[3].Split(';');
                                 foreach (string line in splitLines)
                                 {
-                                    fallbackLines.Add(line.Trim());
+                                    string cleanedLine = line.Trim().Trim('"');
+                                    if (!string.IsNullOrEmpty(cleanedLine))
+                                    {
+                                        fallbackLines.Add(cleanedLine);
+                                    }
                                 }
                             }
                         }
@@ -145,9 +137,17 @@ public class NarrativeManager : MonoBehaviour
         // If no lines were added, use fallback lines
         if (textLines.Count == 0 && fallbackLines.Count > 0)
         {
-            
+            Debug.Log($"Using fallback narrative lines for Day {dayIndex}");
             textLines.AddRange(fallbackLines);
         }
+        
+        if (textLines.Count == 0)
+        {
+            Debug.LogWarning($"No narrative text found for Day {dayIndex}, StartEnd: {startEnd}, Quota: {quotaBool}");
+            textLines.Add("No text available for this day.");
+        }
+        
+        Debug.Log($"Loaded {textLines.Count} narrative lines for Day {dayIndex}");
     }
 
     // Se agrega el método UpdateData para actualizar los datos
@@ -168,7 +168,7 @@ public class NarrativeManager : MonoBehaviour
         {
             if (isTextComplete)
             {
-                
+                Debug.Log("Narrative complete, advancing to next event");
                 GameManager.Instance.AdvanceToNextEvent();
             }
             else

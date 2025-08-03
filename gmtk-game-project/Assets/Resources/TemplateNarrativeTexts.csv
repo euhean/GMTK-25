@@ -1,6 +1,6 @@
 Dia;Inici/Final;Variant;Text
-1;True;True;"Hola.\nBienvenido a la aventura.\nAquí comienza tu historia."
-1;False;True;"Adeu.\nEl viaje ha terminado.\nHasta la próxima."
-2;True;True;"Hola 2.\nEste es el segundo capítulo de tu aventura."
-2;False;True;"Molt bé.\nHas completado esta etapa con éxito."
-2;False;False;"Molt malament.\nEl desafío no fue superado,\npero puedes intentarlo de nuevo."
+1;True;True;"Hola.;Bienvenido a la aventura.;Aquí comienza tu historia."
+1;False;True;"Adeu.;El viaje ha terminado.;Hasta la próxima."
+2;True;True;"Hola 2.;Este es el segundo capítulo de tu aventura.;Qué envidia te tengo!"
+2;False;True;"Molt bé.;Has completado esta etapa con éxito.;Pero habrá más..."
+2;False;False;"Molt malament.;El desafío no fue superado;pero puedes intentarlo de nuevo."
