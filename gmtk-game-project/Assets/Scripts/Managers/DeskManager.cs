@@ -60,6 +60,9 @@ public class DeskManager : MonoBehaviour
     // Guarda la posición original del teléfono
     private Vector3 phoneOriginalPosition;
 
+    [Header("Gameplay References")]
+    [SerializeField] private MultiOrbit cintaController;  // Add this field
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -441,5 +444,42 @@ public class DeskManager : MonoBehaviour
         waitingForPhoneInteraction = false;
         EnableOutlines();
         interactionEnabled = true; // Rehabilitar interacción al terminar el diálogo
+    }
+
+    /// <summary>
+    /// Inicia un evento de gameplay configurando la escena para el modo de juego
+    /// </summary>
+    public void StartGameplayEvent()
+    {
+        if (cameraSwitcher != null)
+        {
+            cameraSwitcher.useCameraGameplay = true;
+        }
+        
+        // Initialize gameplay elements
+        if (cintaController != null)
+        {
+            var currentConfig = GameManager.Instance?.GetCurrentEventOrbitConfig();
+            if (currentConfig != null)
+            {
+                cintaController.InstantiateFromConfig(currentConfig);
+            }
+        }
+        
+        // Habilitar interacciones
+        interactionEnabled = true;
+        
+        // Asegurarse de que los outlines estén habilitados
+        EnableOutlines();
+        
+        // Resetear flags de interacción si es necesario
+        waitingForPhoneInteraction = false;
+        hasInteractedWithPhone = false;
+        
+        // Asegurarse de que el canvas de diálogo del teléfono esté desactivado
+        if (phoneDialogCanvas != null)
+        {
+            phoneDialogCanvas.gameObject.SetActive(false);
+        }
     }
 }

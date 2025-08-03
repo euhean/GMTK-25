@@ -256,28 +256,57 @@ public class GameManager : MonoBehaviour
         currentDemandIndex = 0;
         demandToComplete = currentEvent.GetDemands();
 
-        if (currentEvent.GetEventType() == EventType.Narrative)
-        {
-            goToNarrativeScene();
-        }
-        else if (currentEvent.GetEventType() == EventType.Gameplay)
-        {
-            goToLevelScene();
-        }
-        else if (currentEvent.GetEventType() == EventType.Dialog)
+        if (currentEvent.GetEventType() == EventType.Gameplay)
         {
             // Buscar una instancia del DeskManager en la escena
             DeskManager deskManager = FindFirstObjectByType<DeskManager>();
             if (deskManager != null)
             {
-                // Obtener el nombre del cutscene de diálogo desde la configuración del evento
+                deskManager.StartGameplayEvent();
+            }
+            else
+            {
+                Debug.LogError("No se encontró DeskManager en la escena para el evento de gameplay");
+            }
+        }
+        else if (SceneManager.GetActiveScene().buildIndex != (int)Scenes.LEVEL)
+        {
+            // Si no estamos en la escena LEVEL, cargarla primero
+            SceneManager.sceneLoaded += OnLevelSceneLoaded;
+            goToLevelScene();
+        }
+        else
+        {
+            // Ya estamos en la escena LEVEL, proceder con el evento
+            ExecuteEventInLevel(currentEvent);
+        }
+    }
+
+    private void OnLevelSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.buildIndex == (int)Scenes.LEVEL)
+        {
+            SceneManager.sceneLoaded -= OnLevelSceneLoaded;
+            ExecuteEventInLevel(GetCurrentEvent());
+        }
+    }
+
+    private void ExecuteEventInLevel(GenericEvent currentEvent)
+    {
+        if (currentEvent.GetEventType() == EventType.Narrative)
+        {
+            goToNarrativeScene();
+        }
+        else if (currentEvent.GetEventType() == EventType.Dialog)
+        {
+            DeskManager deskManager = FindFirstObjectByType<DeskManager>();
+            if (deskManager != null)
+            {
                 string dialogCutsceneName = "";
                 if (currentEvent.eventConfiguration != null)
                 {
                     dialogCutsceneName = currentEvent.eventConfiguration.dialogCutsceneName;
                 }
-                
-                // Iniciar el evento de diálogo
                 deskManager.StartDialogEvent(dialogCutsceneName);
             }
             else
@@ -285,11 +314,6 @@ public class GameManager : MonoBehaviour
                 Debug.LogError("No se encontró DeskManager en la escena para el evento de diálogo");
             }
         }
-        else
-        {
-            Debug.LogWarning("Tipo de evento desconocido: " + currentEvent.GetEventType());
-        }
-        
     }
 
     public void AdvanceToNextDay()

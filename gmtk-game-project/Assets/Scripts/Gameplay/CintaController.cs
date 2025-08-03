@@ -34,28 +34,11 @@ public class MultiOrbit : MonoBehaviour
     
     void Start()
     {
-        if (useGameManagerConfig)
-        {
-            // Usar configuración del GameManager
-            currentConfig = GameManager.Instance.GetCurrentEventOrbitConfig();
-            if (currentConfig != null)
-            {
-                InstantiateFromConfig(currentConfig);
-            }
-            else
-            {
-                Debug.LogWarning("No se pudo obtener configuración del GameManager, usando configuración local");
-                InstantiateFromLocalConfig();
-            }
-        }
-        else
-        {
-            // Usar configuración local
-            InstantiateFromLocalConfig();
-        }
+        // Empty start - initialization is now handled by DeskManager
     }
     
-    private void InstantiateFromConfig(GameManager.OrbitConfiguration config)
+    // Change from private to public
+    public void InstantiateFromConfig(GameManager.OrbitConfiguration config)
     {
         // Instanciar objetos que orbitan
         for (int i = 0; i < config.numberOfOrbitingObjects; i++)
