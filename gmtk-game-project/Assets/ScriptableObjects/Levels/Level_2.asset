@@ -38,7 +38,7 @@ MonoBehaviour:
     angularSpeed: 1
     angularSeparation: 60
     machineInfos:
-    - machineConfiguration: {fileID: 11400000, guid: 327b27d1e2e522647a12c88f8e0c7376, type: 2}
+    - machineConfiguration: {fileID: 11400000, guid: 8d2d369cb764f1d439155ae5b0ef8299, type: 2}
       angleDegrees: 36
     - machineConfiguration: {fileID: 11400000, guid: add719bc3260b7a46abe3eb5f85e6d24, type: 2}
       angleDegrees: 216
