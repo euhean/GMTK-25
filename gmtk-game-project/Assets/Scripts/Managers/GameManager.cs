@@ -271,22 +271,10 @@ public class GameManager : MonoBehaviour
         currentDemandIndex = 0;
         demandToComplete = currentEvent.GetDemands();
 
-        if (currentEvent.GetEventType() == EventType.Gameplay)
+        // Si no estamos en la escena LEVEL, cargarla primero independientemente del tipo de evento
+        if (SceneManager.GetActiveScene().buildIndex != (int)Scenes.LEVEL)
         {
-            // Buscar una instancia del DeskManager en la escena
-            DeskManager deskManager = FindFirstObjectByType<DeskManager>();
-            if (deskManager != null)
-            {
-                deskManager.StartGameplayEvent();
-            }
-            else
-            {
-                Debug.LogError("No se encontró DeskManager en la escena para el evento de gameplay");
-            }
-        }
-        else if (SceneManager.GetActiveScene().buildIndex != (int)Scenes.LEVEL)
-        {
-            // Si no estamos en la escena LEVEL, cargarla primero
+            // Registrar el evento para que se ejecute después de cargar la escena
             SceneManager.sceneLoaded += OnLevelSceneLoaded;
             goToLevelScene();
         }
@@ -327,6 +315,19 @@ public class GameManager : MonoBehaviour
             else
             {
                 Debug.LogError("No se encontró DeskManager en la escena para el evento de diálogo");
+            }
+        }
+        else if (currentEvent.GetEventType() == EventType.Gameplay)
+        {
+            // Buscar una instancia del DeskManager en la escena ahora que estamos en LEVEL
+            DeskManager deskManager = FindFirstObjectByType<DeskManager>();
+            if (deskManager != null)
+            {
+                deskManager.StartGameplayEvent();
+            }
+            else
+            {
+                Debug.LogError("No se encontró DeskManager en la escena para el evento de gameplay");
             }
         }
     }
