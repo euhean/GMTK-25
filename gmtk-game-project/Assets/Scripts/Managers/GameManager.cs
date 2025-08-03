@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 
 /// <summary>
@@ -291,37 +292,22 @@ public class GameManager : MonoBehaviour
 
         if (currentEvent.GetEventType() == EventType.Gameplay)
         {
-            // Start the 2-minute timer for Gameplay events
             StartGameplayTimer();
-            
-            // Buscar una instancia del DeskManager en la escena
-            DeskManager deskManager = FindFirstObjectByType<DeskManager>();
-            if (deskManager != null)
-            {
-                deskManager.StartGameplayEvent();
-            }
-            else
-            {
-                Debug.LogError("No se encontró DeskManager en la escena para el evento de gameplay");
-            }
         }
         else
         {
-            // Stop timer for non-Gameplay events
             StopGameplayTimer();
         }
 
-        // Si no estamos en la escena LEVEL, cargarla primero independientemente del tipo de evento
+        // Si no estamos en la escena LEVEL, cargarla primero
         if (SceneManager.GetActiveScene().buildIndex != (int)Scenes.LEVEL)
         {
-            // Registrar el evento para que se ejecute después de cargar la escena
             SceneManager.sceneLoaded += OnLevelSceneLoaded;
             goToLevelScene();
         }
         else
         {
-            // Ya estamos en la escena LEVEL, proceder con el evento
-            ExecuteEventInLevel(currentEvent);
+            StartCoroutine(WaitForDeskManagerAndExecuteEvent(currentEvent));
         }
     }
 
@@ -330,45 +316,48 @@ public class GameManager : MonoBehaviour
         if (scene.buildIndex == (int)Scenes.LEVEL)
         {
             SceneManager.sceneLoaded -= OnLevelSceneLoaded;
-            ExecuteEventInLevel(GetCurrentEvent());
+            StartCoroutine(WaitForDeskManagerAndExecuteEvent(GetCurrentEvent()));
         }
     }
 
-    private void ExecuteEventInLevel(GenericEvent currentEvent)
+    private IEnumerator WaitForDeskManagerAndExecuteEvent(GenericEvent currentEvent)
     {
+        DeskManager deskManager = null;
+        float timeoutDuration = 2f; // 2 segundos de timeout
+        float elapsedTime = 0f;
+
+        while (deskManager == null && elapsedTime < timeoutDuration)
+        {
+            deskManager = FindFirstObjectByType<DeskManager>();
+            if (deskManager == null)
+            {
+                yield return null;
+                elapsedTime += Time.deltaTime;
+            }
+        }
+
+        if (deskManager == null)
+        {
+            Debug.LogError("No se pudo encontrar DeskManager después de " + timeoutDuration + " segundos");
+            yield break;
+        }
+
         if (currentEvent.GetEventType() == EventType.Narrative)
         {
             goToNarrativeScene();
         }
         else if (currentEvent.GetEventType() == EventType.Dialog)
         {
-            DeskManager deskManager = FindFirstObjectByType<DeskManager>();
-            if (deskManager != null)
+            string dialogCutsceneName = "";
+            if (currentEvent.eventConfiguration != null)
             {
-                string dialogCutsceneName = "";
-                if (currentEvent.eventConfiguration != null)
-                {
-                    dialogCutsceneName = currentEvent.eventConfiguration.dialogCutsceneName;
-                }
-                deskManager.StartDialogEvent(dialogCutsceneName);
+                dialogCutsceneName = currentEvent.eventConfiguration.dialogCutsceneName;
             }
-            else
-            {
-                Debug.LogError("No se encontró DeskManager en la escena para el evento de diálogo");
-            }
+            deskManager.StartDialogEvent(dialogCutsceneName);
         }
         else if (currentEvent.GetEventType() == EventType.Gameplay)
         {
-            // Buscar una instancia del DeskManager en la escena ahora que estamos en LEVEL
-            DeskManager deskManager = FindFirstObjectByType<DeskManager>();
-            if (deskManager != null)
-            {
-                deskManager.StartGameplayEvent();
-            }
-            else
-            {
-                Debug.LogError("No se encontró DeskManager en la escena para el evento de gameplay");
-            }
+            deskManager.StartGameplayEvent();
         }
     }
 
