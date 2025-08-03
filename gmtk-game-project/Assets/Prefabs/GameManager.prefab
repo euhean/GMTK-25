@@ -255,7 +255,7 @@ MonoBehaviour:
   currentEventIndex: 0
   autoSaveOnStart: 1
   fadeManager: {fileID: 7402595997789170133}
-  narrativeCsv: {fileID: 4900000, guid: 35c4868b7678aac4c80b461522453c3d, type: 3}
+  narrativeCsv: {fileID: 4900000, guid: fd379abaa0a494a4a9c5c163a532bfc1, type: 3}
   narrativeStartEnd: 1
   narrativeQuotaBool: 1
   itemsInLine: []
