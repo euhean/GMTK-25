@@ -28,6 +28,13 @@ public abstract class MachineObject : MonoBehaviour, IMachine
     {
         isOn = !isOn;
         UpdateMachineSprite();
+        
+        // Play machine on/off sound
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySound(isOn ? SoundType.MachineOn : SoundType.MachineOff);
+        }
+        
         Debug.Log($"Machine {gameObject.name} is now {(isOn ? "ON" : "OFF")}");
         // Si se activa y hay un recurso en trigger, se procesa la interacción de inmediato
         if (isOn && currentResource != null)

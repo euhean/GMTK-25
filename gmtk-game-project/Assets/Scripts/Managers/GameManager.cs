@@ -160,10 +160,25 @@ public class GameManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            
+            // Ensure AudioManager exists
+            InitializeAudioManager();
         }
         else
         {
             Destroy(gameObject);
+        }
+    }
+    
+    private void InitializeAudioManager()
+    {
+        // Check if AudioManager already exists
+        if (AudioManager.Instance == null)
+        {
+            // Create AudioManager if it doesn't exist
+            GameObject audioManagerObj = new GameObject("AudioManager");
+            audioManagerObj.AddComponent<AudioManager>();
+            DontDestroyOnLoad(audioManagerObj);
         }
     }
     

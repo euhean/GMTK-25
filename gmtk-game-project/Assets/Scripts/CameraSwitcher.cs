@@ -75,6 +75,19 @@ public class CameraSwitcher : MonoBehaviour
             camera_desk.gameObject.SetActive(!useCameraGameplay);
             camera_gameplay.gameObject.SetActive(useCameraGameplay);
 
+            // Toggle office background ambience based on camera
+            if (AudioManager.Instance != null)
+            {
+                if (!useCameraGameplay)
+                {
+                    AudioManager.Instance.PlaySound(SoundType.OfficeBackground);
+                }
+                else
+                {
+                    AudioManager.Instance.StopSound(SoundType.OfficeBackground);
+                }
+            }
+
             // Animación DOTween para la cámara asignada desde el editor
             if (cameraToAnimate != null)
             {
