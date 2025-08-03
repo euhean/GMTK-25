@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentShapeType: 0
-  currentColorType: 3
+  currentColorType: 0
   spriteRenderer: {fileID: 5015239446928918103}
 --- !u!212 &5015239446928918103
 SpriteRenderer:
@@ -93,7 +93,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 5ef85d0b3908def4d9f7cb73c017b31f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b3b58691555d5dc4e802e657837b447d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
