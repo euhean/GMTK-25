@@ -20,7 +20,7 @@ MonoBehaviour:
   targetSprite: {fileID: 21300000, guid: f0cf009b49ab13245b41b3d498b15a5b, type: 3}
   activeSprite: {fileID: 21300000, guid: 13b4ae205daf5604482fde3033d23559, type: 3}
   inactiveSprite: {fileID: 21300000, guid: 0320b34c6c7009646b0a88d95d274f5b, type: 3}
-  machineColor: {r: 0, g: 0.044306755, b: 1, a: 1}
-  iconColor: {r: 1, g: 1, b: 1, a: 1}
+  machineColor: {r: 1, g: 1, b: 1, a: 1}
+  iconColor: {r: 0.015686275, g: 0.22352941, b: 0.18431373, a: 1}
   scale: {x: 1, y: 1, z: 1}
   rotationOffset: {x: 0, y: 0, z: 0}

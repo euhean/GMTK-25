@@ -1,5 +1,83 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1444035269299436012
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 461253224082116926}
+  - component: {fileID: 5284903350247414343}
+  m_Layer: 0
+  m_Name: EcCutscene1 (2)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &461253224082116926
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1444035269299436012}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4533950792136812592}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5284903350247414343
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1444035269299436012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3c4a232f1b87b04ba7fa5d4567b9b8a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cutsceneData:
+  - name: Scene 1A
+    dialogText: Start
+    onDialogStart:
+      m_PersistentCalls:
+        m_Calls: []
+    onDialogEnd:
+      m_PersistentCalls:
+        m_Calls: []
+  - name: Scene 1B
+    dialogText: Test 1
+    onDialogStart:
+      m_PersistentCalls:
+        m_Calls: []
+    onDialogEnd:
+      m_PersistentCalls:
+        m_Calls: []
+  - name: Scene 1C
+    dialogText: Test 2
+    onDialogStart:
+      m_PersistentCalls:
+        m_Calls: []
+    onDialogEnd:
+      m_PersistentCalls:
+        m_Calls: []
+  - name: Scene 1D
+    dialogText: End
+    onDialogStart:
+      m_PersistentCalls:
+        m_Calls: []
+    onDialogEnd:
+      m_PersistentCalls:
+        m_Calls: []
+  dialogText: {fileID: 6660054280320128709}
 --- !u!1 &1499277783126495210
 GameObject:
   m_ObjectHideFlags: 0
@@ -198,6 +276,92 @@ MonoBehaviour:
     onDialogEnd:
       m_PersistentCalls:
         m_Calls: []
+  - name: Scene 1D
+    dialogText: End
+    onDialogStart:
+      m_PersistentCalls:
+        m_Calls: []
+    onDialogEnd:
+      m_PersistentCalls:
+        m_Calls: []
+  dialogText: {fileID: 6660054280320128709}
+--- !u!1 &2001792590145843339
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2229338527936923552}
+  - component: {fileID: 4970163757794001702}
+  m_Layer: 0
+  m_Name: EcCutscene1 (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2229338527936923552
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2001792590145843339}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4533950792136812592}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4970163757794001702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2001792590145843339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3c4a232f1b87b04ba7fa5d4567b9b8a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cutsceneData:
+  - name: Scene 1A
+    dialogText: Start
+    onDialogStart:
+      m_PersistentCalls:
+        m_Calls: []
+    onDialogEnd:
+      m_PersistentCalls:
+        m_Calls: []
+  - name: Scene 1B
+    dialogText: Test 1
+    onDialogStart:
+      m_PersistentCalls:
+        m_Calls: []
+    onDialogEnd:
+      m_PersistentCalls:
+        m_Calls: []
+  - name: Scene 1C
+    dialogText: Test 2
+    onDialogStart:
+      m_PersistentCalls:
+        m_Calls: []
+    onDialogEnd:
+      m_PersistentCalls:
+        m_Calls: []
+  - name: Scene 1D
+    dialogText: End
+    onDialogStart:
+      m_PersistentCalls:
+        m_Calls: []
+    onDialogEnd:
+      m_PersistentCalls:
+        m_Calls: []
   dialogText: {fileID: 6660054280320128709}
 --- !u!1 &4087154255176441831
 GameObject:
@@ -343,6 +507,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3539573928607908816}
+  - {fileID: 2229338527936923552}
+  - {fileID: 461253224082116926}
   - {fileID: 571393725711034505}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

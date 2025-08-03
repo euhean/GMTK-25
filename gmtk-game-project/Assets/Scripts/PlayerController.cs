@@ -122,7 +122,7 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    public  sendDemand(){
+    public void sendDemand(){
                     if (GameManager.Instance.isDemandCompleted()){
                             Debug.Log("isDemandCompleted");
                 if (GameManager.Instance.isLastDemand())
@@ -213,7 +213,7 @@ public class PlayerController : MonoBehaviour
     }
 
     // Crea un Ray desde la innerCamera usando la posición del mouse proyectada sobre el monitor
-    bool TryGetInnerRay(out Ray innerRay)
+    public bool TryGetInnerRay(out Ray innerRay)
     {
         innerRay = default;
         if (!innerCamera || !monitorCollider) return false;

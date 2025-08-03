@@ -18,9 +18,9 @@ MonoBehaviour:
   machineMaterial: {fileID: 2100000, guid: aadf62e8b9496c04782fea9a15d4c4b7, type: 2}
   iconSprite: {fileID: -2413806693520163455, guid: 515c69e652a9c35418e8ad6ac122c6d8, type: 3}
   targetSprite: {fileID: 7482667652216324306, guid: 5ef85d0b3908def4d9f7cb73c017b31f, type: 3}
-  activeSprite: {fileID: 0}
-  inactiveSprite: {fileID: 0}
-  machineColor: {r: 1, g: 1, b: 1, a: 1}
-  iconColor: {r: 1, g: 1, b: 1, a: 1}
+  activeSprite: {fileID: 21300000, guid: 13b4ae205daf5604482fde3033d23559, type: 3}
+  inactiveSprite: {fileID: 21300000, guid: 0320b34c6c7009646b0a88d95d274f5b, type: 3}
+  machineColor: {r: 0, g: 0.5137255, b: 1, a: 1}
+  iconColor: {r: 0, g: 0.5138736, b: 1, a: 1}
   scale: {x: 1, y: 1, z: 1}
   rotationOffset: {x: 0, y: 0, z: 0}
