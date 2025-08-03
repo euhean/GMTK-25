@@ -525,6 +525,7 @@ MonoBehaviour:
     type: 0
   alertStartPosition: {fileID: 2127661381}
   alertEndPosition: {fileID: 1025891699}
+  interactionEnabled: 1
 --- !u!4 &469366060
 Transform:
   m_ObjectHideFlags: 0
@@ -1280,7 +1281,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 8c9f1e9ead130764ca1cf04c6fba1fe9, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 1
@@ -2781,6 +2782,10 @@ PrefabInstance:
       propertyPath: currentLoop.days.Array.data[0].events.Array.data[0].eventConfiguration
       value: 
       objectReference: {fileID: 11400000, guid: bbc9aeea770375f4597321d89f773a61, type: 2}
+    - target: {fileID: 1794052602641212326, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
+      propertyPath: currentLoop.days.Array.data[0].events.Array.data[1].eventConfiguration
+      value: 
+      objectReference: {fileID: 11400000, guid: 81cd39d7d052cf647928fe2bf41191e3, type: 2}
     - target: {fileID: 3531560230527322648, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

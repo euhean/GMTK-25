@@ -167,6 +167,7 @@ public class DeskManager : MonoBehaviour
     /// </summary>
     private IEnumerator ActivatePhoneDialogCanvas()
     {
+        hasInteractedWithPhone = true;
         yield return new WaitForSeconds(activationDelay);
         if (phoneDialogCanvas != null)
             phoneDialogCanvas.gameObject.SetActive(true);
@@ -198,7 +199,7 @@ public class DeskManager : MonoBehaviour
             
             if (callAlertSound != null)
             {
-                callAlertSound.Play();
+                callAlertSound.Play(); // Solo aquí empieza el sonido
             }
 
             StartCoroutine(ReturnAlertAfterDelay());
@@ -271,7 +272,7 @@ public class DeskManager : MonoBehaviour
             
         }
     }
-    
+
     /// <summary>
     /// Maneja la interacción con un PC.
     /// </summary>
@@ -286,6 +287,13 @@ public class DeskManager : MonoBehaviour
         }
         interactionEnabled = false; // Deshabilitar interacción al iniciar el diálogo
         // Lógica específica para interactuar con PC
+
+        // Avanzar al siguiente evento si GameManager está disponible
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.AdvanceToNextEvent();
+        }
+        // No detener sonido aquí
     }
 
     /// <summary>
@@ -311,7 +319,7 @@ public class DeskManager : MonoBehaviour
             // Detener el sonido de alerta
             if (callAlertSound != null)
             {
-                callAlertSound.Stop();
+                callAlertSound.Stop(); // Solo aquí se detiene el sonido
             }
 
             // Iniciar el cutscene con el nombre guardado
@@ -322,6 +330,11 @@ public class DeskManager : MonoBehaviour
         {
             Debug.Log("No pending dialog cutscene to process");
             // Lógica específica para interactuar con teléfono en otros casos
+            // Detener el sonido si está activo
+            if (callAlertSound != null)
+            {
+                callAlertSound.Stop();
+            }
         }
     }
 
