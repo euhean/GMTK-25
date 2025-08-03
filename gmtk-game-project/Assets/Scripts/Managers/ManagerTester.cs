@@ -4,7 +4,7 @@ public class ManagerTester : MonoBehaviour
 {
     // Añadido para emular el GameManager: referencia a NarrativeManager y CSV de prueba
     public NarrativeManager narrativeManager;
-    public TextAsset testCsv;
+    public TextAsset narrativeCsv;
 
     // Parámetro adicional para startEnd
     public int testDayIndex = 1;
@@ -32,7 +32,7 @@ public class ManagerTester : MonoBehaviour
         if (narrativeManager != null)
         {
             // Emula el envío de datos desde el GameManager al NarrativeManager:
-            narrativeManager.UpdateData(testCsv, testDayIndex, testStartEnd, testQuotaBool);
+            narrativeManager.UpdateData(narrativeCsv, testDayIndex, testStartEnd, testQuotaBool);
             narrativeManager.StartText();
         }
         else

@@ -1,49 +1,55 @@
-using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
-using UnityEngine.SceneManagement;
+using TMPro; // Importar TextMeshPro
+using System.IO;
 
-
-/// <summary>
-/// LoopManager que configura y gestiona el loop del juego.
-/// Ahora actúa como un configurador que guarda el loop en GameManager.
-/// Las estructuras de datos se han movido a GameManager.
-/// </summary>
 public class LoopManager : MonoBehaviour
 {
-    [Header("Loop Configuration")]
-    [SerializeField] private GameManager.Loop currentLoop = new GameManager.Loop();
-    
-    [Header("Auto Save")]
-    [SerializeField] private bool autoSaveOnStart = true;
-    
-    [Header("Deprecated - Use GameManager structures instead")]
-    [SerializeField] private bool showDeprecatedWarning = true;
-        
-    
+    public TextMeshProUGUI textComponent; // Variable asignable desde el inspector para TMP
+    public TextAsset csvFile; // Referencia directa al asset del archivo CSV
 
-    private void Start()
+    public void Continue()
     {
-
-    }
-    
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
+        var currentLoop = GameManager.Instance.GetCurrentLoop();
+        if (currentLoop != null && currentLoop.days.Count > 0)
         {
-            // Verificar si hay días en el loop actual
-            var currentLoop = GameManager.Instance.GetCurrentLoop();
-            if (currentLoop != null && currentLoop.days.Count > 0)
+            GameManager.Instance.goToDayScene();
+        }
+        else
+        {
+            Debug.LogWarning("No loops available to continue.");
+            GameManager.Instance.goToMenuScene();
+        }
+    }
+
+    void Start()
+    {
+        if (textComponent == null)
+        {
+            Debug.LogError("Text component is not assigned!");
+            return;
+        }
+
+        LoadRandomTextFromCSV();
+    }
+
+    public void LoadRandomTextFromCSV()
+    {
+        if (csvFile != null)
+        {
+            var lines = csvFile.text.Split('\n'); // Leer líneas del contenido del archivo CSV
+            if (lines.Length > 0)
             {
-                GameManager.Instance.goToDayScene();
+                var randomLine = lines[Random.Range(0, lines.Length)];
+                textComponent.text = randomLine; // Asignar texto aleatorio
             }
             else
             {
-                
-                GameManager.Instance.goToMenuScene();
+                Debug.LogWarning("El archivo CSV está vacío.");
             }
         }
+        else
+        {
+            Debug.LogError("No se ha asignado un archivo CSV.");
+        }
     }
-    
-
 }

@@ -18,13 +18,20 @@ public class GameManager : MonoBehaviour
     
     [Header("Loop Configuration")]
     [SerializeField] private Loop currentLoop = new Loop();
-    [SerializeField] private int currentDayIndex = 0;
+    public int currentDayIndex = 0;
     [SerializeField] private GenericEvent currentEvent;
     [SerializeField] private int currentEventIndex = 0;
     [SerializeField] private bool autoSaveOnStart = true;
+    [SerializeField] private FadeManager fadeManager;
+
+    [Header("Narrative Configuration")]
+    [SerializeField] private TextAsset narrativeCsv;
+    [SerializeField] private bool narrativeStartEnd = true;
+    [SerializeField] private bool narrativeQuotaBool = true;
 
     [SerializeField] private List<Demand> itemsInLine = new List<Demand>();
-    [SerializeField] private List<Demand> demandToComplete = new List<Demand>();
+    [SerializeField] private List<List<Demand>> demandToComplete = new List<List<Demand>>();
+
 
     // Estructuras de datos movidas desde LoopManager
     [System.Serializable]
@@ -41,16 +48,7 @@ public class GameManager : MonoBehaviour
 
     public enum EventType { Narrative, Gameplay, Dialog };
     
-    [System.Serializable] 
-    public class Demand{
-        [SerializeField] public ResourceColor.ColorType colorType;
-        [SerializeField] public Shape.ShapeType shapeType;
-
-        public override string ToString()
-        {
-            return $"colorType: {colorType.ToString()}, shapeType: {shapeType.ToString()}";
-        }
-    }
+    public int currentDemandIndex = 0;
 
     [System.Serializable]
     public class MachineInfo
@@ -115,9 +113,9 @@ public class GameManager : MonoBehaviour
         /// <summary>
         /// Obtiene las demandas del evento
         /// </summary>
-        public List<Demand> GetDemands()
+        public List<List<Demand>> GetDemands()
         {
-            return eventConfiguration != null ? eventConfiguration.demands : new List<Demand>();
+            return eventConfiguration != null ? eventConfiguration.demands.Select(d => d.demands).ToList() : new List<List<Demand>>();
         }
         
         /// <summary>
@@ -171,10 +169,15 @@ public class GameManager : MonoBehaviour
     
     private void Start()
     {
-        if(debugMode){
+        if (debugMode)
+        {
             runEvent();
         }
 
+        // Ensure the game window is always in 16:9 aspect ratio
+        int width = Screen.width;
+        int height = Mathf.RoundToInt(width / (16f / 9f));
+        Screen.SetResolution(width, height, Screen.fullScreen);
     }
     
     private void Update()
@@ -250,6 +253,7 @@ public class GameManager : MonoBehaviour
     {
         var currentEvent = GetCurrentEvent();
         if (currentEvent == null) return;
+        currentDemandIndex = 0;
         demandToComplete = currentEvent.GetDemands();
         
         if(currentEvent.GetEventType() == EventType.Narrative)
@@ -321,14 +325,25 @@ public class GameManager : MonoBehaviour
 
     }
 
-    public List<Demand> getCurrentDemands()
+    public List<Demand> getCurrentDemand()
+    {
+        if (currentDemandIndex < demandToComplete.Count)
+        {
+            return demandToComplete[currentDemandIndex];
+        }
+        return new List<Demand>();
+    }
+
+
+
+    public List<List<Demand>> getCurrentDemands()
     {
         GenericEvent currentEvent = GetCurrentEvent();
         if (currentEvent != null)
         {
             return currentEvent.GetDemands();
         }
-        return new List<Demand>();
+        return new List<List<Demand>>();
     }
 
     public bool isDemandCompleted()
@@ -336,7 +351,7 @@ public class GameManager : MonoBehaviour
         GenericEvent currentEvent = GetCurrentEvent();
         if (currentEvent == null) return false;
         
-        List<Demand> eventDemands = new List<Demand>(currentEvent.GetDemands());
+        List<Demand> eventDemands = new List<Demand>(getCurrentDemand());
         List<Demand> lineDemands = new List<Demand>(GetItemsInLine());
         
         // Verificar si todas las demandas del evento están en la línea
@@ -359,28 +374,122 @@ public class GameManager : MonoBehaviour
         return true;
     }
     
-    // SCENE MANAGEMENT
-    public void goToMenuScene() 
+    public bool isLastDemand()
     {
-        SceneManager.LoadScene((int)Scenes.MENU);
+        return currentDemandIndex >= GetCurrentEvent().GetDemands().Count - 1;
+    }
+
+    public void nextDemand()
+    {
+        if (currentDemandIndex < GetCurrentEvent().GetDemands().Count - 1)
+        {
+            currentDemandIndex++;
+        }
+        else
+        {
+            Debug.LogWarning("No hay más demandas para procesar.");
+        }
+    }
+    
+    // SCENE MANAGEMENT
+    public void goToMenuScene()
+    {
+        if (fadeManager != null)
+        {
+            fadeManager.FadeIn(() =>
+            {
+                SceneManager.LoadSceneAsync((int)Scenes.MENU).completed += (op) =>
+                {
+                    fadeManager.FadeOut();
+                };
+            });
+        }
+        else
+        {
+            SceneManager.LoadScene((int)Scenes.MENU);
+        }
     }
 
     public void goToNarrativeScene()
     {
-        SceneManager.LoadScene((int)Scenes.NARRATIVE);
+        if (fadeManager != null)
+        {
+            fadeManager.FadeIn(() => {
+                SceneManager.LoadSceneAsync((int)Scenes.NARRATIVE).completed += (op) => {
+                    fadeManager.FadeOut();
+                    // Try to find and initialize NarrativeManager
+                    var narrativeManager = FindFirstObjectByType<NarrativeManager>();
+                    if (narrativeManager != null)
+                    {
+                        narrativeManager.InitializeFromGameManager();
+                    }
+                };
+            });
+        }
+        else
+        {
+            SceneManager.LoadScene((int)Scenes.NARRATIVE);
+            // Try to find and initialize NarrativeManager on the next frame
+            StartCoroutine(InitializeNarrativeManagerNextFrame());
+        }
+    }
+
+    private System.Collections.IEnumerator InitializeNarrativeManagerNextFrame()
+    {
+        yield return null; // Wait one frame
+        var narrativeManager = FindFirstObjectByType<NarrativeManager>();
+        if (narrativeManager != null)
+        {
+            narrativeManager.InitializeFromGameManager();
+        }
     }
 
     public void goToLevelScene()
     {
-        SceneManager.LoadScene((int)Scenes.LEVEL);
+        if (fadeManager != null)
+        {
+            fadeManager.FadeIn(() => {
+                SceneManager.LoadSceneAsync((int)Scenes.LEVEL).completed += (op) => {
+                    fadeManager.FadeOut();
+                };
+            });
+        }
+        else
+        {
+            SceneManager.LoadScene((int)Scenes.LEVEL);
+        }
     }
+
     public void goToLoopScene()
     {
-        SceneManager.LoadScene((int)Scenes.LOOP);
+        if (fadeManager != null)
+        {
+            fadeManager.FadeIn(() => {
+                SceneManager.LoadSceneAsync((int)Scenes.LOOP).completed += (op) => {
+                    fadeManager.FadeOut();
+                };
+            });
+        }
+        else
+        {
+            SceneManager.LoadScene((int)Scenes.LOOP);
+        }
     }
+
     public void goToDayScene()
     {
-        SceneManager.LoadScene((int)Scenes.DAY);
+        if (fadeManager != null)
+        {
+            fadeManager.FadeIn(() => {
+                SceneManager.LoadSceneAsync((int)Scenes.DAY).completed += (op) => {
+                    fadeManager.FadeOut();
+                };
+            });
+        }
+        else
+        {
+            SceneManager.LoadScene((int)Scenes.DAY);
+        }
     }
     
     // ITEMS IN LINE MANAGEMENT
@@ -504,5 +613,10 @@ public class GameManager : MonoBehaviour
         GenericEvent currentEvent = GetCurrentEvent();
         return currentEvent?.GetOrbitConfig();
     }
+
+    // Narrative Getters
+    public TextAsset GetNarrativeCsv() => narrativeCsv;
+    public bool GetNarrativeStartEnd() => narrativeStartEnd;
+    public bool GetNarrativeQuotaBool() => narrativeQuotaBool;
     
 }

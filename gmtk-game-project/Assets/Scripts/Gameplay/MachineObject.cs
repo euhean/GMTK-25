@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public abstract class MachineObject : MonoBehaviour, IMachine
 {
-    public bool isOn = true;
+    public bool isOn = false;
     public ScriptableObject machineData;
     public MachinePurpose purpose;
     public Resource currentResource;

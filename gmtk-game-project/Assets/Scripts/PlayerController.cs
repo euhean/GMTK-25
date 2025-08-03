@@ -112,7 +112,14 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             if (GameManager.Instance.isDemandCompleted())
-                GameManager.Instance.AdvanceToNextEvent();
+                if (GameManager.Instance.isLastDemand())
+                {
+                    GameManager.Instance.AdvanceToNextEvent();
+                }
+                else 
+                {
+                    GameManager.Instance.nextDemand();
+                }
         }
     }
 

@@ -15,8 +15,8 @@ public class EventConfiguration : ScriptableObject
     [SerializeField] public bool isCompleted = false;
     
     [Header("Demands")]
-    [SerializeField] public List<GameManager.Demand> demands = new List<GameManager.Demand>();
-    
+    [SerializeField] public List<DemandList> demands = new List<DemandList>();
+
     [Header("Orbit Configuration")]
     [SerializeField] public GameManager.OrbitConfiguration orbitConfig = new GameManager.OrbitConfiguration();
     
@@ -44,7 +44,7 @@ public class EventConfiguration : ScriptableObject
             this.eventType = genericEvent.eventConfiguration.eventType;
             this.description = genericEvent.eventConfiguration.description;
             this.isCompleted = genericEvent.eventConfiguration.isCompleted;
-            this.demands = new List<GameManager.Demand>(genericEvent.eventConfiguration.demands);
+            this.demands = genericEvent.eventConfiguration.demands;
             this.orbitConfig = genericEvent.eventConfiguration.orbitConfig;
         }
         else
@@ -64,7 +64,7 @@ public class EventConfiguration : ScriptableObject
         clone.eventType = this.eventType;
         clone.description = this.description;
         clone.isCompleted = this.isCompleted;
-        clone.demands = new List<GameManager.Demand>(this.demands);
+        clone.demands = new List<DemandList>(this.demands);
         clone.orbitConfig = this.orbitConfig;
         return clone;
     }
