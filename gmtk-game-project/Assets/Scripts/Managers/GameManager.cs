@@ -226,10 +226,57 @@ public class GameManager : MonoBehaviour
             Debug.Log($"[GameManager] Registered manager: {managerName}");
         }
         
+        // Also populate availableManagers list for error fixing and other systems
+        PopulateAvailableManagersList();
+        
         Debug.Log($"[GameManager] Initialized {managersDict.Count} managers");
         
         // Start with LevelManager as default for gameplay scenes
         SwitchManager("LevelManager");
+    }
+    
+    /// <summary>
+    /// Populates the availableManagers list with all relevant manager components
+    /// This includes BaseManager components and other important MonoBehaviour managers
+    /// </summary>
+    private void PopulateAvailableManagersList()
+    {
+        if (availableManagers == null)
+        {
+            availableManagers = new System.Collections.Generic.List<MonoBehaviour>();
+        }
+        
+        availableManagers.Clear();
+        
+        // Add all BaseManager components
+        BaseManager[] allBaseManagers = FindObjectsByType<BaseManager>(FindObjectsSortMode.None);
+        foreach (BaseManager manager in allBaseManagers)
+        {
+            if (manager != this) // Don't add GameManager to itself
+            {
+                availableManagers.Add(manager);
+            }
+        }
+        
+        // Add other important manager components that don't inherit from BaseManager
+        var additionalManagers = new MonoBehaviour[]
+        {
+            FindFirstObjectByType<CameraSwitcher>(),
+            FindFirstObjectByType<DeskManager>(),
+            FindFirstObjectByType<CintaController>(),
+            FindFirstObjectByType<AssemblyLineSpawner>(),
+            FindFirstObjectByType<FadeManager>()
+        };
+        
+        foreach (var manager in additionalManagers)
+        {
+            if (manager != null && !availableManagers.Contains(manager))
+            {
+                availableManagers.Add(manager);
+            }
+        }
+        
+        Debug.Log($"[GameManager] Populated availableManagers with {availableManagers.Count} components");
     }
     
     /// <summary>

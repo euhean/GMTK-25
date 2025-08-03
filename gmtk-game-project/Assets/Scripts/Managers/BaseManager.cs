@@ -14,6 +14,18 @@ public abstract class BaseManager : MonoBehaviour
     /// ID único del manager para identificarlo desde el GameManager
     /// </summary>
     public string ManagerID => managerID;
+    
+    /// <summary>
+    /// Auto-assign manager ID if not set
+    /// </summary>
+    private void Awake()
+    {
+        if (string.IsNullOrEmpty(managerID))
+        {
+            managerID = GetType().Name;
+            Debug.Log($"[BaseManager] Auto-assigned managerID: {managerID}");
+        }
+    }
 
     /// <summary>
     /// Indica si el manager está actualmente activo

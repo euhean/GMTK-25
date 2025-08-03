@@ -25,11 +25,11 @@ MonoBehaviour:
     shapeType: 0
   orbitConfig:
     resourcePrefabs:
-    - {fileID: 538977329041564931, guid: cd6717e7acd87a447bc50e96b090f281, type: 3}
+    - {fileID: 5359917699364430212, guid: 3f7311c4c7b15a84fb66ae67c345492e, type: 3}
     numberOfOrbitingObjects: 6
     orbitRadius: 3.5
     angularSpeed: 1
     angularSeparation: 60
     machineInfos:
-    - machineConfiguration: {fileID: 11400000, guid: 327b27d1e2e522647a12c88f8e0c7376, type: 2}
+    - machineConfiguration: {fileID: 11400000, guid: f37df7509c7e81b4fa05921ef6be6e4f, type: 2}
       angleDegrees: 36

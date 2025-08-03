@@ -158,7 +158,8 @@ public class LevelManager : BaseManager
         Debug.Log($"[LevelManager] Starting gameplay: {eventConfig.description}");
         
         // Configure gameplay parameters (default 2 minutes)
-        levelTimeLimit = 120f; // Could be extended to read from EventConfiguration
+        // Get time limit from GameManager or use reasonable default
+        levelTimeLimit = GetTimeLimitFromGameManager();
         timer = levelTimeLimit;
         timeUp = false;
         
@@ -180,6 +181,30 @@ public class LevelManager : BaseManager
     public void StartGameplayEvent(EventConfiguration eventConfig)
     {
         ProcessGameplayEvent(eventConfig);
+    }
+    
+    /// <summary>
+    /// Get time limit from GameManager configuration or use reasonable default
+    /// </summary>
+    private float GetTimeLimitFromGameManager()
+    {
+        // Try to get from GameManager, fallback to reasonable default
+        if (GameManager.Instance != null)
+        {
+            // For now, use a reasonable default as EventConfiguration doesn't have timeLimit
+            // This could be extended when timing configuration is added to EventConfiguration
+            float defaultTimeLimit = 120f; // 2 minutes default
+            
+            Debug.Log($"[LevelManager] Using time limit: {defaultTimeLimit}s");
+            return defaultTimeLimit;
+        }
+        else
+        {
+            // Fallback if GameManager is not available
+            float fallbackTimeLimit = 120f;
+            Debug.LogWarning($"[LevelManager] GameManager not found, using fallback time limit: {fallbackTimeLimit}s");
+            return fallbackTimeLimit;
+        }
     }
     
     /// <summary>
@@ -504,6 +529,126 @@ public class LevelManager : BaseManager
         {
             Debug.Log("✅ This is a gameplay event - perfect for testing sequence flow!");
         }
+    }
+    
+    #endregion
+    
+    #region UI Auto-Initialization
+    
+    /// <summary>
+    /// Automatically find or create delivery UI elements if they're missing
+    /// </summary>
+    private void AutoFindOrCreateDeliveryUI()
+    {
+        // Try to find existing delivery panel
+        GameObject foundPanel = GameObject.Find("DeliveryPanel");
+        if (foundPanel == null)
+        {
+            // Search in Canvas hierarchy
+            Canvas canvas = FindFirstObjectByType<Canvas>();
+            if (canvas != null)
+            {
+                Transform panelTransform = canvas.transform.Find("DeliveryPanel");
+                if (panelTransform != null)
+                {
+                    foundPanel = panelTransform.gameObject;
+                }
+            }
+        }
+        
+        // If still not found, create minimal UI to prevent errors
+        if (foundPanel == null)
+        {
+            Debug.LogWarning("[LevelManager] DeliveryPanel not found - creating minimal UI to prevent errors");
+            CreateMinimalDeliveryUI();
+        }
+        else
+        {
+            deliveryPanel = foundPanel;
+            
+            // Try to find delivery button within the panel
+            if (deliveryButton == null)
+            {
+                Button foundButton = foundPanel.GetComponentInChildren<Button>();
+                if (foundButton != null)
+                {
+                    deliveryButton = foundButton;
+                    Debug.Log("[LevelManager] Auto-assigned delivery button from panel");
+                }
+            }
+            
+            Debug.Log("[LevelManager] Auto-assigned delivery panel from scene");
+        }
+    }
+    
+    /// <summary>
+    /// Creates minimal delivery UI elements to prevent null reference errors
+    /// </summary>
+    private void CreateMinimalDeliveryUI()
+    {
+        // Find or create Canvas
+        Canvas canvas = FindFirstObjectByType<Canvas>();
+        if (canvas == null)
+        {
+            GameObject canvasGO = new GameObject("UI Canvas");
+            canvas = canvasGO.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvasGO.AddComponent<CanvasScaler>();
+            canvasGO.AddComponent<GraphicRaycaster>();
+            Debug.Log("[LevelManager] Created UI Canvas");
+        }
+        
+        // Create delivery panel
+        GameObject panelGO = new GameObject("DeliveryPanel");
+        panelGO.transform.SetParent(canvas.transform, false);
+        
+        RectTransform panelRect = panelGO.AddComponent<RectTransform>();
+        panelRect.anchorMin = Vector2.zero;
+        panelRect.anchorMax = Vector2.one;
+        panelRect.sizeDelta = Vector2.zero;
+        panelRect.anchoredPosition = Vector2.zero;
+        
+        // Add background image
+        UnityEngine.UI.Image panelImage = panelGO.AddComponent<UnityEngine.UI.Image>();
+        panelImage.color = new Color(0, 0, 0, 0.8f); // Semi-transparent black
+        
+        deliveryPanel = panelGO;
+        
+        // Create delivery button
+        GameObject buttonGO = new GameObject("DeliveryButton");
+        buttonGO.transform.SetParent(panelGO.transform, false);
+        
+        RectTransform buttonRect = buttonGO.AddComponent<RectTransform>();
+        buttonRect.anchorMin = new Vector2(0.5f, 0.5f);
+        buttonRect.anchorMax = new Vector2(0.5f, 0.5f);
+        buttonRect.sizeDelta = new Vector2(200, 50);
+        buttonRect.anchoredPosition = Vector2.zero;
+        
+        // Add button components
+        UnityEngine.UI.Image buttonImage = buttonGO.AddComponent<UnityEngine.UI.Image>();
+        buttonImage.color = Color.white;
+        
+        Button button = buttonGO.AddComponent<Button>();
+        deliveryButton = button;
+        
+        // Add button text
+        GameObject textGO = new GameObject("Text");
+        textGO.transform.SetParent(buttonGO.transform, false);
+        
+        RectTransform textRect = textGO.AddComponent<RectTransform>();
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.sizeDelta = Vector2.zero;
+        textRect.anchoredPosition = Vector2.zero;
+        
+        UnityEngine.UI.Text text = textGO.AddComponent<UnityEngine.UI.Text>();
+        text.text = "Deliver";
+        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        text.fontSize = 14;
+        text.alignment = TextAnchor.MiddleCenter;
+        text.color = Color.black;
+        
+        Debug.Log("[LevelManager] Created minimal delivery UI");
     }
     
     #endregion

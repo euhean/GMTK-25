@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.Reflection;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -23,10 +24,14 @@ public class SceneSetupHelper : MonoBehaviour
     [Header("Narrative Content")]
     public TextAsset narrativeCsvFile; // Drag TemplateNarrativeTexts.csv here or leave empty to auto-load
     
+
+    
     [ContextMenu("Setup Complete Scene")]
     public void SetupCompleteScene()
     {
         Debug.Log("[SceneSetupHelper] Setting up MainGameplay scene...");
+        
+        // Note: Use UnityErrorFixer script for fixing missing script references
         
         // Create manager hierarchy
         GameObject managersParent = CreateManagersHierarchy();
@@ -775,6 +780,8 @@ public class SceneSetupHelper : MonoBehaviour
             }
         }
         
+        // Note: For fixing AnimateText references, use UnityErrorFixer script instead
+        
         // Set up AnimateText component if missing
         var animateTextComponent = narrativeManager.GetComponent<BitWave_Labs.AnimatedTextReveal.AnimateText>();
         if (animateTextComponent == null)
@@ -785,6 +792,8 @@ public class SceneSetupHelper : MonoBehaviour
                 animateTextComponent = narrativeManager.gameObject.AddComponent<BitWave_Labs.AnimatedTextReveal.AnimateText>();
                 // Configure basic AnimateText settings
                 ConfigureAnimateTextComponent(animateTextComponent);
+                
+                // Note: Use UnityErrorFixer to set AnimateText references properly
             }
             catch (System.Exception ex)
             {
@@ -798,6 +807,8 @@ public class SceneSetupHelper : MonoBehaviour
             Debug.Log("[SceneSetupHelper] AnimateText component already exists, checking configuration...");
             // Ensure it's properly configured even if it exists
             ConfigureAnimateTextComponent(animateTextComponent);
+            
+            // Note: Use UnityErrorFixer to ensure proper AnimateText references
         }
         
         // Configure NarrativeManager with CSV data using reflection since fields are private
@@ -1387,4 +1398,6 @@ public class SceneSetupHelper : MonoBehaviour
             allGood = false;
         }
     }
+    
+    // Note: NarrativeManager fixing methods moved to UnityErrorFixer for better organization
 }

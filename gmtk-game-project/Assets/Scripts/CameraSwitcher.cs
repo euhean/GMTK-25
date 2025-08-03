@@ -27,6 +27,12 @@ public class CameraSwitcher : MonoBehaviour
 
     private void Awake()
     {
+        // Auto-find cameras if not assigned
+        if (camera_desk == null || camera_gameplay == null)
+        {
+            AutoAssignCameras();
+        }
+        
         if (camera_desk != null && camera_gameplay != null)
         {
             camera_desk.gameObject.SetActive(!useCameraGameplay);
@@ -34,7 +40,7 @@ public class CameraSwitcher : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("One or both cameras are not assigned!");
+            Debug.LogWarning("[CameraSwitcher] One or both cameras are not assigned and could not be auto-found!");
         }
 
         UpdatePlayerControllerState();
@@ -75,9 +81,39 @@ public class CameraSwitcher : MonoBehaviour
         {
             playerController.SetActive(useCameraGameplay);
         }
-        else
+    }
+    
+    /// <summary>
+    /// Automatically find and assign cameras if they're missing
+    /// </summary>
+    private void AutoAssignCameras()
+    {
+        CinemachineCamera[] allCameras = FindObjectsByType<CinemachineCamera>(FindObjectsSortMode.None);
+        
+        foreach (CinemachineCamera cam in allCameras)
         {
-            Debug.LogWarning("PlayerController GameObject is not assigned!");
+            string camName = cam.name.ToLower();
+            
+            if (camera_desk == null && (camName.Contains("desk") || camName.Contains("menu")))
+            {
+                camera_desk = cam;
+                Debug.Log($"[CameraSwitcher] Auto-assigned desk camera: {cam.name}");
+            }
+            else if (camera_gameplay == null && (camName.Contains("gameplay") || camName.Contains("game") || camName.Contains("play")))
+            {
+                camera_gameplay = cam;
+                Debug.Log($"[CameraSwitcher] Auto-assigned gameplay camera: {cam.name}");
+            }
+        }
+        
+        // If still missing cameras, log what we found
+        if (camera_desk == null || camera_gameplay == null)
+        {
+            Debug.LogWarning($"[CameraSwitcher] Could not auto-assign all cameras. Found {allCameras.Length} total cameras in scene:");
+            foreach (var cam in allCameras)
+            {
+                Debug.LogWarning($"  - {cam.name}");
+            }
         }
     }
 }

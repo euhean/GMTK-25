@@ -29,6 +29,10 @@ public class DeskManager : MonoBehaviour
     public Canvas phoneDialogCanvas;
     [SerializeField] private float activationDelay = 0.5f; // Delay before activating the canvas
     [SerializeField] private float deactivationDelay = 0.5f; // Delay before deactivating the canvas
+    
+    // Dynamic values from GameManager
+    private float dynamicActivationDelay;
+    private float dynamicDeactivationDelay;
 
     [Header("Interactable Objects")]
     public List<InteractableElement> interactableObjects; // Lista de objetos interactuables
@@ -36,6 +40,9 @@ public class DeskManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        // Initialize timing values from GameManager or use defaults
+        InitializeFromGameManager();
+        
         // If cutsceneManager is not assigned, try to find it in the scene
         if (cutsceneManager == null)
             cutsceneManager = FindFirstObjectByType<EcCutsceneManager>();
@@ -52,6 +59,31 @@ public class DeskManager : MonoBehaviour
         else
         {
             phoneDialogCanvas.gameObject.SetActive(false);
+        }
+    }
+    
+    /// <summary>
+    /// Initialize timing values from GameManager or use fallback defaults
+    /// </summary>
+    private void InitializeFromGameManager()
+    {
+        // Try to get values from GameManager, fallback to serialized defaults
+        if (GameManager.Instance != null)
+        {
+            // For now, use the serialized values as GameManager doesn't have timing config
+            // This could be extended when timing configuration is added to EventConfiguration
+            dynamicActivationDelay = activationDelay;
+            dynamicDeactivationDelay = deactivationDelay;
+            
+            Debug.Log($"[DeskManager] Initialized with activation delay: {dynamicActivationDelay}s, deactivation delay: {dynamicDeactivationDelay}s");
+        }
+        else
+        {
+            // Fallback to hardcoded defaults if GameManager is not available
+            dynamicActivationDelay = 0.5f;
+            dynamicDeactivationDelay = 0.5f;
+            
+            Debug.LogWarning("[DeskManager] GameManager not found, using fallback timing values");
         }
     }
 
@@ -126,7 +158,7 @@ public class DeskManager : MonoBehaviour
     /// </summary>
     private IEnumerator ActivatePhoneDialogCanvas()
     {
-        yield return new WaitForSeconds(activationDelay);
+        yield return new WaitForSeconds(dynamicActivationDelay);
         if (phoneDialogCanvas != null)
             phoneDialogCanvas.gameObject.SetActive(true);
     }
@@ -136,7 +168,7 @@ public class DeskManager : MonoBehaviour
     /// </summary>
     private IEnumerator DeactivatePhoneDialogCanvas()
     {
-        yield return new WaitForSeconds(deactivationDelay);
+        yield return new WaitForSeconds(dynamicDeactivationDelay);
         if (phoneDialogCanvas != null)
             phoneDialogCanvas.gameObject.SetActive(false);
     }

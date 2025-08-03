@@ -3,6 +3,13 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    static void DisableInputSystem()
+    {
+        // Disable Input System automatic initialization since we use legacy Input
+        InputSystem.settings.updateMode = InputSettings.UpdateMode.ProcessEventsManually;
+        Debug.Log("[PlayerController] Input System automatic updates disabled. Using legacy Input system.");
+    }
     [Header("Cámaras / pantalla interior")]
     public Camera mainCamera;          // cámara del jugador
     public Camera innerCamera;         // cámara que renderiza al RenderTexture

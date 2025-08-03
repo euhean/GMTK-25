@@ -30,27 +30,63 @@ public class NarrativeManager : BaseManager
     }
     
     /// <summary>
-    /// Initializes the NarrativeManager from GameManager with placeholder values
-    /// TODO: Implement proper narrative data loading from EventConfiguration
+    /// Initializes the NarrativeManager from GameManager with actual game data
+    /// This method should be called when the narrative scene is loaded
     /// </summary>
     public void InitializeFromGameManager()
     {
-        if (GameManager.Instance != null)
+        Debug.Log("[NarrativeManager] Initializing from GameManager");
+        
+        if (GameManager.Instance == null)
         {
-            // Use placeholder values since narrative system needs to be properly configured
-            TextAsset narrativeCsv = csvFile; // Use existing csvFile for now
-            int currentDay = 1; // TODO: Should come from DayManager
-            bool narrativeStartEnd = true; // TODO: Should be configurable
-            bool narrativeQuotaBool = true; // TODO: Should be based on actual game state
-            
-            // Update local values with defaults for now
-            UpdateData(narrativeCsv, currentDay, narrativeStartEnd, narrativeQuotaBool);
+            Debug.LogError("[NarrativeManager] GameManager.Instance is null - using fallback values");
+            UpdateData(csvFile, 1, true, true);
             StartText();
+            return;
         }
-        else
+        
+        // Get actual values from GameManager
+        var currentDay = GameManager.Instance.GetCurrentDay();
+        var currentEvent = GameManager.Instance.GetCurrentEvent();
+        
+        int dayNumber = 1; // Default fallback
+        bool narrativeStartEnd = true; // Default to start narrative
+        bool narrativeQuotaBool = true; // Default quota state
+        
+        // Get current day number from DayManager via GameManager
+        var dayManager = GameManager.Instance.GetManager<DayManager>();
+        if (dayManager != null)
         {
-            Debug.LogWarning("[NarrativeManager] GameManager not found - using default values");
+            dayNumber = dayManager.currentDayNumber;
         }
+        else if (currentDay != null)
+        {
+            // Fallback: try to get day index from LoopManager
+            var loopManager = GameManager.Instance.GetManager<LoopManager>();
+            if (loopManager != null)
+            {
+                dayNumber = loopManager.GetCurrentDayIndex() + 1; // +1 for display (0-based to 1-based)
+            }
+        }
+        
+        // Determine if this is start or end narrative based on current event
+        if (currentEvent != null)
+        {
+            var eventConfig = currentEvent.GetEventConfiguration();
+            if (eventConfig != null)
+            {
+                // If event name contains "end" or "complete", it's an end narrative
+                narrativeStartEnd = !eventConfig.eventName.ToLower().Contains("end") && 
+                                   !eventConfig.eventName.ToLower().Contains("complete");
+            }
+        }
+        
+        // TODO: Implement quota logic based on actual game state
+        // For now, use default value
+        
+        Debug.Log($"[NarrativeManager] Loading narrative for day {dayNumber}, startEnd: {narrativeStartEnd}, quota: {narrativeQuotaBool}");
+        UpdateData(csvFile, dayNumber, narrativeStartEnd, narrativeQuotaBool);
+        StartText();
     }
 
     /// <summary>
@@ -86,6 +122,22 @@ public class NarrativeManager : BaseManager
         }
 
         List<string> fallbackLines = new List<string>();
+        int searchDay = dayIndex;
+        
+        // If dayIndex is 0, try to find the first available day in CSV
+        if (dayIndex == 0)
+        {
+            for (int i = 1; i < data.Length; i++)
+            {
+                string[] row = data[i].Split(';');
+                if (row.Length >= 4 && int.TryParse(row[0], out int csvDay))
+                {
+                    searchDay = csvDay;
+                    Debug.Log($"[NarrativeManager] Day 0 not found in CSV, using first available day: {searchDay}");
+                    break;
+                }
+            }
+        }
 
         // Skip header row
         for (int i = 1; i < data.Length; i++)
@@ -99,7 +151,7 @@ public class NarrativeManager : BaseManager
                 // Parse the day value
                 if (int.TryParse(row[0], out int rowDay))
                 {
-                    if (rowDay == dayIndex)
+                    if (rowDay == searchDay)
                     {
                         // Parse start/end boolean
                         bool rowStartEnd = row[1].Trim().ToLower() == "true";
@@ -144,6 +196,16 @@ public class NarrativeManager : BaseManager
             Debug.Log("No rows matched quotaBool. Using fallback lines.");
             textLines.AddRange(fallbackLines);
         }
+        
+        // If still no lines, provide a default message
+        if (textLines.Count == 0)
+        {
+            Debug.LogWarning($"[NarrativeManager] No text found for Day={searchDay}, StartEnd={startEnd}, Quota={quotaBool}. Adding default text.");
+            textLines.Add("Welcome to the game!");
+            textLines.Add("Let's get started with your adventure.");
+        }
+
+        Debug.Log($"Loaded {textLines.Count} text lines from CSV");
     }
 
     // Se agrega el método UpdateData para actualizar los datos
@@ -179,15 +241,57 @@ public class NarrativeManager : BaseManager
     /// </summary>
     public void StartText()
     {
+        // Debug the specific issue
+        if (animateText == null)
+        {
+            Debug.LogError("[NarrativeManager] AnimateText component is null! Running auto-fix...");
+            // Try to auto-fix the AnimateText reference
+            TryFixAnimateTextReference();
+        }
+        
+        if (textLines.Count == 0)
+        {
+            Debug.LogError($"[NarrativeManager] No text lines loaded! CSV file: {(csvFile != null ? csvFile.name : "null")}, Day: {dayIndex}, StartEnd: {startEnd}, Quota: {quotaBool}");
+        }
+        
         if (animateText != null && textLines.Count > 0)
         {
+            Debug.Log($"[NarrativeManager] Starting text animation with {textLines.Count} lines");
             isTextComplete = false;
             animateText.SetTextLines(textLines);
             animateText.StartText();
         }
         else
         {
-            Debug.LogError("AnimateText reference is missing or no text lines available!");
+            Debug.LogError($"[NarrativeManager] Cannot start text - AnimateText: {(animateText != null ? "OK" : "NULL")}, TextLines: {textLines.Count}");
+        }
+    }
+    
+    /// <summary>
+    /// Try to automatically fix the AnimateText reference
+    /// </summary>
+    private void TryFixAnimateTextReference()
+    {
+        var animateTextComponent = GetComponent<BitWave_Labs.AnimatedTextReveal.AnimateText>();
+        if (animateTextComponent == null)
+        {
+            Debug.Log("[NarrativeManager] Adding missing AnimateText component...");
+            try
+            {
+                animateTextComponent = gameObject.AddComponent<BitWave_Labs.AnimatedTextReveal.AnimateText>();
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[NarrativeManager] Failed to add AnimateText component: {ex.Message}");
+                return;
+            }
+        }
+        
+        animateText = animateTextComponent;
+        if (animateText != null)
+        {
+            animateText.OnAllTextComplete = OnTextComplete;
+            Debug.Log("[NarrativeManager] ✅ Fixed AnimateText reference!");
         }
     }
     
