@@ -109,10 +109,21 @@ public class PlayerController : MonoBehaviour
         }
 
         // Tu lógica extra (tecla espacio, etc.)
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            Debug.Log("C");
-            if (GameManager.Instance.isDemandCompleted()){
+
+    }
+
+    // Aplica los márgenes internos a las coordenadas UV
+    private Vector2 ClampUVWithMargin(Vector2 uv)
+    {
+        return new Vector2(
+            Mathf.Clamp(uv.x, innerMargin, 1f - innerMargin),
+            Mathf.Clamp(uv.y, innerMargin, 1f - innerMargin)
+        );
+    }
+
+
+    public  sendDemand(){
+                    if (GameManager.Instance.isDemandCompleted()){
                             Debug.Log("isDemandCompleted");
                 if (GameManager.Instance.isLastDemand())
                 {
@@ -124,18 +135,7 @@ public class PlayerController : MonoBehaviour
                     Debug.Log("nextDemand");
                     GameManager.Instance.nextDemand();
                 }
-            }
-
         }
-    }
-
-    // Aplica los márgenes internos a las coordenadas UV
-    private Vector2 ClampUVWithMargin(Vector2 uv)
-    {
-        return new Vector2(
-            Mathf.Clamp(uv.x, innerMargin, 1f - innerMargin),
-            Mathf.Clamp(uv.y, innerMargin, 1f - innerMargin)
-        );
     }
 
     // Proyecta el ratón real sobre el monitor y crea un ray desde la cámara secundaria
