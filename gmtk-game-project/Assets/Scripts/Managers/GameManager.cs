@@ -410,19 +410,22 @@ public class GameManager : MonoBehaviour
         Debug.Log($"Checking demands - Event demands count: {eventDemands.Count}, Line demands count: {lineDemands.Count}");
         
         // Verificar si todas las demandas del evento están en la línea
-        foreach (Demand eventDemand in eventDemands)
+        for (int j = eventDemands.Count - 1; j >= 0; j--)
         {
-            Debug.Log($"Checking event demand - Color: {eventDemand.colorType}, Shape: {eventDemand.shapeType}");
+            Debug.Log($"Checking event demand - Color: {eventDemands[j].colorType}, Shape: {eventDemands[j].shapeType}");
             bool found = false;
-            for (int i = 0; i < lineDemands.Count; i++)
+            for (int i = lineDemands.Count - 1; i >= 0; i--)
             {
                 Debug.Log($"Comparing with line item {i} - Color: {lineDemands[i].colorType}, Shape: {lineDemands[i].shapeType}");
-                if (lineDemands[i].colorType == eventDemand.colorType && 
-                    lineDemands[i].shapeType == eventDemand.shapeType)
+                if (lineDemands[i].colorType == eventDemands[j].colorType && 
+                    lineDemands[i].shapeType == eventDemands[j].shapeType)
                 {
                     lineDemands.RemoveAt(i);
-                    Debug.Log("Match found! Removing from line demands");
+                    eventDemands.RemoveAt(j);
+                    Debug.Log("Match found! Removing from both lists");
                     found = true;
+                    Debug.Log(lineDemands.Count);
+                    Debug.Log(eventDemands.Count);
                     break;
                 }
             }
@@ -433,7 +436,7 @@ public class GameManager : MonoBehaviour
             }
         }
         
-        return true;
+        return eventDemands.Count == 0;
     }
     
     public bool isLastDemand()
@@ -554,27 +557,22 @@ public class GameManager : MonoBehaviour
         }
     }
     
-    // ITEMS IN LINE MANAGEMENT
-    public void AddResourceToLine(Resource resource)
-    {
-        if (resource == null) return;
-        
-        var demand = new Demand
-        {
-            colorType = resource.currentColor,
-            shapeType = resource.currentShape
-        };
-        
-        itemsInLine.Add(demand);
-        
-    }
     
-    public void UpdateResourceInLine(Resource resource, int index)
+    
+    public void UpdateResourceInLine()
     {
-        if (resource == null || index < 0 || index >= itemsInLine.Count) return;
+        itemsInLine = new List<Demand>();
+        GameObject[] gameObjectsWithTagResource = GameObject.FindGameObjectsWithTag("resource tag");
+        Debug.Log($"Found {gameObjectsWithTagResource.Length} resource objects");
+        foreach(GameObject obj in gameObjectsWithTagResource)
+        {
+            itemsInLine.Add(new Demand
+            {
+                colorType = obj.GetComponent<Resource>().currentColor,
+                shapeType = obj.GetComponent<Resource>().currentShape
+            });
+        }
         
-        itemsInLine[index].colorType = resource.currentColor;
-        itemsInLine[index].shapeType = resource.currentShape;
         
     }
     

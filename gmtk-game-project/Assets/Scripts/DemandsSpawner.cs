@@ -70,11 +70,14 @@ public class DemandsSpawner : MonoBehaviour
 
         List<Demand> allDemands = GameManager.Instance.getCurrentDemand();
         // Debug.Log($"Got {allDemands.Count} demand lists to display");
-                List<Demand> flattenedDemands = new List<Demand>();
+        List<Demand> flattenedDemands = new List<Demand>();
         foreach (var demandList in allDemands)
         {
             flattenedDemands.Add(demandList);
         }
+        
+        // Actualizar la lista de demandas actuales
+        currentDemands = new List<Demand>(flattenedDemands);
         
         SpawnDemands(flattenedDemands);
     }
@@ -82,7 +85,18 @@ public class DemandsSpawner : MonoBehaviour
     // Check if demands have changed and refresh if needed
     private void CheckAndRefreshDemands()
     {
-        RefreshDemands();
+        if (GameManager.Instance == null)
+            return;
+
+        List<Demand> newDemands = GameManager.Instance.getCurrentDemand();
+        
+        // Comparar las nuevas demandas con las actuales
+        if (!AreDemandListsEqual(currentDemands, newDemands))
+        {
+            // Solo refrescar si hay cambios
+            currentDemands = new List<Demand>(newDemands);
+            RefreshDemands();
+        }
     }
 
     // Spawn resources based on current demands
@@ -101,6 +115,7 @@ public class DemandsSpawner : MonoBehaviour
             Vector3 position = spawnPoint.position + Vector3.forward * (i * verticalSpacing);
             
             GameObject demandObj = Instantiate(resourcePrefab, position, Quaternion.Euler(initialRotation), transform);
+            demandObj.tag = "resource";
             demandObj.transform.localScale = displayScale;
             spawnedDemands.Add(demandObj);
             
