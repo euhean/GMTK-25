@@ -122,7 +122,7 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    public  sendDemand(){
+    public void sendDemand(){
                     if (GameManager.Instance.isDemandCompleted()){
                             Debug.Log("isDemandCompleted");
                 if (GameManager.Instance.isLastDemand())
