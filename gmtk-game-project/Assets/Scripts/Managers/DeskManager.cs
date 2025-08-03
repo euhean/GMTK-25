@@ -40,6 +40,8 @@ public class DeskManager : MonoBehaviour
     [Header("Interactable Objects")]
     public List<InteractableElement> interactableObjects; // Lista de objetos interactuables
     
+    private List<Outline> outlineComponents = new List<Outline>();
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -74,8 +76,16 @@ public class DeskManager : MonoBehaviour
             if (element.gameObject != null)
             {
                 element.gameObject.tag = "Selectable";
+                var outline = element.gameObject.GetComponent<Outline>();
+                if (outline != null)
+                {
+                    outlineComponents.Add(outline);
+                }
             }
         }
+        
+        // Asegurarse que los outlines están desactivados al inicio
+        SetOutlinesDisabled();
     }
 
     // Update is called once per frame
@@ -255,6 +265,12 @@ public class DeskManager : MonoBehaviour
                 callAlert.SetActive(false);
             }
             
+            // Detener el sonido de alerta
+            if (callAlertSound != null)
+            {
+                callAlertSound.Stop();
+            }
+            
             // Iniciar el cutscene con el nombre guardado
             StartCutscene(pendingDialogCutscene);
             pendingDialogCutscene = null;
@@ -273,5 +289,41 @@ public class DeskManager : MonoBehaviour
     {
         
         // Lógica específica para interactuar con instrucciones
+    }
+
+    public void SetOutlinesEnabled(bool enabled)
+    {
+        if (enabled)
+        {
+            EnableOutlines();
+        }
+        else
+        {
+            SetOutlinesDisabled();
+        }
+    }
+
+    public void EnableOutlines()
+    {
+        foreach (var outline in outlineComponents)
+        {
+            if (outline != null)
+            {
+                outline.enabled = true;
+                outline.OutlineWidth = 2f; // Restaurar el ancho por defecto
+            }
+        }
+    }
+
+    public void SetOutlinesDisabled()
+    {
+        foreach (var outline in outlineComponents)
+        {
+            if (outline != null)
+            {
+                outline.OutlineWidth = 0f;
+                outline.enabled = false;
+            }
+        }
     }
 }

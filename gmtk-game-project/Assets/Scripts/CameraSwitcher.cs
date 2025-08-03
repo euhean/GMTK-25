@@ -7,6 +7,7 @@ public class CameraSwitcher : MonoBehaviour
     public CinemachineCamera camera_gameplay;
     [SerializeField] private GameObject playerController;
     [SerializeField] private bool _useCameraGameplay = true;
+    [SerializeField] private DeskManager deskManager;
 
     public bool useCameraGameplay
     {
@@ -37,6 +38,9 @@ public class CameraSwitcher : MonoBehaviour
             Debug.LogWarning("One or both cameras are not assigned!");
         }
 
+        if (deskManager == null)
+            deskManager = FindFirstObjectByType<DeskManager>();
+
         UpdatePlayerControllerState();
     }
 
@@ -66,6 +70,18 @@ public class CameraSwitcher : MonoBehaviour
         else
         {
             Debug.LogWarning("One or both cameras are not assigned!");
+        }
+
+        if (deskManager != null)
+        {
+            if (useCameraGameplay)
+            {
+                deskManager.SetOutlinesDisabled();
+            }
+            else
+            {
+                deskManager.SetOutlinesEnabled(true);
+            }
         }
     }
 
