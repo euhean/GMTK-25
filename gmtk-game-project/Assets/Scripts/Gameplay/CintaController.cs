@@ -41,6 +41,13 @@ public class MultiOrbit : MonoBehaviour
     public void InstantiateFromConfig(GameManager.OrbitConfiguration config)
     {
 
+    GameObject[] objetosADestruirMachines = GameObject.FindGameObjectsWithTag("Machine");
+
+    foreach(GameObject obj in objetosADestruirMachines)
+    {
+        Destroy(obj);
+    }
+
     GameObject[] objetosADestruir = GameObject.FindGameObjectsWithTag("resource tag");
     
     foreach(GameObject obj in objetosADestruir)
