@@ -7,21 +7,140 @@ using UnityEngine.SceneManagement;
 /// <summary>
 /// GameManager principal que controla el estado del juego y gestiona todos los managers.
 /// Implementa el patrón Singleton para acceso global.
-/// Permite activar/desactivar managers usando sus identificadores desde el editor o código.
+/// Contiene toda la configuración de loops, días, eventos y la lógica de instanciación.
 /// </summary>
 public class GameManager : MonoBehaviour
 {
     [Header("Game State")]
     public int currentDay = 0;
-    
-    [Header("Loop Data")]
-    [SerializeField] private LoopManager.Loop currentLoop;
-    [SerializeField] private int currentDayIndex = 0;
-    [SerializeField] private LoopManager.GenericEvent currentEvent;
-    [SerializeField] private int currentEventIndex = 0;
 
-    [SerializeField] private List<LoopManager.Demand> itemsInLine = new List<LoopManager.Demand>();
-    [SerializeField] private List<LoopManager.Demand> demandToComplete = new List<LoopManager.Demand>();
+    [SerializeField] private bool debugMode = false;
+    
+    [Header("Loop Configuration")]
+    [SerializeField] private Loop currentLoop = new Loop();
+    public int currentDayIndex = 0;
+    [SerializeField] private GenericEvent currentEvent;
+    [SerializeField] private int currentEventIndex = 0;
+    [SerializeField] private bool autoSaveOnStart = true;
+    [SerializeField] private FadeManager fadeManager;
+
+    [Header("Narrative Configuration")]
+    [SerializeField] private TextAsset narrativeCsv;
+    [SerializeField] private bool narrativeStartEnd = true;
+    [SerializeField] private bool narrativeQuotaBool = true;
+
+    [SerializeField] private List<Demand> itemsInLine = new List<Demand>();
+    [SerializeField] private List<List<Demand>> demandToComplete = new List<List<Demand>>();
+
+
+    // Estructuras de datos movidas desde LoopManager
+    [System.Serializable]
+    public class Loop {
+        [SerializeField] public string loopName = "Main Loop";
+        [SerializeField] public List<Day> days = new List<Day>();
+    } 
+
+    [System.Serializable]
+    public class Day {
+        [SerializeField] public string dayName = "New Day";
+        [SerializeField] public List<GenericEvent> events = new List<GenericEvent>();
+    }
+
+    public enum EventType { Narrative, Gameplay, Dialog };
+    
+    public int currentDemandIndex = 0;
+
+    [System.Serializable]
+    public class MachineInfo
+    {
+        public MachineConfiguration machineConfiguration;  // Configuración de la máquina
+        public float angleDegrees;        // Ángulo donde se colocará
+    }
+
+    [System.Serializable]
+    public class OrbitConfiguration
+    {
+        [Header("Prefabs de objetos que orbitan")]
+        public List<GameObject> resourcePrefabs = new List<GameObject>();
+        
+        [Header("Configuración orbital")]
+        public int numberOfOrbitingObjects = 6;
+        public float orbitRadius = 5f;
+        public float angularSpeed = 1f;
+        public float angularSeparation = 60f;
+        
+        [Header("Máquinas que se colocan en posiciones fijas")]
+        public List<MachineInfo> machineInfos = new List<MachineInfo>();
+    }
+
+    [System.Serializable]
+    public class GenericEvent{
+        [Header("Event Configuration (Required)")]
+        [SerializeField] public EventConfiguration eventConfiguration;
+        
+        /// <summary>
+        /// Obtiene el nombre del evento
+        /// </summary>
+        public string GetEventName()
+        {
+            return eventConfiguration != null ? eventConfiguration.eventName : "No Event Configuration";
+        }
+        
+        /// <summary>
+        /// Obtiene el tipo del evento
+        /// </summary>
+        public EventType GetEventType()
+        {
+            return eventConfiguration != null ? eventConfiguration.eventType : EventType.Narrative;
+        }
+        
+        /// <summary>
+        /// Obtiene la descripción del evento
+        /// </summary>
+        public string GetDescription()
+        {
+            return eventConfiguration != null ? eventConfiguration.description : "No description available";
+        }
+        
+        /// <summary>
+        /// Obtiene el estado de completado del evento
+        /// </summary>
+        public bool GetIsCompleted()
+        {
+            return eventConfiguration != null ? eventConfiguration.isCompleted : false;
+        }
+        
+        /// <summary>
+        /// Obtiene las demandas del evento
+        /// </summary>
+        public List<List<Demand>> GetDemands()
+        {
+            return eventConfiguration != null ? eventConfiguration.demands.Select(d => d.demands).ToList() : new List<List<Demand>>();
+        }
+        
+        /// <summary>
+        /// Obtiene la configuración orbital del evento
+        /// </summary>
+        public OrbitConfiguration GetOrbitConfig()
+        {
+            return eventConfiguration != null ? eventConfiguration.orbitConfig : new OrbitConfiguration();
+        }
+        
+        /// <summary>
+        /// Actualiza el estado de completado en el ScriptableObject
+        /// </summary>
+        public void SetCompleted(bool completed)
+        {
+            if (eventConfiguration != null)
+            {
+                eventConfiguration.isCompleted = completed;
+            }
+            else
+            {
+                Debug.LogWarning("No EventConfiguration assigned to GenericEvent. Cannot set completion status.");
+            }
+        }
+    }
 
     public enum Scenes {
         MENU = 0,
@@ -50,7 +169,15 @@ public class GameManager : MonoBehaviour
     
     private void Start()
     {
-      //goToMenuScene();
+        if (debugMode)
+        {
+            runEvent();
+        }
+
+        // Ensure the game window is always in 16:9 aspect ratio
+        int width = Screen.width;
+        int height = Mathf.RoundToInt(width / (16f / 9f));
+        Screen.SetResolution(width, height, Screen.fullScreen);
     }
     
     private void Update()
@@ -59,7 +186,7 @@ public class GameManager : MonoBehaviour
     }
     
     // LOOP MANAGEMENT METHODS
-    public void SetLoop(LoopManager.Loop loop)
+    public void SetLoop(Loop loop)
     {
         currentLoop = loop;
         currentDayIndex = 0;
@@ -68,19 +195,19 @@ public class GameManager : MonoBehaviour
         
     }
     
-    public LoopManager.Loop GetCurrentLoop()
+    public Loop GetCurrentLoop()
     {
         return currentLoop;
     }
     
-    public LoopManager.Day GetCurrentDay()
+    public Day GetCurrentDay()
     {
         if (currentLoop != null && currentLoop.days.Count > 0 && currentDayIndex < currentLoop.days.Count)
             return currentLoop.days[currentDayIndex];
         return null;
     }
     
-    public LoopManager.GenericEvent GetCurrentEvent()
+    public GenericEvent GetCurrentEvent()
     {
         var currentDay = GetCurrentDay();
         if (currentDay != null && currentDay.events.Count > 0 && currentEventIndex < currentDay.events.Count)
@@ -120,23 +247,73 @@ public class GameManager : MonoBehaviour
             runEvent();
         }
     }
-    
-    
+
+
     public void runEvent()
     {
         var currentEvent = GetCurrentEvent();
-        demandToComplete = currentEvent.demands;
         if (currentEvent == null) return;
-        
-        if(currentEvent.eventType == LoopManager.EventType.Narrative)
+        currentDemandIndex = 0;
+        demandToComplete = currentEvent.GetDemands();
+
+        if (currentEvent.GetEventType() == EventType.Gameplay)
+        {
+            // Buscar una instancia del DeskManager en la escena
+            DeskManager deskManager = FindFirstObjectByType<DeskManager>();
+            if (deskManager != null)
+            {
+                deskManager.StartGameplayEvent();
+            }
+            else
+            {
+                Debug.LogError("No se encontró DeskManager en la escena para el evento de gameplay");
+            }
+        }
+        else if (SceneManager.GetActiveScene().buildIndex != (int)Scenes.LEVEL)
+        {
+            // Si no estamos en la escena LEVEL, cargarla primero
+            SceneManager.sceneLoaded += OnLevelSceneLoaded;
+            goToLevelScene();
+        }
+        else
+        {
+            // Ya estamos en la escena LEVEL, proceder con el evento
+            ExecuteEventInLevel(currentEvent);
+        }
+    }
+
+    private void OnLevelSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.buildIndex == (int)Scenes.LEVEL)
+        {
+            SceneManager.sceneLoaded -= OnLevelSceneLoaded;
+            ExecuteEventInLevel(GetCurrentEvent());
+        }
+    }
+
+    private void ExecuteEventInLevel(GenericEvent currentEvent)
+    {
+        if (currentEvent.GetEventType() == EventType.Narrative)
         {
             goToNarrativeScene();
         }
-        else if(currentEvent.eventType == LoopManager.EventType.Gameplay)
+        else if (currentEvent.GetEventType() == EventType.Dialog)
         {
-            goToLevelScene();
+            DeskManager deskManager = FindFirstObjectByType<DeskManager>();
+            if (deskManager != null)
+            {
+                string dialogCutsceneName = "";
+                if (currentEvent.eventConfiguration != null)
+                {
+                    dialogCutsceneName = currentEvent.eventConfiguration.dialogCutsceneName;
+                }
+                deskManager.StartDialogEvent(dialogCutsceneName);
+            }
+            else
+            {
+                Debug.LogError("No se encontró DeskManager en la escena para el evento de diálogo");
+            }
         }
-        
     }
 
     public void AdvanceToNextDay()
@@ -148,7 +325,7 @@ public class GameManager : MonoBehaviour
         currentDay++;
         
         // Si hemos completado todos los días del loop
-        if (currentDayIndex >= currentLoop.days.Count)
+        if (currentDayIndex >= GetCurrentLoop().days.Count)
         {
             // TODO: Aquí deberías ir al siguiente loop si existe
             // Por ahora va al menú
@@ -193,113 +370,175 @@ public class GameManager : MonoBehaviour
 
 
     public void startDemand(){
-       //  demandToComplete = currentEvent.demands;
+       //  demandToComplete = currentEvent.GetDemands();
 
     }
 
-    public List<LoopManager.Demand> getCurrentDemands()
+    public List<Demand> getCurrentDemand()
     {
-        return currentEvent.demands;
+        if (currentDemandIndex < demandToComplete.Count)
+        {
+            return demandToComplete[currentDemandIndex];
+        }
+        return new List<Demand>();
+    }
+
+
+
+    public List<List<Demand>> getCurrentDemands()
+    {
+        GenericEvent currentEvent = GetCurrentEvent();
+        if (currentEvent != null)
+        {
+            return currentEvent.GetDemands();
+        }
+        return new List<List<Demand>>();
     }
 
     public bool isDemandCompleted()
     {
-        // Debug: Mostrar estado inicial de ambos arrays
-        Debug.Log("=== DEBUG isDemandCompleted ===");
-        Debug.Log($"itemsInLine.Count: {itemsInLine.Count}");
-        Debug.Log($"demandToComplete.Count: {demandToComplete.Count}");
+        GenericEvent currentEvent = GetCurrentEvent();
+        if (currentEvent == null) return false;
         
-        // Debug: Mostrar contenido de itemsInLine
-        Debug.Log("itemsInLine contents:");
-        for (int i = 0; i < itemsInLine.Count; i++)
-        {
-            Debug.Log($"  [{i}] Color: {itemsInLine[i].colorType}, Shape: {itemsInLine[i].shapeType}");
-        }
+        List<Demand> eventDemands = new List<Demand>(getCurrentDemand());
+        List<Demand> lineDemands = new List<Demand>(GetItemsInLine());
         
-        // Debug: Mostrar contenido de demandToComplete
-        Debug.Log("demandToComplete contents:");
-        for (int i = 0; i < demandToComplete.Count; i++)
-        {
-            Debug.Log($"  [{i}] Color: {demandToComplete[i].colorType}, Shape: {demandToComplete[i].shapeType}");
-        }
-
-        // Verificar que ambas listas tengan el mismo tamaño
-        if (itemsInLine.Count != demandToComplete.Count)
-        {
-            Debug.Log("RESULTADO: false - Tamaños diferentes");
-            return false;
-        }
-        
-        // Si ambas listas están vacías, se considera completado
-        if (itemsInLine.Count == 0)
-        {
-            Debug.Log("RESULTADO: true - Ambas listas vacías");
-            return true;
-        }
-        
-        // Crear copias de las listas para no modificar las originales
-        List<LoopManager.Demand> currentCopy = new List<LoopManager.Demand>(itemsInLine);
-        List<LoopManager.Demand> targetCopy = new List<LoopManager.Demand>(demandToComplete);
-        
-        Debug.Log("Iniciando comparación elemento por elemento...");
-
-        // Para cada demanda en la lista objetivo
-        foreach (var targetDemand in targetCopy)
+        // Verificar si todas las demandas del evento están en la línea
+        foreach (Demand eventDemand in eventDemands)
         {
             bool found = false;
-            Debug.Log($"Buscando coincidencia para: {targetDemand.colorType} {targetDemand.shapeType}");
-            
-            // Buscar una demanda coincidente en la lista actual
-            for (int i = 0; i < currentCopy.Count; i++)
+            for (int i = 0; i < lineDemands.Count; i++)
             {
-                if (currentCopy[i].colorType == targetDemand.colorType && 
-                    currentCopy[i].shapeType == targetDemand.shapeType)
+                if (lineDemands[i].colorType == eventDemand.colorType && 
+                    lineDemands[i].shapeType == eventDemand.shapeType)
                 {
-                    Debug.Log($"  ✓ Coincidencia encontrada en índice {i}: {currentCopy[i].colorType} {currentCopy[i].shapeType}");
-                    // Encontrada coincidencia, remover de la lista actual
-                    currentCopy.RemoveAt(i);
+                    lineDemands.RemoveAt(i);
                     found = true;
                     break;
                 }
             }
-            
-            // Si no se encontró coincidencia, las listas no son iguales
-            if (!found)
-            {
-                Debug.Log($"  ✗ No se encontró coincidencia para: {targetDemand.colorType} {targetDemand.shapeType}");
-                Debug.Log("RESULTADO: false - No hay coincidencia completa");
-                return false;
-            }
+            if (!found) return false;
         }
         
-        // Si llegamos aquí, todas las demandas coinciden
-        Debug.Log("RESULTADO: true - Todas las demandas coinciden");
-        Debug.Log("=== FIN DEBUG isDemandCompleted ===");
         return true;
     }
     
-    // SCENE MANAGEMENT
-    public void goToMenuScene() 
+    public bool isLastDemand()
     {
-        SceneManager.LoadScene((int)Scenes.MENU);
+        return currentDemandIndex >= GetCurrentEvent().GetDemands().Count - 1;
+    }
+
+    public void nextDemand()
+    {
+        if (currentDemandIndex < GetCurrentEvent().GetDemands().Count - 1)
+        {
+            currentDemandIndex++;
+        }
+        else
+        {
+            Debug.LogWarning("No hay más demandas para procesar.");
+        }
+    }
+    
+    // SCENE MANAGEMENT
+    public void goToMenuScene()
+    {
+        if (fadeManager != null)
+        {
+            fadeManager.FadeIn(() =>
+            {
+                SceneManager.LoadSceneAsync((int)Scenes.MENU).completed += (op) =>
+                {
+                    fadeManager.FadeOut();
+                };
+            });
+        }
+        else
+        {
+            SceneManager.LoadScene((int)Scenes.MENU);
+        }
     }
 
     public void goToNarrativeScene()
     {
-        SceneManager.LoadScene((int)Scenes.NARRATIVE);
+        if (fadeManager != null)
+        {
+            fadeManager.FadeIn(() => {
+                SceneManager.LoadSceneAsync((int)Scenes.NARRATIVE).completed += (op) => {
+                    fadeManager.FadeOut();
+                    // Try to find and initialize NarrativeManager
+                    var narrativeManager = FindFirstObjectByType<NarrativeManager>();
+                    if (narrativeManager != null)
+                    {
+                        narrativeManager.InitializeFromGameManager();
+                    }
+                };
+            });
+        }
+        else
+        {
+            SceneManager.LoadScene((int)Scenes.NARRATIVE);
+            // Try to find and initialize NarrativeManager on the next frame
+            StartCoroutine(InitializeNarrativeManagerNextFrame());
+        }
+    }
+
+    private System.Collections.IEnumerator InitializeNarrativeManagerNextFrame()
+    {
+        yield return null; // Wait one frame
+        var narrativeManager = FindFirstObjectByType<NarrativeManager>();
+        if (narrativeManager != null)
+        {
+            narrativeManager.InitializeFromGameManager();
+        }
     }
 
     public void goToLevelScene()
     {
-        SceneManager.LoadScene((int)Scenes.LEVEL);
+        if (fadeManager != null)
+        {
+            fadeManager.FadeIn(() => {
+                SceneManager.LoadSceneAsync((int)Scenes.LEVEL).completed += (op) => {
+                    fadeManager.FadeOut();
+                };
+            });
+        }
+        else
+        {
+            SceneManager.LoadScene((int)Scenes.LEVEL);
+        }
     }
+
     public void goToLoopScene()
     {
-        SceneManager.LoadScene((int)Scenes.LOOP);
+        if (fadeManager != null)
+        {
+            fadeManager.FadeIn(() => {
+                SceneManager.LoadSceneAsync((int)Scenes.LOOP).completed += (op) => {
+                    fadeManager.FadeOut();
+                };
+            });
+        }
+        else
+        {
+            SceneManager.LoadScene((int)Scenes.LOOP);
+        }
     }
+
     public void goToDayScene()
     {
-        SceneManager.LoadScene((int)Scenes.DAY);
+        if (fadeManager != null)
+        {
+            fadeManager.FadeIn(() => {
+                SceneManager.LoadSceneAsync((int)Scenes.DAY).completed += (op) => {
+                    fadeManager.FadeOut();
+                };
+            });
+        }
+        else
+        {
+            SceneManager.LoadScene((int)Scenes.DAY);
+        }
     }
     
     // ITEMS IN LINE MANAGEMENT
@@ -307,7 +546,7 @@ public class GameManager : MonoBehaviour
     {
         if (resource == null) return;
         
-        var demand = new LoopManager.Demand
+        var demand = new Demand
         {
             colorType = resource.currentColor,
             shapeType = resource.currentShape
@@ -335,9 +574,98 @@ public class GameManager : MonoBehaviour
         }
     }
     
-    public List<LoopManager.Demand> GetItemsInLine()
+    public List<Demand> GetItemsInLine()
     {
-        return new List<LoopManager.Demand>(itemsInLine);
+        return new List<Demand>(itemsInLine);
     }
+    
+    // ORBIT AND MACHINE INSTANTIATION METHODS
+    public void InstantiateCurrentEventObjects(Transform centerTransform)
+    {
+        var currentEvent = GetCurrentEvent();
+        if (currentEvent == null || currentEvent.GetEventType() != EventType.Gameplay)
+        {
+            Debug.LogWarning("No hay evento actual de gameplay para instanciar objetos");
+            return;
+        }
+        
+        var orbitConfig = currentEvent.GetOrbitConfig();
+        InstantiateOrbitingObjects(orbitConfig, centerTransform);
+        InstantiateMachines(orbitConfig, centerTransform);
+    }
+    
+    private void InstantiateOrbitingObjects(OrbitConfiguration config, Transform centerTransform)
+    {
+        for (int i = 0; i < config.numberOfOrbitingObjects; i++)
+        {
+            float angle = i * config.angularSeparation * Mathf.Deg2Rad;
+            if (config.resourcePrefabs.Count == 0) break;
+            
+            GameObject prefabToUse = config.resourcePrefabs[i % config.resourcePrefabs.Count];
+            GameObject obj = Instantiate(prefabToUse);
+            
+            Vector3 position = GetOrbitPosition(angle, config.orbitRadius, centerTransform.position);
+            obj.transform.position = position;
+            AlignCollider(obj);
+            
+            // Configurar el componente OrbitingObject si existe
+            var orbitingComponent = obj.GetComponent<OrbitingObject>();
+            if (orbitingComponent == null)
+            {
+                orbitingComponent = obj.AddComponent<OrbitingObject>();
+            }
+            
+            orbitingComponent.Initialize(centerTransform, angle, config.orbitRadius, config.angularSpeed);
+        }
+    }
+    
+    private void InstantiateMachines(OrbitConfiguration config, Transform centerTransform)
+    {
+        foreach (var machineInfo in config.machineInfos)
+        {
+            if (machineInfo.machineConfiguration != null)
+            {
+                float angleRad = machineInfo.angleDegrees * Mathf.Deg2Rad;
+                Vector3 position = GetOrbitPosition(angleRad, config.orbitRadius, centerTransform.position);
+                
+                GameObject machine = MachinePrefabGenerator.GenerateMachine(
+                    machineInfo.machineConfiguration,
+                    position,
+                    Quaternion.identity
+                );
+                
+                if (machine != null)
+                {
+                    AlignCollider(machine);
+                }
+            }
+        }
+    }
+    
+    private Vector3 GetOrbitPosition(float angleRad, float radius, Vector3 center)
+    {
+        float x = center.x + Mathf.Cos(angleRad) * radius;
+        float z = center.z + Mathf.Sin(angleRad) * radius;
+        return new Vector3(x, center.y, z);
+    }
+    
+    private void AlignCollider(GameObject obj)
+    {
+        var collider = obj.GetComponent<Collider>();
+        if (collider != null)
+            collider.transform.position = obj.transform.position;
+    }
+    
+    // Método para obtener la configuración orbital del evento actual
+    public OrbitConfiguration GetCurrentEventOrbitConfig()
+    {
+        GenericEvent currentEvent = GetCurrentEvent();
+        return currentEvent?.GetOrbitConfig();
+    }
+
+    // Narrative Getters
+    public TextAsset GetNarrativeCsv() => narrativeCsv;
+    public bool GetNarrativeStartEnd() => narrativeStartEnd;
+    public bool GetNarrativeQuotaBool() => narrativeQuotaBool;
     
 }

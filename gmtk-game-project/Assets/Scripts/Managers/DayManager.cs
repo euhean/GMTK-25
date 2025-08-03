@@ -1,15 +1,17 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
-
+using TMPro;
 
 public class DayManager : MonoBehaviour
 {
     [Header("UI Reference")]
-    [SerializeField] private Text dayText;
-    public LoopManager.Day currentDay;
+    [SerializeField] private TMP_Text dayText;
+    [SerializeField] private float waitTimeForEvent = 5f;
+    public GameManager.Day currentDay;
+    private Coroutine autoEventCoroutine;
 
     private void Awake()
     {
@@ -19,27 +21,53 @@ public class DayManager : MonoBehaviour
     private void Start()
     {
         setDay();
-        
+        StartAutoEventCoroutine();
     }
     
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
         {
-            // Verificar si hay eventos en el día actual
+            if (autoEventCoroutine != null)
+            {
+                StopCoroutine(autoEventCoroutine);
+                autoEventCoroutine = null;
+            }
+
             var currentDay = GameManager.Instance.GetCurrentDay();
             if (currentDay != null && currentDay.events.Count > 0)
             {
-                GameManager.Instance.runEvent(); // Ir al primer evento
+                GameManager.Instance.runEvent();
             }
             else
             {
-                
                 GameManager.Instance.AdvanceToNextDay();
             }
         }
     }
-    
+
+    private void StartAutoEventCoroutine()
+    {
+        if (autoEventCoroutine != null)
+        {
+            StopCoroutine(autoEventCoroutine);
+        }
+        autoEventCoroutine = StartCoroutine(AutoEventCoroutine());
+    }
+
+    private IEnumerator AutoEventCoroutine()
+    {
+        yield return new WaitForSeconds(waitTimeForEvent);
+        
+        var currentDay = GameManager.Instance.GetCurrentDay();
+        if (currentDay != null && currentDay.events.Count > 0)
+        {
+            GameManager.Instance.runEvent();
+        }
+        
+        autoEventCoroutine = null;
+    }
+
     public void SetDayText(string newText)
     {
         if (dayText != null)
@@ -53,6 +81,13 @@ public class DayManager : MonoBehaviour
     public void setDay()
     {
         currentDay = GameManager.Instance.GetCurrentDay();
-        SetDayText(currentDay.dayName);
+        if (currentDay != null)
+        {
+            SetDayText("Day " + (GameManager.Instance.currentDayIndex + 1));
+        }
+        else
+        {
+            SetDayText("No Day Available");
+        }
     }
 }

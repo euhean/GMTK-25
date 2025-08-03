@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd8d94dfcdf049441a6370e037a19787, type: 3}
+  m_Name: Level_2
+  m_EditorClassIdentifier: 
+  eventName: Level 1
+  eventType: 1
+  description: Level
+  isCompleted: 0
+  demands:
+  - demands:
+    - colorType: 0
+      shapeType: 0
+  - demands:
+    - colorType: 0
+      shapeType: 0
+  - demands:
+    - colorType: 0
+      shapeType: 0
+  orbitConfig:
+    resourcePrefabs:
+    - {fileID: 538977329041564931, guid: cd6717e7acd87a447bc50e96b090f281, type: 3}
+    numberOfOrbitingObjects: 3
+    orbitRadius: 4
+    angularSpeed: 1
+    angularSeparation: 60
+    machineInfos:
+    - machineConfiguration: {fileID: 11400000, guid: 8d2d369cb764f1d439155ae5b0ef8299, type: 2}
+      angleDegrees: 36
+    - machineConfiguration: {fileID: 11400000, guid: add719bc3260b7a46abe3eb5f85e6d24, type: 2}
+      angleDegrees: 216

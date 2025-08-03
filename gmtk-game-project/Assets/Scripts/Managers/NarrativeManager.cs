@@ -25,6 +25,36 @@ public class NarrativeManager : MonoBehaviour
         {
             animateText.OnAllTextComplete = OnTextComplete;
         }
+        
+        // Try to initialize from GameManager if it exists
+        InitializeFromGameManager();
+    }
+
+    /// <summary>
+    /// Initializes the NarrativeManager with data from GameManager
+    /// </summary>
+    public void InitializeFromGameManager()
+    {
+        if (GameManager.Instance != null)
+        {
+            // Get values from GameManager
+            TextAsset narrativeCsv = GameManager.Instance.GetNarrativeCsv();
+            int currentDay = GameManager.Instance.currentDay;
+            bool narrativeStartEnd = GameManager.Instance.GetNarrativeStartEnd();
+            bool narrativeQuotaBool = GameManager.Instance.GetNarrativeQuotaBool();
+            
+            // Update local values
+            UpdateData(narrativeCsv, currentDay, narrativeStartEnd, narrativeQuotaBool);
+            
+            // Start displaying the text
+            StartText();
+        }
+        else
+        {
+            Debug.LogWarning("GameManager instance not found. Using default values for narrative.");
+            LoadTextFromCSV();
+            StartText();
+        }
     }
 
     /// <summary>
