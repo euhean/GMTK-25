@@ -37,6 +37,12 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        // Play click sound on any mouse click
+        if (Input.GetMouseButtonDown(0) && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySound(SoundType.Click);
+        }
+
         // Limpia hover anterior (mucho más barato que buscar todos cada frame)
         // if (lastHover && lastHover.iconRenderer) lastHover.iconRenderer.enabled = false;
         lastHover = null;

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using UnityEngine;
 using BitWave_Labs.AnimatedTextReveal;
 
@@ -20,11 +21,18 @@ public class NarrativeManager : MonoBehaviour
 
     private void Start()
     {
-        // Register the callback for text completion
-        if (animateText != null)
+        if (animateText == null)
         {
-            animateText.OnAllTextComplete = OnTextComplete;
+            animateText = GetComponent<AnimateText>();
+            if (animateText == null)
+            {
+                Debug.LogError("AnimateText component not found! Please add it to the same GameObject.");
+                return;
+            }
         }
+
+        // Register the callback for text completion
+        animateText.OnAllTextComplete = OnTextComplete;
         
         // Try to initialize from GameManager if it exists
         InitializeFromGameManager();
@@ -35,26 +43,31 @@ public class NarrativeManager : MonoBehaviour
     /// </summary>
     public void InitializeFromGameManager()
     {
-        if (GameManager.Instance != null)
-        {
-            // Get values from GameManager
-            TextAsset narrativeCsv = GameManager.Instance.GetNarrativeCsv();
-            int currentDay = GameManager.Instance.currentDay;
-            bool narrativeStartEnd = GameManager.Instance.GetNarrativeStartEnd();
-            bool narrativeQuotaBool = GameManager.Instance.GetNarrativeQuotaBool();
-            
-            // Update local values
-            UpdateData(narrativeCsv, currentDay, narrativeStartEnd, narrativeQuotaBool);
-            
-            // Start displaying the text
-            StartText();
-        }
-        else
+        if (GameManager.Instance == null)
         {
             Debug.LogWarning("GameManager instance not found. Using default values for narrative.");
             LoadTextFromCSV();
             StartText();
+            return;
         }
+
+        // Get values from GameManager
+        TextAsset narrativeCsv = GameManager.Instance.GetNarrativeCsv();
+        if (narrativeCsv == null)
+        {
+            Debug.LogError("No narrative CSV file found in GameManager!");
+            return;
+        }
+
+        int currentDay = GameManager.Instance.currentDay;
+        bool narrativeStartEnd = GameManager.Instance.GetNarrativeStartEnd();
+        bool narrativeQuotaBool = GameManager.Instance.GetNarrativeQuotaBool();
+        
+        // Update local values
+        UpdateData(narrativeCsv, currentDay, narrativeStartEnd, narrativeQuotaBool);
+        
+        // Start displaying the text
+        StartText();
     }
 
     /// <summary>
@@ -72,13 +85,11 @@ public class NarrativeManager : MonoBehaviour
     /// </summary>
     public void LoadTextFromCSV()
     {
-        // Clear previous lines
         textLines.Clear();
         isTextComplete = false;
 
         string[] data;
 
-        // Get CSV data from TextAsset
         if (csvFile != null)
         {
             data = csvFile.text.Split(new[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
@@ -94,46 +105,42 @@ public class NarrativeManager : MonoBehaviour
         // Skip header row
         for (int i = 1; i < data.Length; i++)
         {
-            string[] row = data[i].Split(';');
+            // Split by comma but respect quoted fields
+            string[] row = SplitCSVLine(data[i]);
+            
             if (row.Length >= 4)
             {
-                // DEBUG log for current row and column
-                // 
-
                 // Parse the day value
                 if (int.TryParse(row[0], out int rowDay))
                 {
                     if (rowDay == dayIndex)
                     {
-                        // Parse start/end boolean
                         bool rowStartEnd = row[1].Trim().ToLower() == "true";
                         bool rowQuota = row[2].Trim().ToLower() == "true";
 
-                        // DEBUG
-                        // 
-
                         if (rowStartEnd == startEnd)
                         {
+                            string text = row[3].Trim().Trim('"'); // Remove surrounding quotes
                             if (rowQuota == quotaBool)
                             {
-                                // Debug log for matched row
-                                
-
-                                // Split text by line breaks if any are encoded in the text
-                                string[] splitLines = row[3].Split(new[] { "\\n" }, System.StringSplitOptions.None);
+                                string[] splitLines = text.Split(new[] { "/n" }, System.StringSplitOptions.None);
                                 foreach (string line in splitLines)
                                 {
-                                    
-                                    textLines.Add(line.Trim());
+                                    if (!string.IsNullOrWhiteSpace(line))
+                                    {
+                                        textLines.Add(line.Trim());
+                                    }
                                 }
                             }
                             else
                             {
-                                // Save fallback lines if quotaBool doesn't match
-                                string[] splitLines = row[3].Split(new[] { "\\n" }, System.StringSplitOptions.None);
+                                string[] splitLines = text.Split(new[] { "/n" }, System.StringSplitOptions.None);
                                 foreach (string line in splitLines)
                                 {
-                                    fallbackLines.Add(line.Trim());
+                                    if (!string.IsNullOrWhiteSpace(line))
+                                    {
+                                        fallbackLines.Add(line.Trim());
+                                    }
                                 }
                             }
                         }
@@ -142,12 +149,39 @@ public class NarrativeManager : MonoBehaviour
             }
         }
 
-        // If no lines were added, use fallback lines
         if (textLines.Count == 0 && fallbackLines.Count > 0)
         {
-            
             textLines.AddRange(fallbackLines);
         }
+
+        Debug.Log($"Loaded {textLines.Count} lines of text");
+    }
+
+    private string[] SplitCSVLine(string line)
+    {
+        List<string> result = new List<string>();
+        bool inQuotes = false;
+        StringBuilder currentField = new StringBuilder();
+        
+        for (int i = 0; i < line.Length; i++)
+        {
+            if (line[i] == '"')
+            {
+                inQuotes = !inQuotes;
+            }
+            else if (line[i] == ',' && !inQuotes)
+            {
+                result.Add(currentField.ToString());
+                currentField.Clear();
+            }
+            else
+            {
+                currentField.Append(line[i]);
+            }
+        }
+        
+        result.Add(currentField.ToString());
+        return result.ToArray();
     }
 
     // Se agrega el método UpdateData para actualizar los datos
@@ -183,15 +217,20 @@ public class NarrativeManager : MonoBehaviour
     /// </summary>
     public void StartText()
     {
-        if (animateText != null && textLines.Count > 0)
+        if (animateText == null)
         {
-            isTextComplete = false;
-            animateText.SetTextLines(textLines);
-            animateText.StartText();
+            Debug.LogError("AnimateText component is missing! Please add it to the same GameObject.");
+            return;
         }
-        else
+
+        if (textLines == null || textLines.Count == 0)
         {
-            Debug.LogError("AnimateText reference is missing or no text lines available!");
+            Debug.LogError("No text lines available! Make sure the CSV file is properly loaded.");
+            return;
         }
+
+        isTextComplete = false;
+        animateText.SetTextLines(textLines);
+        animateText.StartText();
     }
 }

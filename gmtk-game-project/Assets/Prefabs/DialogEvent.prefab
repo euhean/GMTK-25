@@ -46,7 +46,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cutsceneData:
   - name: Scene 1A
-    dialogText: Start
+    dialogText: Hey 299!  We're closing in on Prometheus!  Now is not the time to
+      be slacking, though,  as there still remains the final stretch!
     onDialogStart:
       m_PersistentCalls:
         m_Calls: []
@@ -54,7 +55,10 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
   - name: Scene 1B
-    dialogText: Test 1
+    dialogText: ' This is the time to show your compromise to our family!  Do keep
+      on the rythm, and keep in mind  Bloom helps you blossom!
+
+'
     onDialogStart:
       m_PersistentCalls:
         m_Calls: []
@@ -245,7 +249,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cutsceneData:
   - name: Scene 1A
-    dialogText: Start
+    dialogText: 'Well, hello new member!  So thrilled you''re adapting so seamlessly 
+      Bloom truly values your effort,  '
     onDialogStart:
       m_PersistentCalls:
         m_Calls: []
@@ -253,7 +258,9 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
   - name: Scene 1B
-    dialogText: Test 1
+    dialogText: "and wants to make sure you're welcome here  at your new family! 
+      Our first and most important mission is to encourage your blossoming as a member!
+      \r\n"
     onDialogStart:
       m_PersistentCalls:
         m_Calls: []
@@ -261,23 +268,17 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
   - name: Scene 1C
-    dialogText: Test 2
+    dialogText: "blossoming as a member! \nDon't halt this absolutely lovely pace
+      you've started on  and in no time you'll be quite the big shot,  could even
+      make Manager one day!!  "
     onDialogStart:
       m_PersistentCalls:
         m_Calls: []
     onDialogEnd:
       m_PersistentCalls:
         m_Calls: []
-  - name: Scene 1D
-    dialogText: End
-    onDialogStart:
-      m_PersistentCalls:
-        m_Calls: []
-    onDialogEnd:
-      m_PersistentCalls:
-        m_Calls: []
-  - name: Scene 1D
-    dialogText: End
+  - name: Scene 1C
+    dialogText: 'And don''t forget,  Bloom helps you blossom! '
     onDialogStart:
       m_PersistentCalls:
         m_Calls: []
@@ -331,7 +332,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cutsceneData:
   - name: Scene 1A
-    dialogText: Start
+    dialogText: "Hi there 299!  \nWe're so glad to see a new member adapting so well
+      in the family!"
     onDialogStart:
       m_PersistentCalls:
         m_Calls: []
@@ -339,7 +341,8 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
   - name: Scene 1B
-    dialogText: Test 1
+    dialogText: "In order to reward this commitment, you'll now be able to rank in
+      the Leaderboard!! \nAt the end of each day, the rankings are updated  company-wide!"
     onDialogStart:
       m_PersistentCalls:
         m_Calls: []
@@ -347,7 +350,8 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
   - name: Scene 1C
-    dialogText: Test 2
+    dialogText: "This won't only be a way to keep track of your improvement,  \nbut
+      also a safe way to challenge and connect with your peers! "
     onDialogStart:
       m_PersistentCalls:
         m_Calls: []
@@ -355,7 +359,7 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
   - name: Scene 1D
-    dialogText: End
+    dialogText: "Keep up the good work 299, and remember,  \nBloom helps you blossom!"
     onDialogStart:
       m_PersistentCalls:
         m_Calls: []
@@ -475,7 +479,9 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Manager
+  m_Text: '
+
+'
 --- !u!1 &4672230247487051242
 GameObject:
   m_ObjectHideFlags: 0
@@ -526,6 +532,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cutscenes:
   - {fileID: 238350298627909202}
+  - {fileID: 4970163757794001702}
+  - {fileID: 5284903350247414343}
   currentCutscene: EcCutscene1
   dialogPanel: {fileID: 4087154255176441831}
   chatTypingDelay: 0.01
