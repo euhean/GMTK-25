@@ -16,13 +16,19 @@ MonoBehaviour:
   eventType: 1
   description: test
   isCompleted: 0
+  demands:
+  - demands:
+    - colorType: 2
+      shapeType: 1
   orbitConfig:
     resourcePrefabs:
     - {fileID: 538977329041564931, guid: cd6717e7acd87a447bc50e96b090f281, type: 3}
-    numberOfOrbitingObjects: 6
+    numberOfOrbitingObjects: 3
     orbitRadius: 3.5
     angularSpeed: 1
     angularSeparation: 60
     machineInfos:
     - machineConfiguration: {fileID: 11400000, guid: 327b27d1e2e522647a12c88f8e0c7376, type: 2}
       angleDegrees: 36
+    - machineConfiguration: {fileID: 11400000, guid: b23956b5e756b5d45966a89e0251733b, type: 2}
+      angleDegrees: 100
