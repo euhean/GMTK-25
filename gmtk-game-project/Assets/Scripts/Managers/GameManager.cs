@@ -15,6 +15,13 @@ public class GameManager : MonoBehaviour
     public int currentDay = 0;
 
     [SerializeField] private bool debugMode = false;
+    [SerializeField] private bool isGameActive = true;
+    
+    [Header("Managers Configuration")]
+    [SerializeField] public List<MonoBehaviour> availableManagers = new List<MonoBehaviour>();
+    
+    [Header("Debug Info")]
+    [SerializeField] private string currentActiveManager = "None";
     
     [Header("Loop Configuration")]
     [SerializeField] private Loop currentLoop = new Loop();
@@ -22,9 +29,19 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GenericEvent currentEvent;
     [SerializeField] private int currentEventIndex = 0;
     [SerializeField] private bool autoSaveOnStart = true;
+    [SerializeField] private FadeManager fadeManager;
+
+    [Header("Narrative Configuration")]
+    [SerializeField] private TextAsset narrativeCsv;
+    [SerializeField] private bool narrativeStartEnd = true;
+    [SerializeField] private bool narrativeQuotaBool = true;
 
     [SerializeField] private List<Demand> itemsInLine = new List<Demand>();
     [SerializeField] private List<Demand> demandToComplete = new List<Demand>();
+
+    // Manager orchestration variables  
+    private BaseManager activeManager;
+    private Dictionary<string, BaseManager> managersDict = new Dictionary<string, BaseManager>();
 
     // Estructuras de datos movidas desde LoopManager
     [System.Serializable]
@@ -171,16 +188,99 @@ public class GameManager : MonoBehaviour
     
     private void Start()
     {
+        // Initialize manager system
+        InitializeManagers();
+        
         if(debugMode){
             runEvent();
         }
-
     }
     
     private void Update()
     {
-
+        // Update active manager
+        if (activeManager != null)
+        {
+            activeManager.UpdateManager();
+        }
     }
+    
+    #region Manager Orchestration
+    
+    /// <summary>
+    /// Initializes all managers and sets up the orchestration system
+    /// </summary>
+    private void InitializeManagers()
+    {
+        // Find all managers in the scene that inherit from BaseManager
+        BaseManager[] allManagers = FindObjectsOfType<BaseManager>();
+        
+        managersDict.Clear();
+        foreach (BaseManager manager in allManagers)
+        {
+            string managerName = manager.GetType().Name;
+            managersDict[managerName] = manager;
+            Debug.Log($"[GameManager] Registered manager: {managerName}");
+        }
+        
+        Debug.Log($"[GameManager] Initialized {managersDict.Count} managers");
+        
+        // Start with LevelManager as default for gameplay scenes
+        SwitchManager("LevelManager");
+    }
+    
+    /// <summary>
+    /// Switches to a different manager, ending the current one and starting the new one
+    /// </summary>
+    /// <param name="managerName">Name of the manager class to switch to</param>
+    public void SwitchManager(string managerName)
+    {
+        // End current manager
+        if (activeManager != null)
+        {
+            Debug.Log($"[GameManager] Ending manager: {activeManager.GetType().Name}");
+            activeManager.EndManager();
+        }
+        
+        // Switch to new manager
+        if (managersDict.ContainsKey(managerName))
+        {
+            activeManager = managersDict[managerName];
+            Debug.Log($"[GameManager] Starting manager: {managerName}");
+            activeManager.StartManager();
+        }
+        else
+        {
+            Debug.LogWarning($"[GameManager] Manager '{managerName}' not found!");
+            activeManager = null;
+        }
+    }
+    
+    /// <summary>
+    /// Gets a reference to a specific manager
+    /// </summary>
+    /// <typeparam name="T">Type of manager to get</typeparam>
+    /// <returns>Manager instance or null if not found</returns>
+    public T GetManager<T>() where T : BaseManager
+    {
+        string managerName = typeof(T).Name;
+        if (managersDict.ContainsKey(managerName))
+        {
+            return managersDict[managerName] as T;
+        }
+        return null;
+    }
+    
+    /// <summary>
+    /// Gets the currently active manager
+    /// </summary>
+    /// <returns>Active manager or null</returns>
+    public BaseManager GetActiveManager()
+    {
+        return activeManager;
+    }
+    
+    #endregion
     
     // LOOP MANAGEMENT METHODS
     public void SetLoop(Loop loop)
@@ -362,25 +462,100 @@ public class GameManager : MonoBehaviour
     // SCENE MANAGEMENT
     public void goToMenuScene() 
     {
-        SceneManager.LoadScene((int)Scenes.MENU);
+        if (fadeManager != null)
+        {
+            fadeManager.FadeIn(() => {
+                SceneManager.LoadSceneAsync((int)Scenes.MENU).completed += (op) => {
+                    fadeManager.FadeOut();
+                };
+            });
+        }
+        else
+        {
+            SceneManager.LoadScene((int)Scenes.MENU);
+        }
     }
 
     public void goToNarrativeScene()
     {
-        SceneManager.LoadScene((int)Scenes.NARRATIVE);
+        if (fadeManager != null)
+        {
+            fadeManager.FadeIn(() => {
+                SceneManager.LoadSceneAsync((int)Scenes.NARRATIVE).completed += (op) => {
+                    fadeManager.FadeOut();
+                    // Try to find and initialize NarrativeManager
+                    var narrativeManager = FindFirstObjectByType<NarrativeManager>();
+                    if (narrativeManager != null)
+                    {
+                        narrativeManager.InitializeFromGameManager();
+                    }
+                };
+            });
+        }
+        else
+        {
+            SceneManager.LoadScene((int)Scenes.NARRATIVE);
+            // Try to find and initialize NarrativeManager on the next frame
+            StartCoroutine(InitializeNarrativeManagerNextFrame());
+        }
+    }
+    
+    private System.Collections.IEnumerator InitializeNarrativeManagerNextFrame()
+    {
+        yield return null; // Wait one frame
+        var narrativeManager = FindFirstObjectByType<NarrativeManager>();
+        if (narrativeManager != null)
+        {
+            narrativeManager.InitializeFromGameManager();
+        }
     }
 
     public void goToLevelScene()
     {
-        SceneManager.LoadScene((int)Scenes.LEVEL);
+        if (fadeManager != null)
+        {
+            fadeManager.FadeIn(() => {
+                SceneManager.LoadSceneAsync((int)Scenes.LEVEL).completed += (op) => {
+                    fadeManager.FadeOut();
+                };
+            });
+        }
+        else
+        {
+            SceneManager.LoadScene((int)Scenes.LEVEL);
+        }
     }
+    
     public void goToLoopScene()
     {
-        SceneManager.LoadScene((int)Scenes.LOOP);
+        if (fadeManager != null)
+        {
+            fadeManager.FadeIn(() => {
+                SceneManager.LoadSceneAsync((int)Scenes.LOOP).completed += (op) => {
+                    fadeManager.FadeOut();
+                };
+            });
+        }
+        else
+        {
+            SceneManager.LoadScene((int)Scenes.LOOP);
+        }
     }
+    
     public void goToDayScene()
     {
-        SceneManager.LoadScene((int)Scenes.DAY);
+        if (fadeManager != null)
+        {
+            fadeManager.FadeIn(() => {
+                SceneManager.LoadSceneAsync((int)Scenes.DAY).completed += (op) => {
+                    fadeManager.FadeOut();
+                };
+            });
+        }
+        else
+        {
+            SceneManager.LoadScene((int)Scenes.DAY);
+        }
     }
     
     // ITEMS IN LINE MANAGEMENT
@@ -390,8 +565,8 @@ public class GameManager : MonoBehaviour
         
         var demand = new Demand
         {
-            colorType = resource.currentColor,
-            shapeType = resource.currentShape
+            colorType = resource.currentColorType,
+            shapeType = resource.currentShapeType
         };
         
         itemsInLine.Add(demand);
@@ -402,8 +577,8 @@ public class GameManager : MonoBehaviour
     {
         if (resource == null || index < 0 || index >= itemsInLine.Count) return;
         
-        itemsInLine[index].colorType = resource.currentColor;
-        itemsInLine[index].shapeType = resource.currentShape;
+        itemsInLine[index].colorType = resource.currentColorType;
+        itemsInLine[index].shapeType = resource.currentShapeType;
         
     }
     
@@ -504,5 +679,10 @@ public class GameManager : MonoBehaviour
         GenericEvent currentEvent = GetCurrentEvent();
         return currentEvent?.GetOrbitConfig();
     }
+    
+    // Narrative Getters
+    public TextAsset GetNarrativeCsv() => narrativeCsv;
+    public bool GetNarrativeStartEnd() => narrativeStartEnd;
+    public bool GetNarrativeQuotaBool() => narrativeQuotaBool;
     
 }

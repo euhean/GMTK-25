@@ -3,7 +3,7 @@ using UnityEngine;
 public class Huehopper : MachineObject
 {
     [Header("Runtime Data")]
-    public ColorData.ColorType lastProcessedColor;
+    public ResourceColor.ColorType lastProcessedColor;
 
     public override void Interact(Resource resource)
     {

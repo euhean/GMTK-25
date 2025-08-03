@@ -3,7 +3,7 @@ using UnityEngine;
 public class Shapeshifter : MachineObject
 {
     [Header("Runtime Data")]
-    public ShapeData.ShapeType lastProcessedShape;
+    public Shape.ShapeType lastProcessedShape;
     
     public override void Interact(Resource resource)
     {

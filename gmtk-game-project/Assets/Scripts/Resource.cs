@@ -3,8 +3,8 @@ using UnityEngine;
 public class Resource : MonoBehaviour
 {
     [Header("Current State")]
-    public ShapeData.ShapeType currentShapeType = ShapeData.ShapeType.NONE;
-    public ColorData.ColorType currentColorType = ColorData.ColorType.NONE;
+    public Shape.ShapeType currentShapeType = Shape.ShapeType.NONE;
+    public ResourceColor.ColorType currentColorType = ResourceColor.ColorType.NONE;
     
     [Header("Components")]
     public SpriteRenderer spriteRenderer;
@@ -18,23 +18,23 @@ public class Resource : MonoBehaviour
     /// <summary>
     /// Apply shape transformation using machine's configuration
     /// </summary>
-    public void ApplyShapeTransformation(ShapeData shapeData)
+    public void ApplyShapeTransformation(Shape shapeData)
     {
         if (shapeData == null) return;
         
         currentShapeType = shapeData.shapeType;
-        spriteRenderer.sprite = shapeData.sprite;
-        transform.localScale = shapeData.scale;
+        spriteRenderer.sprite = shapeData.GetCurrentSprite();
+        // Note: Shape class doesn't have scale, if needed add it or keep transform.localScale = Vector3.one
     }
 
     /// <summary>
     /// Apply color transformation using machine's configuration
     /// </summary>
-    public void ApplyColorTransformation(ColorData colorData)
+    public void ApplyColorTransformation(ResourceColor colorData)
     {
         if (colorData == null) return;
         
         currentColorType = colorData.colorType;
-        spriteRenderer.color = colorData.color;
+        spriteRenderer.color = colorData.GetCurrentColor();
     }
 }
