@@ -32,6 +32,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<Demand> itemsInLine = new List<Demand>();
     [SerializeField] private List<List<Demand>> demandToComplete = new List<List<Demand>>();
 
+    // Timer variables for Gameplay events
+    [Header("Gameplay Timer")]
+    private float gameplayTimer = 0f;
+    private bool isGameplayTimerActive = false;
+     [SerializeField] public float GAMEPLAY_TIME_LIMIT = 120f; // 2 minutes in seconds
+
 
     // Estructuras de datos movidas desde LoopManager
     [System.Serializable]
@@ -182,7 +188,19 @@ public class GameManager : MonoBehaviour
     
     private void Update()
     {
-
+        // Handle gameplay timer
+        if (isGameplayTimerActive)
+        {
+            gameplayTimer += Time.deltaTime;
+            
+            if (gameplayTimer >= GAMEPLAY_TIME_LIMIT)
+            {
+                // Timer completed - trigger runEvent
+                StopGameplayTimer();
+                currentEventIndex++;
+                runEvent();
+            }
+        }
     }
     
     // LOOP MANAGEMENT METHODS
@@ -258,6 +276,9 @@ public class GameManager : MonoBehaviour
 
         if (currentEvent.GetEventType() == EventType.Gameplay)
         {
+            // Start the 2-minute timer for Gameplay events
+            StartGameplayTimer();
+            
             // Buscar una instancia del DeskManager en la escena
             DeskManager deskManager = FindFirstObjectByType<DeskManager>();
             if (deskManager != null)
@@ -269,16 +290,22 @@ public class GameManager : MonoBehaviour
                 Debug.LogError("No se encontró DeskManager en la escena para el evento de gameplay");
             }
         }
-        else if (SceneManager.GetActiveScene().buildIndex != (int)Scenes.LEVEL)
-        {
-            // Si no estamos en la escena LEVEL, cargarla primero
-            SceneManager.sceneLoaded += OnLevelSceneLoaded;
-            goToLevelScene();
-        }
         else
         {
-            // Ya estamos en la escena LEVEL, proceder con el evento
-            ExecuteEventInLevel(currentEvent);
+            // Stop timer for non-Gameplay events
+            StopGameplayTimer();
+            
+            if (SceneManager.GetActiveScene().buildIndex != (int)Scenes.LEVEL)
+            {
+                // Si no estamos en la escena LEVEL, cargarla primero
+                SceneManager.sceneLoaded += OnLevelSceneLoaded;
+                goToLevelScene();
+            }
+            else
+            {
+                // Ya estamos en la escena LEVEL, proceder con el evento
+                ExecuteEventInLevel(currentEvent);
+            }
         }
     }
 
@@ -557,7 +584,31 @@ public class GameManager : MonoBehaviour
         }
     }
     
+    // GAMEPLAY TIMER METHODS
+    private void StartGameplayTimer()
+    {
+        gameplayTimer = 0f;
+        isGameplayTimerActive = true;
+        Debug.Log("Gameplay timer started - 2 minutes countdown");
+    }
     
+    private void StopGameplayTimer()
+    {
+        isGameplayTimerActive = false;
+        gameplayTimer = 0f;
+        Debug.Log("Gameplay timer stopped");
+    }
+    
+    public float GetGameplayTimeRemaining()
+    {
+        if (!isGameplayTimerActive) return 0f;
+        return Mathf.Max(0f, GAMEPLAY_TIME_LIMIT - gameplayTimer);
+    }
+    
+    public bool IsGameplayTimerActive()
+    {
+        return isGameplayTimerActive;
+    }
     
     public void UpdateResourceInLine()
     {

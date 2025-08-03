@@ -40,6 +40,13 @@ public class MultiOrbit : MonoBehaviour
     // Change from private to public
     public void InstantiateFromConfig(GameManager.OrbitConfiguration config)
     {
+
+    GameObject[] objetosADestruir = GameObject.FindGameObjectsWithTag("resource tag");
+    
+    foreach(GameObject obj in objetosADestruir)
+    {
+        Destroy(obj);
+    }
         // Instanciar objetos que orbitan
         for (int i = 0; i < config.numberOfOrbitingObjects; i++)
         {
