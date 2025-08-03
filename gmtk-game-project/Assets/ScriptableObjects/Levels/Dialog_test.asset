@@ -16,7 +16,7 @@ MonoBehaviour:
   eventType: 2
   description: TestDialog
   isCompleted: 0
-  dialogCutsceneName: TestDialog
+  dialogCutsceneName: EcCutscene1
   demands: []
   orbitConfig:
     resourcePrefabs: []

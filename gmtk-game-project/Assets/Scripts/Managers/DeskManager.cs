@@ -2,6 +2,7 @@ using UnityEngine;
 using HisaGames.CutsceneManager;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;  // Add DOTween namespace
 
 // Define the interaction types
 public enum InteractableType
@@ -42,6 +43,10 @@ public class DeskManager : MonoBehaviour
     
     private List<Outline> outlineComponents = new List<Outline>();
 
+    [Header("Call Alert Animation")]
+    [SerializeField] private Transform alertStartPosition;  // Transform donde empieza el alert
+    [SerializeField] private Transform alertEndPosition;    // Transform donde termina el alert
+    
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -66,6 +71,12 @@ public class DeskManager : MonoBehaviour
         // If cameraSwitcher is not assigned, try to find it in the scene
         if (cameraSwitcher == null)
             cameraSwitcher = FindFirstObjectByType<CameraSwitcher>();
+        
+        // Move call alert to start position
+        if (callAlert != null && alertStartPosition != null)
+        {
+            callAlert.transform.position = alertStartPosition.position;
+        }
     }
 
     void Awake()
@@ -171,19 +182,30 @@ public class DeskManager : MonoBehaviour
         pendingDialogCutscene = dialogCutsceneName;
         waitingForPhoneInteraction = true;
         
-        // 1. Activar el CallAlert y reproducir sonido
-        if (callAlert != null)
+        // Animate call alert and play sound
+        if (callAlert != null && alertEndPosition != null)
         {
-            callAlert.SetActive(true);
+            callAlert.transform.DOMove(alertEndPosition.position, 0.9f).SetEase(Ease.OutBack);
             
             if (callAlertSound != null)
             {
                 callAlertSound.Play();
             }
+
+            StartCoroutine(ReturnAlertAfterDelay());
         }
         
-        // 2. Cambiar la cámara activa a desktop después de 2 segundos
         StartCoroutine(SwitchToDesktopCamera());
+    }
+
+    private IEnumerator ReturnAlertAfterDelay()
+    {
+        yield return new WaitForSeconds(5f);
+        
+        if (waitingForPhoneInteraction && callAlert != null && alertStartPosition != null)
+        {
+            callAlert.transform.DOMove(alertStartPosition.position, 0.5f).SetEase(Ease.InBack);
+        }
     }
     
     /// <summary>
@@ -260,9 +282,9 @@ public class DeskManager : MonoBehaviour
         {
             // Desactivar el estado de espera y el callAlert
             waitingForPhoneInteraction = false;
-            if (callAlert != null)
+            if (callAlert != null && alertStartPosition != null)
             {
-                callAlert.SetActive(false);
+                callAlert.transform.DOMove(alertStartPosition.position, 0.5f).SetEase(Ease.InBack);
             }
             
             // Detener el sonido de alerta
