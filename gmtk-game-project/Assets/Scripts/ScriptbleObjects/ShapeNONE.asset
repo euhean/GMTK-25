@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: decdb83716d8e6944b2f552231647ac8, type: 3}
   m_Name: ShapeNONE
   m_EditorClassIdentifier: 
-  shapeType: 0
+  shapeType: 3
   triangleSprite: {fileID: 7482667652216324306, guid: 5ef85d0b3908def4d9f7cb73c017b31f, type: 3}
   squareSprite: {fileID: 7482667652216324306, guid: 6abf4b647524bfa4c835f90692574afe, type: 3}
   circleSprite: {fileID: -2413806693520163455, guid: 515c69e652a9c35418e8ad6ac122c6d8, type: 3}
