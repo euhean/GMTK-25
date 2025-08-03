@@ -11,8 +11,7 @@ public class Shapeshifter : MachineObject
             resource.TransformShape(shapeData);
             LogResource(resource);
 
-            if (iconRenderer == null)
-                iconRenderer = GetComponent<SpriteRenderer>() ?? gameObject.AddComponent<SpriteRenderer>();
+        
 
            /* switch (purpose)
             {

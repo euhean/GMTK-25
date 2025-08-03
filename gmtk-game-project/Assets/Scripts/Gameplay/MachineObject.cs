@@ -8,7 +8,8 @@ public abstract class MachineObject : MonoBehaviour, IMachine
     public MachinePurpose purpose;
     public Resource currentResource;
     public List<Resource> resourceLog = new List<Resource>();
-    public SpriteRenderer iconRenderer;
+    public SpriteRenderer machineRenderer;
+    public GameObject allObjectComponentMachine;
     public MachineConfiguration machineConfiguration; // Referencia a la configuración para sprites
 
     public bool IsOn { get => isOn; set => isOn = value; }
@@ -37,13 +38,27 @@ public abstract class MachineObject : MonoBehaviour, IMachine
 
     void UpdateMachineSprite()
     {
-        if (iconRenderer != null && machineConfiguration != null)
+        if (machineRenderer != null && machineConfiguration != null)
         {   
+            // GameObject machineSprite = allObjectComponentMachine.Find("MachineSprite");
+            Transform iconSprite = allObjectComponentMachine.transform.Find("Icon");
+            SpriteRenderer iconSpriteRenderer = iconSprite.GetComponent<SpriteRenderer>();
+
             Sprite targetSprite = isOn ? machineConfiguration.activeSprite : machineConfiguration.inactiveSprite;
             Debug.Log($"Machine {gameObject.name}: Sprite changed to {targetSprite.name} (isOn: {isOn})");
+            if(machineConfiguration.machineType == MachineConfiguration.MachineType.Shapeshifter){
+                if(isOn) {
+                    iconSpriteRenderer.color = machineConfiguration.iconColor;
+
+                }
+                else {
+                    iconSpriteRenderer.color = Color.white;
+                }
+            }
+            
             if (targetSprite != null)
             {
-                iconRenderer.sprite = targetSprite;
+                machineRenderer.sprite = targetSprite;
                 Debug.Log($"Machine {gameObject.name}: Sprite changed to {targetSprite.name} (isOn: {isOn})");
             }
             else
@@ -53,7 +68,7 @@ public abstract class MachineObject : MonoBehaviour, IMachine
         }
         else
         {
-            Debug.LogWarning($"Machine {gameObject.name}: No iconRenderer or MachineConfiguration found for sprite change");
+            Debug.LogWarning($"Machine {gameObject.name}: No machineRenderer or MachineConfiguration found for sprite change");
         }
     }
 
