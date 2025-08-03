@@ -149,7 +149,7 @@ public class SequenceManager : BaseManager
     /// </summary>
     public void PrepareForNextSequence()
     {
-        collector.Clear();
+        collector?.Clear();
         Debug.Log("SequenceManager ready for next sequence");
     }
     

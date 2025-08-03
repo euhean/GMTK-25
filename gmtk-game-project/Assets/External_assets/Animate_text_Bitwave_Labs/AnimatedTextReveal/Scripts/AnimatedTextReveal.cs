@@ -38,6 +38,13 @@ namespace BitWave_Labs.AnimatedTextReveal
         /// <returns> An <see cref="IEnumerator"/> that performs the fade animation over multiple frames.</returns>
         public IEnumerator FadeText(bool fadeIn)
         {
+            // ADD NULL CHECK at the beginning to prevent issues
+            if (textMesh == null || textMesh.gameObject == null)
+            {
+                Debug.LogWarning("[AnimatedTextReveal] TextMesh is null or destroyed, cannot start fade animation");
+                yield break;
+            }
+            
             // Prepare the mesh & textInfo
             textMesh.ForceMeshUpdate();
             TMP_TextInfo textInfo = textMesh.textInfo;
@@ -52,8 +59,11 @@ namespace BitWave_Labs.AnimatedTextReveal
             }
             else
             {
-                // Ensure material tint is opaque
-                textMesh.color = new Color(textMesh.color.r, textMesh.color.g, textMesh.color.b, 1f);
+                // Ensure material tint is opaque - ADD NULL CHECK
+                if (textMesh != null && textMesh.gameObject != null)
+                {
+                    textMesh.color = new Color(textMesh.color.r, textMesh.color.g, textMesh.color.b, 1f);
+                }
                 // Start everything fully visible
                 SetAllCharactersAlpha(255);
             }
@@ -90,8 +100,24 @@ namespace BitWave_Labs.AnimatedTextReveal
                     newVertexColors[vertIdx + 3].a = nextAlpha;
                 }
 
-                // Push to mesh
-                textMesh.UpdateVertexData(TMP_VertexDataUpdateFlags.Colors32);
+                // Push to mesh - ADD NULL CHECK to prevent MissingReferenceException
+                if (textMesh != null && textMesh.gameObject != null && textMesh.mesh != null)
+                {
+                    try
+                    {
+                        textMesh.UpdateVertexData(TMP_VertexDataUpdateFlags.Colors32);
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogWarning($"[AnimatedTextReveal] Failed to update vertex data: {e.Message}");
+                        break; // Exit the coroutine if we can't update the mesh
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("[AnimatedTextReveal] TextMesh or its components have been destroyed, stopping animation");
+                    break; // Exit the coroutine early if the mesh is destroyed
+                }
 
                 // Advance the sweep
                 if (charsProcessed < totalChars)
@@ -118,31 +144,50 @@ namespace BitWave_Labs.AnimatedTextReveal
         /// </param>
         public void SetAllCharactersAlpha(byte alpha)
         {
-            // Rebuild the mesh so textInfo and meshInfo are valid
-            textMesh.ForceMeshUpdate();
-            TMP_TextInfo textInfo = textMesh.textInfo;
-
-            // Loop each character
-            for (int i = 0; i < textInfo.characterCount; i++)
+            // ADD NULL CHECK to prevent MissingReferenceException
+            if (textMesh == null || textMesh.gameObject == null)
             {
-                TMP_CharacterInfo charInfo = textInfo.characterInfo[i];
-                if (!charInfo.isVisible)
-                    continue;
-
-                int matIdx = charInfo.materialReferenceIndex;
-                var verts = textInfo.meshInfo[matIdx].colors32;
-                int vIdx = charInfo.vertexIndex;
-
-                // Set all four vertices to the requested alpha
-                verts[vIdx + 0].a = alpha;
-                verts[vIdx + 1].a = alpha;
-                verts[vIdx + 2].a = alpha;
-                verts[vIdx + 3].a = alpha;
+                Debug.LogWarning("[AnimatedTextReveal] TextMesh is null or destroyed, cannot set alpha");
+                return;
             }
 
-            // Push the updated colors back into each mesh
-            for (int m = 0; m < textInfo.meshInfo.Length; m++)
-                textInfo.meshInfo[m].mesh.colors32 = textInfo.meshInfo[m].colors32;
+            try
+            {
+                // Rebuild the mesh so textInfo and meshInfo are valid
+                textMesh.ForceMeshUpdate();
+                TMP_TextInfo textInfo = textMesh.textInfo;
+
+                // Loop each character
+                for (int i = 0; i < textInfo.characterCount; i++)
+                {
+                    TMP_CharacterInfo charInfo = textInfo.characterInfo[i];
+                    if (!charInfo.isVisible)
+                        continue;
+
+                    int matIdx = charInfo.materialReferenceIndex;
+                    var verts = textInfo.meshInfo[matIdx].colors32;
+                    int vIdx = charInfo.vertexIndex;
+
+                    // Set all four vertices to the requested alpha
+                    verts[vIdx + 0].a = alpha;
+                    verts[vIdx + 1].a = alpha;
+                    verts[vIdx + 2].a = alpha;
+                    verts[vIdx + 3].a = alpha;
+                }
+
+                // Push the updated colors back into each mesh
+                for (int m = 0; m < textInfo.meshInfo.Length; m++)
+                {
+                    if (textInfo.meshInfo[m].mesh != null)
+                    {
+                        textInfo.meshInfo[m].mesh.colors32 = textInfo.meshInfo[m].colors32;
+                    }
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning($"[AnimatedTextReveal] Failed to set alpha: {e.Message}");
+            }
         }
     }
 }

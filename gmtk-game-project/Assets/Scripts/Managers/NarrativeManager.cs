@@ -4,8 +4,8 @@ using BitWave_Labs.AnimatedTextReveal;
 
 public class NarrativeManager : BaseManager
 {
-    [SerializeField] private AnimateText animateText;
-    [SerializeField] private TextAsset csvFile;
+    [SerializeField] public AnimateText animateText;
+    [SerializeField] public TextAsset csvFile;
 
     [Header("Filtering Criteria")]
     [Tooltip("Matches with 'Dia' column")]
@@ -14,8 +14,22 @@ public class NarrativeManager : BaseManager
     [SerializeField] private bool startEnd = true;
     [SerializeField] private bool quotaBool = true;
 
-    [SerializeField] private List<string> textLines = new List<string>();
-    private bool isTextComplete = false;
+    [SerializeField] public List<string> textLines = new List<string>();
+    public bool isTextComplete = false;
+
+    private void Awake()
+    {
+        // Ensure AnimateText component exists and is assigned.
+        if (animateText == null)
+        {
+            animateText = GetComponent<AnimateText>();
+            if (animateText == null)
+            {
+                animateText = gameObject.AddComponent<AnimateText>();
+                Debug.LogWarning("[NarrativeManager] AnimateText component was missing and has been added automatically.");
+            }
+        }
+    }
 
     private void Start()
     {

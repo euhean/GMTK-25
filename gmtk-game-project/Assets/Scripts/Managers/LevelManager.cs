@@ -10,9 +10,8 @@ using System.Collections.Generic;
 public class LevelManager : BaseManager
 {
     [Header("Assembly Line Integration")]
-    public CintaController cintaController;
-    public SequenceManager sequenceManager;
     public AssemblyLineSpawner assemblyLineSpawner;
+    public SequenceManager sequenceManager;
     
     [Header("Narrative Integration")]
     public NarrativeManager narrativeManager;
@@ -69,18 +68,26 @@ public class LevelManager : BaseManager
     private void InitializeLevel()
     {
         // Find components if not assigned
-        if (cintaController == null)
-            cintaController = FindFirstObjectByType<CintaController>();
+        if (assemblyLineSpawner == null)
+            assemblyLineSpawner = FindFirstObjectByType<AssemblyLineSpawner>();
         if (sequenceManager == null)
             sequenceManager = FindFirstObjectByType<SequenceManager>();
         if (narrativeManager == null)
             narrativeManager = FindFirstObjectByType<NarrativeManager>();
-        if (assemblyLineSpawner == null)
-            assemblyLineSpawner = FindFirstObjectByType<AssemblyLineSpawner>();
         
+        // Auto-find UI elements if not assigned in the inspector
+        if (deliveryPanel == null)
+        {
+            deliveryPanel = GameObject.Find("DeliveryPanel");
+            if (deliveryPanel != null && deliveryButton == null)
+            {
+                deliveryButton = deliveryPanel.GetComponentInChildren<Button>();
+            }
+        }
+
         // Initialize UI
-        deliveryPanel?.SetActive(false);
-        deliveryButton?.onClick.AddListener(OnDeliveryButtonPressed);
+        if (deliveryPanel != null) deliveryPanel.SetActive(false);
+        if (deliveryButton != null) deliveryButton.onClick.AddListener(OnDeliveryButtonPressed);
         
         // Subscribe to sequence events
         if (sequenceManager != null)
@@ -104,23 +111,30 @@ public class LevelManager : BaseManager
             Debug.LogError("[LevelManager] GameManager not found - cannot process events");
             return;
         }
-        
+
+        Debug.Log("[LevelManager] Checking for current event...");
         var currentEvent = GameManager.Instance.GetCurrentEvent();
         if (currentEvent == null)
         {
-            Debug.LogWarning("[LevelManager] No current event in GameManager");
+            Debug.LogError("[LevelManager] No current event in GameManager! GameManager should set up the complete flow (loop→day→level→sequence)");
+            Debug.LogError("[LevelManager] Please use GameManager.ForceStartDebugGameplay() or ensure GameManager has proper event setup");
             return;
         }
-        
+
         var eventConfig = currentEvent.GetEventConfiguration();
         if (eventConfig == null)
         {
             Debug.LogWarning("[LevelManager] Current event has no EventConfiguration");
             return;
         }
-        
-        Debug.Log($"[LevelManager] Processing EventConfiguration: {eventConfig.eventName}");
-        
+
+        Debug.Log($"[LevelManager] Processing EventConfiguration: {eventConfig.eventName} (Type: {eventConfig.eventType})");
+
+        ProcessEventConfiguration(eventConfig);
+    }
+    
+    private void ProcessEventConfiguration(EventConfiguration eventConfig)
+    {
         switch (eventConfig.eventType)
         {
             case GameManager.EventType.Narrative:
@@ -231,20 +245,30 @@ public class LevelManager : BaseManager
     {
         isGameplayActive = true;
         
-        // Delegate spawning to AssemblyLineSpawner
-        if (assemblyLineSpawner != null && cintaController != null)
+        // Get gameplay center from GameManager, fallback to AssemblyLineSpawner
+        Transform spawnCenter = assemblyLineSpawner.transform;
+        if (GameManager.Instance != null)
         {
-            assemblyLineSpawner.SpawnEventObjects(eventConfig, cintaController.transform);
+            var gameplayCenter = GameManager.Instance.GetGameplayCenter();
+            if (gameplayCenter != null)
+            {
+                spawnCenter = gameplayCenter;
+            }
+        }
+        
+        // Delegate spawning to AssemblyLineSpawner with proper center
+        if (assemblyLineSpawner != null)
+        {
+            assemblyLineSpawner.SpawnEventObjects(eventConfig, spawnCenter);
         }
         else
         {
-            Debug.LogWarning("[LevelManager] AssemblyLineSpawner or CintaController not found");
+            Debug.LogWarning("[LevelManager] AssemblyLineSpawner not found");
         }
         
-        // Initialize assembly line
-        cintaController?.SpawnNewResourceLayout();
-        cintaController?.UnlockAllMachines();
-        cintaController?.ResumeAssemblyLine();
+        // Initialize assembly line (SpawnEventObjects already spawned resources, no need to spawn again)
+        assemblyLineSpawner?.UnlockAllMachines();
+        assemblyLineSpawner?.ResumeAssemblyLine();
         
         // Prepare sequence manager for new round
         sequenceManager?.PrepareForNextSequence();
@@ -257,8 +281,8 @@ public class LevelManager : BaseManager
         Debug.Log($"[LevelManager] Sequence {sequenceNumber} ready for delivery!");
         
         // Stop assembly line and lock machines
-        cintaController?.StopAssemblyLine();
-        cintaController?.LockAllMachines();
+        assemblyLineSpawner?.StopAssemblyLine();
+        assemblyLineSpawner?.LockAllMachines();
         
         // Show delivery UI
         deliveryPanel?.SetActive(true);
@@ -285,9 +309,9 @@ public class LevelManager : BaseManager
     private void ContinueToNextSequence()
     {
         // Spawn new resource layout and continue
-        cintaController?.SpawnNewResourceLayout();
-        cintaController?.UnlockAllMachines();
-        cintaController?.ResumeAssemblyLine();
+        assemblyLineSpawner?.SpawnNewResourceLayout();
+        assemblyLineSpawner?.UnlockAllMachines();
+        assemblyLineSpawner?.ResumeAssemblyLine();
         
         // Prepare sequence manager for next sequence
         sequenceManager?.PrepareForNextSequence();
@@ -301,8 +325,8 @@ public class LevelManager : BaseManager
         isGameplayActive = false;
         
         // Stop assembly line - player is called away from terminal
-        cintaController?.StopAssemblyLine();
-        cintaController?.LockAllMachines();
+        assemblyLineSpawner?.StopAssemblyLine();
+        assemblyLineSpawner?.LockAllMachines();
         
         // Hide any delivery panel that might be showing
         deliveryPanel?.SetActive(false);
@@ -327,7 +351,7 @@ public class LevelManager : BaseManager
         isGameplayActive = false;
         
         // Stop assembly line
-        cintaController?.StopAssemblyLine();
+        assemblyLineSpawner?.StopAssemblyLine();
         
         Debug.Log("[LevelManager] Level completed successfully!");
         
@@ -390,7 +414,7 @@ public class LevelManager : BaseManager
         }
         
         // Stop assembly line
-        cintaController?.StopAssemblyLine();
+        assemblyLineSpawner?.StopAssemblyLine();
         
         // SequenceManager now handles its own cleanup
         

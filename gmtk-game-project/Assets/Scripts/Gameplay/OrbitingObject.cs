@@ -36,8 +36,9 @@ public class OrbitingObject : MonoBehaviour
         float currentAngle = baseAngle + (angularSpeed * Time.time);
         Vector3 newPosition = GetOrbitPosition(currentAngle);
         
-        // Mantener los objetos ligeramente por encima de la línea
-        newPosition.y = centerTransform.position.y + 1f;
+        // FIXED: Use actual assembly line height (-99.83) instead of centerTransform + offset
+        // BG plane is at Y=-101.78, Spline line is at Y=-99.83 (about 2 units above BG)
+        newPosition.y = -99.83f; // Exact assembly line height
         
         transform.position = newPosition;
         

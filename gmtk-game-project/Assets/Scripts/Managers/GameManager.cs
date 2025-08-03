@@ -3,9 +3,8 @@ using UnityEngine;
 using System.Linq;
 using UnityEngine.SceneManagement;
 
-
 /// <summary>
-/// GameManager principal que controla el estado del juego y gestiona todos los managers.
+/// GameManager principal que controla el estado del juego y coordina todos los managers.
 /// Implementa el patrón Singleton para acceso global.
 /// Coordina managers especializados y maneja transiciones de escena.
 /// Delegación de responsabilidades: spawning → LevelManager, loops → LoopManager, etc.
@@ -13,7 +12,7 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     [Header("Game State")]
-    [SerializeField] private bool debugMode = false;
+    [SerializeField] public bool debugMode = true;
     [SerializeField] private bool isGameActive = true;
     
     [Header("Managers Configuration")]
@@ -25,6 +24,16 @@ public class GameManager : MonoBehaviour
     [Header("Global Configuration")]
     [SerializeField] private bool autoSaveOnStart = true;
     [SerializeField] private FadeManager fadeManager;
+    
+    [Header("Scene Setup Configuration")]
+    [SerializeField] private GameObject resourcePrefab;
+    [SerializeField] private List<MachineConfiguration> machineConfigurations = new List<MachineConfiguration>();
+    [SerializeField] private TextAsset narrativeCsvFile;
+    [SerializeField] private bool autoSetupSceneOnStart = true;
+    
+    [Header("Gameplay Positioning")]
+    [SerializeField] private Transform gameplayCenter; // Where the assembly line gameplay happens
+    [SerializeField] private float gameplayScale = 0.1f; // Scale factor for desktop gameplay
 
     // Manager orchestration variables  
     private BaseManager activeManager;
@@ -183,8 +192,25 @@ public class GameManager : MonoBehaviour
     
     private void Start()
     {
-        // Initialize manager system
+        // Initialize manager system FIRST so we can access managers in SetupDebugEvents
         InitializeManagers();
+        
+        // If debug mode is enabled, set up debug events AFTER managers are initialized
+        if(debugMode){
+            SetupDebugEvents();
+        }
+        
+        // Auto-setup scene if enabled
+        if (autoSetupSceneOnStart)
+        {
+            SetupScene();
+        }
+        
+        // Start with LevelManager as default for normal gameplay (not debug mode)
+        if (!debugMode)
+        {
+            SwitchManager("LevelManager");
+        }
         
         // Auto-save if enabled
         if (autoSaveOnStart)
@@ -231,8 +257,8 @@ public class GameManager : MonoBehaviour
         
         Debug.Log($"[GameManager] Initialized {managersDict.Count} managers");
         
-        // Start with LevelManager as default for gameplay scenes
-        SwitchManager("LevelManager");
+        // Don't auto-start LevelManager here - let the calling code control the flow
+        // This prevents timing issues with GameManager.Instance availability
     }
     
     /// <summary>
@@ -263,7 +289,6 @@ public class GameManager : MonoBehaviour
         {
             FindFirstObjectByType<CameraSwitcher>(),
             FindFirstObjectByType<DeskManager>(),
-            FindFirstObjectByType<CintaController>(),
             FindFirstObjectByType<AssemblyLineSpawner>(),
             FindFirstObjectByType<FadeManager>()
         };
@@ -334,6 +359,319 @@ public class GameManager : MonoBehaviour
     
     #endregion
     
+    #region Scene Setup
+    
+    /// <summary>
+    /// Sets up the scene with manager hierarchy and component wiring
+    /// Replaces the functionality of the deprecated SceneSetupHelper
+    /// </summary>
+    public void SetupScene()
+    {
+        Debug.Log("[GameManager] Setting up scene...");
+        
+        // Create manager hierarchy
+        CreateManagersHierarchy();
+        
+        // Create assembly line components
+        CreateAssemblyLineComponents();
+        
+        // Wire up all references
+        WireUpReferences();
+        
+        // Configure managers
+        ConfigureManagers();
+        
+        Debug.Log("[GameManager] Scene setup complete!");
+    }
+    
+    /// <summary>
+    /// Creates the manager hierarchy in the scene
+    /// </summary>
+    private void CreateManagersHierarchy()
+    {
+        // Create managers parent
+        GameObject managersParent = GameObject.Find("--- MANAGERS ---");
+        if (managersParent == null)
+        {
+            managersParent = new GameObject("--- MANAGERS ---");
+            Debug.Log("[GameManager] Created MANAGERS parent object");
+        }
+        
+        // Create individual managers if they don't exist
+        CreateManagerIfNotExists<LevelManager>("LevelManager", managersParent.transform);
+        CreateManagerIfNotExists<NarrativeManager>("NarrativeManager", managersParent.transform);
+        CreateManagerIfNotExists<SequenceManager>("SequenceManager", managersParent.transform);
+        CreateManagerIfNotExists<LoopManager>("LoopManager", managersParent.transform);
+        CreateManagerIfNotExists<DayManager>("DayManager", managersParent.transform);
+        CreateManagerIfNotExists<DeskManager>("DeskManager", managersParent.transform);
+    }
+    
+    /// <summary>
+    /// Creates a manager GameObject if it doesn't already exist
+    /// </summary>
+    private void CreateManagerIfNotExists<T>(string name, Transform parent) where T : MonoBehaviour
+    {
+        if (FindFirstObjectByType<T>() == null)
+        {
+            GameObject managerObj = new GameObject(name);
+            managerObj.transform.SetParent(parent);
+            managerObj.AddComponent<T>();
+            Debug.Log($"[GameManager] Created {name}");
+        }
+    }
+    
+    /// <summary>
+    /// Creates assembly line components if they don't exist
+    /// </summary>
+    private void CreateAssemblyLineComponents()
+    {
+        // Create Assembly Line parent
+        GameObject assemblyLineParent = GameObject.Find("--- ASSEMBLY LINE ---");
+        if (assemblyLineParent == null)
+        {
+            assemblyLineParent = new GameObject("--- ASSEMBLY LINE ---");
+            Debug.Log("[GameManager] Created ASSEMBLY LINE parent object");
+        }
+
+        // Create gameplay center if not assigned
+        if (gameplayCenter == null)
+        {
+            // First try to find the BG GameObject (the gameplay plane)
+            GameObject centerObj = GameObject.Find("BG");
+            if (centerObj == null)
+            {
+                // Create a new gameplay center if BG doesn't exist
+                centerObj = new GameObject("GameplayCenter");
+                centerObj.transform.position = Vector3.zero;
+                Debug.Log("[GameManager] Created new GameplayCenter");
+            }
+            else
+            {
+                Debug.Log($"[GameManager] Found existing gameplay plane: {centerObj.name}");
+            }
+            
+            gameplayCenter = centerObj.transform;
+        }
+        
+        // Create assembly line components if they don't exist
+        if (FindFirstObjectByType<AssemblyLineSpawner>() == null)
+        {
+            GameObject spawnerObj = new GameObject("AssemblyLineSpawner");
+            spawnerObj.transform.SetParent(gameplayCenter);
+            spawnerObj.transform.localPosition = Vector3.zero;
+            spawnerObj.AddComponent<AssemblyLineSpawner>();
+            Debug.Log("[GameManager] Created unified AssemblyLineSpawner at gameplay center");
+        }
+        else
+        {
+            // Move existing AssemblyLineSpawner to gameplay center if it's not already there
+            var existingSpawner = FindFirstObjectByType<AssemblyLineSpawner>();
+            if (existingSpawner != null && existingSpawner.transform.parent != gameplayCenter)
+            {
+                existingSpawner.transform.SetParent(gameplayCenter);
+                existingSpawner.transform.localPosition = Vector3.zero;
+                Debug.Log("[GameManager] Moved existing AssemblyLineSpawner to gameplay center");
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Wires up references between components
+    /// </summary>
+    private void WireUpReferences()
+    {
+        // Get all managers
+        LevelManager levelManager = FindFirstObjectByType<LevelManager>();
+        AssemblyLineSpawner spawner = FindFirstObjectByType<AssemblyLineSpawner>();
+        
+        // Wire up LevelManager references
+        if (levelManager != null)
+        {
+            levelManager.assemblyLineSpawner = spawner;
+            levelManager.sequenceManager = FindFirstObjectByType<SequenceManager>();
+            levelManager.narrativeManager = FindFirstObjectByType<NarrativeManager>();
+            
+            // Find delivery UI elements
+            GameObject deliveryPanel = GameObject.Find("DeliveryPanel");
+            if (deliveryPanel != null)
+            {
+                levelManager.deliveryPanel = deliveryPanel;
+                var deliveryButton = deliveryPanel.GetComponentInChildren<UnityEngine.UI.Button>();
+                if (deliveryButton != null)
+                {
+                    levelManager.deliveryButton = deliveryButton;
+                    Debug.Log("[GameManager] Wired up delivery UI to LevelManager");
+                }
+            }
+            
+            Debug.Log("[GameManager] Wired up LevelManager references");
+        }
+        
+        Debug.Log("[GameManager] Assembly line now unified in AssemblyLineSpawner");
+    }
+    
+    /// <summary>
+    /// Configures managers with scene-specific data
+    /// </summary>
+    private void ConfigureManagers()
+    {
+        // Configure NarrativeManager
+        NarrativeManager narrativeManager = FindFirstObjectByType<NarrativeManager>();
+        if (narrativeManager != null && narrativeCsvFile != null)
+        {
+            narrativeManager.csvFile = narrativeCsvFile;
+            Debug.Log("[GameManager] Configured NarrativeManager with CSV file");
+        }
+        
+        // Update availableManagers list after creating new components
+        PopulateAvailableManagersList();
+        
+        Debug.Log("[GameManager] Manager configuration complete");
+    }
+    
+    #endregion
+    
+    #region Debug Setup
+    
+    /// <summary>
+    /// Sets up debug events for testing when debugMode is enabled
+    /// </summary>
+    private void SetupDebugEvents()
+    {
+        Debug.Log("[GameManager] Setting up debug events...");
+        
+        // Create a simple test event config in memory for debug mode
+        // NOTE: Always create a new debug event to ensure it's properly configured for gameplay
+        EventConfiguration testEventConfig = ScriptableObject.CreateInstance<EventConfiguration>();
+        testEventConfig.eventName = "Debug Test Event";
+        testEventConfig.eventType = EventType.Gameplay; // Ensure it's a gameplay event
+        testEventConfig.description = "Simple debug gameplay test";
+        testEventConfig.isCompleted = false;
+        
+        Debug.Log($"[GameManager] Created debug EventConfiguration: {testEventConfig.eventName} (Type: {testEventConfig.eventType})");
+        
+        // Add test demands for "3 red circles" sequence
+        testEventConfig.demands.Add(new Demand 
+        { 
+            colorType = ResourceColor.ColorType.RED, 
+            shapeType = Shape.ShapeType.CIRCLE 
+        });
+        testEventConfig.demands.Add(new Demand 
+        { 
+            colorType = ResourceColor.ColorType.RED, 
+            shapeType = Shape.ShapeType.CIRCLE 
+        });
+        testEventConfig.demands.Add(new Demand 
+        { 
+            colorType = ResourceColor.ColorType.RED, 
+            shapeType = Shape.ShapeType.CIRCLE 
+        });
+        
+        // Create orbit configuration using Inspector-assigned machine configurations
+        testEventConfig.orbitConfig = new OrbitConfiguration
+        {
+            numberOfOrbitingObjects = 6,
+            orbitRadius = 3f,
+            angularSpeed = 1f,
+            angularSeparation = 60f,
+            resourcePrefabs = new List<GameObject>(),
+            machineInfos = new List<MachineInfo>()
+        };
+        
+        // Use Inspector-assigned machine configurations if available
+        if (machineConfigurations != null && machineConfigurations.Count > 0)
+        {
+            Debug.Log($"[GameManager] Using {machineConfigurations.Count} Inspector-assigned machine configurations");
+            
+            // Add machine configurations from Inspector at different angles
+            for (int i = 0; i < machineConfigurations.Count && i < 4; i++)
+            {
+                testEventConfig.orbitConfig.machineInfos.Add(new MachineInfo 
+                { 
+                    angleDegrees = i * 90f, // Spread machines at 90-degree intervals
+                    machineConfiguration = machineConfigurations[i]
+                });
+                Debug.Log($"[GameManager] Added machine: {machineConfigurations[i].name} at {i * 90f} degrees");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("[GameManager] No machine configurations assigned in Inspector! Please assign HueHopperRed and ShapeShifterCircle configurations.");
+        }
+            
+            Debug.Log("[GameManager] Created debug EventConfiguration in memory");
+        
+        // Create a simple test loop and day
+        var testLoop = new Loop();
+        testLoop.loopName = "Debug Loop";
+        
+        var testDay = new Day();
+        testDay.dayName = "Debug Day";
+        
+        var testEvent = new GenericEvent();
+        testEvent.eventConfiguration = testEventConfig;
+        
+        testDay.events.Add(testEvent);
+        testLoop.days.Add(testDay);
+        
+        // Set up the loop in the LoopManager
+        SetLoop(testLoop);
+        
+        Debug.Log("[GameManager] Debug events setup complete!");
+    }
+    
+    /// <summary>
+    /// Manual test method to force start gameplay with single debug event
+    /// </summary>
+    [ContextMenu("Force Start Debug Gameplay")]
+    public void ForceStartDebugGameplay()
+    {
+        Debug.Log("[GameManager] Force starting debug gameplay...");
+        
+        // Enable debug mode temporarily
+        bool wasDebugMode = debugMode;
+        debugMode = true;
+        
+        // IMPORTANT: Initialize managers FIRST before trying to use them
+        InitializeManagers();
+        
+        // Ensure scene is set up and managers are created
+        SetupScene();
+        
+        // Setup debug events for the complete flow (loop→day→level→sequence)
+        SetupDebugEvents();
+        
+        // Start with DayManager to process the debug event properly
+        SwitchManager("DayManager");
+        
+        // Restore debug mode setting
+        debugMode = wasDebugMode;
+        
+        Debug.Log("[GameManager] Debug gameplay started with complete flow!");
+    }
+    
+    #endregion
+    
+    #region Gameplay Positioning
+    
+    /// <summary>
+    /// Gets the center point for gameplay elements (assembly line, machines, etc.)
+    /// </summary>
+    public Transform GetGameplayCenter()
+    {
+        return gameplayCenter;
+    }
+    
+    /// <summary>
+    /// Gets the scale factor for gameplay elements
+    /// </summary>
+    public float GetGameplayScale()
+    {
+        return gameplayScale;
+    }
+    
+    #endregion
+    
     #region Manager Communication Helpers
     
     /// <summary>
@@ -344,10 +682,16 @@ public class GameManager : MonoBehaviour
     // Loop Management - Delegate to LoopManager
     public void SetLoop(Loop loop)
     {
+        Debug.Log($"[GameManager] SetLoop called with loop: {loop?.loopName}");
         var loopManager = GetManager<LoopManager>();
         if (loopManager != null)
         {
+            Debug.Log("[GameManager] LoopManager found, setting loop");
             loopManager.SetLoop(loop);
+        }
+        else
+        {
+            Debug.LogError("[GameManager] LoopManager not found! Cannot set loop.");
         }
     }
     
