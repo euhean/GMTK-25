@@ -197,12 +197,11 @@ public class NarrativeManager : MonoBehaviour
 
     private void Update()
     {
-        // When Space is pressed, advance to the next line if there's text to display
-        if (Input.GetKeyDown(KeyCode.Space) && animateText != null && textLines.Count > 0)
+        // When Space or left mouse button is pressed, advance to the next line if there's text to display
+        if ((Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) && animateText != null && textLines.Count > 0)
         {
             if (isTextComplete)
             {
-                
                 GameManager.Instance.AdvanceToNextEvent();
             }
             else

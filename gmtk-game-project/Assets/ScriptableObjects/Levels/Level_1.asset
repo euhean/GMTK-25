@@ -41,8 +41,6 @@ MonoBehaviour:
       shapeType: 2
     - colorType: 3
       shapeType: 2
-    - colorType: 3
-      shapeType: 2
   orbitConfig:
     resourcePrefabs:
     - {fileID: 538977329041564931, guid: cd6717e7acd87a447bc50e96b090f281, type: 3}

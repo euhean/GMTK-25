@@ -58,7 +58,7 @@ MonoBehaviour:
     resourcePrefabs:
     - {fileID: 538977329041564931, guid: cd6717e7acd87a447bc50e96b090f281, type: 3}
     numberOfOrbitingObjects: 4
-    orbitRadius: 5
+    orbitRadius: 4
     angularSpeed: 1
     angularSeparation: 90
     machineInfos:

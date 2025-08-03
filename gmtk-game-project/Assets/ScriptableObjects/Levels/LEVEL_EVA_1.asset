@@ -70,7 +70,7 @@ MonoBehaviour:
   orbitConfig:
     resourcePrefabs: []
     numberOfOrbitingObjects: 6
-    orbitRadius: 5
+    orbitRadius: 4
     angularSpeed: 1
     angularSeparation: 60
     machineInfos:
