@@ -627,8 +627,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   textMesh: {fileID: 608678929}
-  fadeSpeed: 18
-  characterSpread: 6
+  fadeSpeed: 20
+  characterSpread: 5
 --- !u!1 &791036697
 GameObject:
   m_ObjectHideFlags: 0
