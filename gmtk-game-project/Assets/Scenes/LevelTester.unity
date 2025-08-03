@@ -2896,6 +2896,31 @@ RectTransform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+<<<<<<< HEAD
+  - {fileID: 1154485301}
+  - {fileID: 499347297}
+  - {fileID: 188519778}
+  - {fileID: 707222840}
+  - {fileID: 395954799}
+  - {fileID: 1740520186}
+  - {fileID: 8665051}
+  - {fileID: 379467886}
+  - {fileID: 1228437514}
+  - {fileID: 1032938259}
+  - {fileID: 1335667774}
+  - {fileID: 171616376}
+  - {fileID: 1087799658}
+  - {fileID: 1458868583}
+  - {fileID: 1166240497}
+  - {fileID: 1277163064}
+  - {fileID: 1712727772}
+  - {fileID: 882352217}
+  - {fileID: 1978881165}
+  - {fileID: 747454266}
+  - {fileID: 72921004}
+  - {fileID: 720939568}
+  - {fileID: 589806040}
+=======
   - {fileID: 1454728560}
   - {fileID: 18653265}
   - {fileID: 1766650944}
@@ -2920,3 +2945,4 @@ SceneRoots:
   - {fileID: 469366060}
   - {fileID: 106554255}
   - {fileID: 1973694942}
+>>>>>>> Jon-dia-nuevo-vida-nueva

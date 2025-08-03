@@ -649,6 +649,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2141045406446171287, guid: f2643f8deeb2dd34198a997fd9d96ce5, type: 3}
+      propertyPath: m_Size.y
+      value: 13.879572
+      objectReference: {fileID: 0}
+    - target: {fileID: 2141045406446171287, guid: f2643f8deeb2dd34198a997fd9d96ce5, type: 3}
+      propertyPath: m_Center.y
+      value: -42.76905
+      objectReference: {fileID: 0}
     - target: {fileID: 3839981766213669584, guid: f2643f8deeb2dd34198a997fd9d96ce5, type: 3}
       propertyPath: m_LocalPosition.y
       value: -36.49
@@ -1001,8 +1009,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1942283551
+  m_SortingLayer: -2
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 0.016019935, g: 0.2264151, b: 0.18742639, a: 1}
@@ -2862,11 +2870,11 @@ PrefabInstance:
     - target: {fileID: 1794052602641212326, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
       propertyPath: currentLoop.days.Array.data[0].events.Array.data[0].eventConfiguration
       value: 
-      objectReference: {fileID: 11400000, guid: bbc9aeea770375f4597321d89f773a61, type: 2}
+      objectReference: {fileID: 11400000, guid: 81cd39d7d052cf647928fe2bf41191e3, type: 2}
     - target: {fileID: 1794052602641212326, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
       propertyPath: currentLoop.days.Array.data[0].events.Array.data[1].eventConfiguration
       value: 
-      objectReference: {fileID: 11400000, guid: 81cd39d7d052cf647928fe2bf41191e3, type: 2}
+      objectReference: {fileID: 11400000, guid: bbc9aeea770375f4597321d89f773a61, type: 2}
     - target: {fileID: 3531560230527322648, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
