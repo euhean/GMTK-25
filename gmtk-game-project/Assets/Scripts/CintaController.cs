@@ -2,26 +2,18 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// Controls the assembly line movement, resources orbiting, and machine placement
+/// Controls the assembly line movement and resource orbiting.
+/// Machine spawning is now handled by LevelManager using MachinePrefabGenerator.
+/// This class focuses purely on assembly line movement and resource management.
 /// </summary>
 public class CintaController : MonoBehaviour
 {
-    [System.Serializable]
-    public class MachineInfo
-    {
-        public GameObject machinePrefab;  // Prefab del objeto
-        public float angleDegrees;        // Ángulo donde se colocará
-    }
-
     [Header("Assembly Line Configuration")]
     public List<GameObject> resourcePrefabs = new List<GameObject>();
     public int numberOfOrbitingObjects = 6;
     public float orbitRadius = 5f;
     public float angularSpeed = 1f;
     public float angularSeparation = 60f;
-
-    [Header("Máquinas que se colocan en posiciones fijas")]
-    public List<MachineInfo> machineInfos = new List<MachineInfo>();
 
     // Assembly line state
     private List<GameObject> orbitingObjects = new List<GameObject>();
@@ -109,8 +101,7 @@ public class CintaController : MonoBehaviour
     private void InitializeAssemblyLine()
     {
         SpawnOrbitingResources();
-        SpawnMachines();
-        Debug.Log("[CintaController] Assembly line initialized");
+        Debug.Log("[CintaController] Assembly line initialized - machines handled by LevelManager");
     }
 
     private void SpawnOrbitingResources()
@@ -130,19 +121,7 @@ public class CintaController : MonoBehaviour
         }
     }
 
-    private void SpawnMachines()
-    {
-        foreach (var machineInfo in machineInfos)
-        {
-            if (machineInfo.machinePrefab != null)
-            {
-                float angleRad = machineInfo.angleDegrees * Mathf.Deg2Rad;
-                GameObject machine = Instantiate(machineInfo.machinePrefab);
-                machine.transform.position = GetOrbitPosition(angleRad, orbitRadius, transform.position.y);
-                AlignCollider(machine);
-            }
-        }
-    }
+    // NOTE: SpawnMachines removed - now handled by LevelManager using MachinePrefabGenerator
 
     private void UpdateOrbitingObjects()
     {

@@ -12,9 +12,14 @@ public class LevelManager : BaseManager
     [Header("Assembly Line Integration")]
     public CintaController cintaController;
     public SequenceManager sequenceManager;
+    public AssemblyLineSpawner assemblyLineSpawner;
     
     [Header("Narrative Integration")]
     public NarrativeManager narrativeManager;
+    
+    [Header("Resource Management - Moved from GameManager")]
+    [SerializeField] private List<GameManager.Demand> itemsInLine = new List<GameManager.Demand>();
+    [SerializeField] private List<GameManager.Demand> demandToComplete = new List<GameManager.Demand>();
     
     [Header("UI Elements")]
     public Button deliveryButton;
@@ -70,6 +75,8 @@ public class LevelManager : BaseManager
             sequenceManager = FindFirstObjectByType<SequenceManager>();
         if (narrativeManager == null)
             narrativeManager = FindFirstObjectByType<NarrativeManager>();
+        if (assemblyLineSpawner == null)
+            assemblyLineSpawner = FindFirstObjectByType<AssemblyLineSpawner>();
         
         // Initialize UI
         deliveryPanel?.SetActive(false);
@@ -81,14 +88,14 @@ public class LevelManager : BaseManager
             sequenceManager.OnSequenceCompleted += OnSequenceReadyForDelivery;
         }
         
-        // Configure SequenceManager with current event demands
+        // Configure SequenceManager with current event - delegated to SequenceManager
         ConfigureSequenceManagerFromGameManager();
         
         isGameplayActive = false;
     }
     
     /// <summary>
-    /// Processes the current event from GameManager instead of separate event list
+    /// Processes the current event from GameManager using existing EventConfiguration system
     /// </summary>
     private void ProcessCurrentGameManagerEvent()
     {
@@ -105,44 +112,45 @@ public class LevelManager : BaseManager
             return;
         }
         
-        Debug.Log($"[LevelManager] Processing GameManager event: {currentEvent.GetEventName()}");
+        var eventConfig = currentEvent.GetEventConfiguration();
+        if (eventConfig == null)
+        {
+            Debug.LogWarning("[LevelManager] Current event has no EventConfiguration");
+            return;
+        }
         
-        switch (currentEvent.GetEventType())
+        Debug.Log($"[LevelManager] Processing EventConfiguration: {eventConfig.eventName}");
+        
+        switch (eventConfig.eventType)
         {
             case GameManager.EventType.Narrative:
-                ProcessNarrativeEvent(currentEvent);
+                ProcessNarrativeEvent(eventConfig);
                 break;
             case GameManager.EventType.Gameplay:
-                ProcessGameplayEvent(currentEvent);
+                ProcessGameplayEvent(eventConfig);
                 break;
             case GameManager.EventType.Dialog:
-                ProcessDialogEvent(currentEvent);
+                ProcessDialogEvent(eventConfig);
                 break;
         }
     }
     
-    private void ProcessNarrativeEvent(GameManager.GenericEvent narrativeEvent)
+    private void ProcessNarrativeEvent(EventConfiguration eventConfig)
     {
-        Debug.Log($"[LevelManager] Narrative: {narrativeEvent.GetDescription()}");
+        Debug.Log($"[LevelManager] Narrative: {eventConfig.description}");
         
-        // Trigger narrative system
+        // Delegate to existing NarrativeManager
         if (narrativeManager != null)
         {
-            // Configure narrative manager with event data
-            var eventConfig = narrativeEvent.GetEventConfiguration();
-            if (eventConfig != null)
-            {
-                // Update narrative manager with current day and story parameters
-                // For now, using hardcoded values - these should come from EventConfiguration
-                narrativeManager.UpdateData(narrativeManager.csvFile, GameManager.Instance.currentDay, true, true);
-                narrativeManager.StartText();
-                Debug.Log("[LevelManager] Narrative display started");
-            }
-            else
-            {
-                Debug.LogWarning("[LevelManager] No EventConfiguration found for narrative event");
-                CompleteCurrentEvent();
-            }
+            // Use GameManager's narrative configuration as before
+            narrativeManager.UpdateData(
+                GameManager.Instance.GetNarrativeCsv(), 
+                GameManager.Instance.currentDay, 
+                GameManager.Instance.GetNarrativeStartEnd(), 
+                GameManager.Instance.GetNarrativeQuotaBool()
+            );
+            narrativeManager.StartText();
+            Debug.Log("[LevelManager] Narrative display started");
         }
         else
         {
@@ -151,25 +159,33 @@ public class LevelManager : BaseManager
         }
     }
     
-    private void ProcessGameplayEvent(GameManager.GenericEvent gameplayEvent)
+    private void ProcessGameplayEvent(EventConfiguration eventConfig)
     {
-        Debug.Log($"[LevelManager] Starting gameplay: {gameplayEvent.GetDescription()}");
+        Debug.Log($"[LevelManager] Starting gameplay: {eventConfig.description}");
         
         // Configure gameplay parameters (default 2 minutes)
         levelTimeLimit = 120f; // Could be extended to read from EventConfiguration
         timer = levelTimeLimit;
         timeUp = false;
         
-        // Start the assembly line round
-        StartAssemblyLineRound();
+        // Start the assembly line round with EventConfiguration
+        StartAssemblyLineRound(eventConfig);
     }
     
-    private void ProcessDialogEvent(GameManager.GenericEvent dialogEvent)
+    private void ProcessDialogEvent(EventConfiguration eventConfig)
     {
-        Debug.Log($"[LevelManager] Dialog: {dialogEvent.GetDescription()}");
-        // Trigger dialog system here
-        // For now, auto-advance to next event
+        Debug.Log($"[LevelManager] Dialog: {eventConfig.description}");
+        // TODO: Trigger dialog system here when implemented
         CompleteCurrentEvent();
+    }
+    
+    /// <summary>
+    /// Public method for EventConfiguration-based gameplay events
+    /// Called by other systems that need to start gameplay with specific configs
+    /// </summary>
+    public void StartGameplayEvent(EventConfiguration eventConfig)
+    {
+        ProcessGameplayEvent(eventConfig);
     }
     
     /// <summary>
@@ -192,9 +208,19 @@ public class LevelManager : BaseManager
     
     #region Assembly Line Control
     
-    private void StartAssemblyLineRound()
+    private void StartAssemblyLineRound(EventConfiguration eventConfig)
     {
         isGameplayActive = true;
+        
+        // Delegate spawning to AssemblyLineSpawner
+        if (assemblyLineSpawner != null && cintaController != null)
+        {
+            assemblyLineSpawner.SpawnEventObjects(eventConfig, cintaController.transform);
+        }
+        else
+        {
+            Debug.LogWarning("[LevelManager] AssemblyLineSpawner or CintaController not found");
+        }
         
         // Initialize assembly line
         cintaController?.SpawnNewResourceLayout();
@@ -204,7 +230,7 @@ public class LevelManager : BaseManager
         // Prepare sequence manager for new round
         sequenceManager?.PrepareForNextSequence();
         
-        Debug.Log("[LevelManager] Assembly line round started");
+        Debug.Log("[LevelManager] Assembly line round started with EventConfiguration spawning");
     }
     
     private void OnSequenceReadyForDelivery(int sequenceNumber)
@@ -296,6 +322,7 @@ public class LevelManager : BaseManager
     
     /// <summary>
     /// Configures the SequenceManager with demands from the current GameManager event
+    /// Now delegates to SequenceManager's EventConfiguration-based method
     /// </summary>
     private void ConfigureSequenceManagerFromGameManager()
     {
@@ -318,59 +345,17 @@ public class LevelManager : BaseManager
             return;
         }
         
-        var demands = currentEvent.GetDemands();
-        if (demands == null || demands.Count == 0)
+        var eventConfig = currentEvent.GetEventConfiguration();
+        if (eventConfig == null)
         {
-            Debug.LogWarning("[LevelManager] No demands found in current event");
+            Debug.LogWarning("[LevelManager] No EventConfiguration found in current event");
             return;
         }
         
-        // Convert GameManager demands to SequenceManager sequences
-        sequenceManager.demands.sequences.Clear();
+        // Delegate to SequenceManager's EventConfiguration-based method
+        sequenceManager.ConfigureFromEventConfiguration(eventConfig);
         
-        // For now, create one sequence with all demands
-        // TODO: Later you can split into multiple sequences if needed
-        var sequence = new SequenceManager.Sequence();
-        
-        foreach (var demand in demands)
-        {
-            // Create a template Resource that represents the required combination
-            var templateResource = CreateTemplateResource(demand);
-            if (templateResource != null)
-            {
-                sequence.resources.Add(templateResource);
-            }
-        }
-        
-        sequenceManager.demands.sequences.Add(sequence);
-        
-        Debug.Log($"[LevelManager] Configured SequenceManager with {demands.Count} demands in 1 sequence");
-    }
-    
-    /// <summary>
-    /// Creates a template Resource object from a GameManager Demand
-    /// </summary>
-    private Resource CreateTemplateResource(GameManager.Demand demand)
-    {
-        // Create a temporary GameObject with Resource component
-        GameObject templateObj = new GameObject("TemplateResource");
-        templateObj.SetActive(false); // Keep it invisible
-        
-        var resource = templateObj.AddComponent<Resource>();
-        
-        // Add SpriteRenderer for the Resource component
-        var spriteRenderer = templateObj.AddComponent<SpriteRenderer>();
-        resource.spriteRenderer = spriteRenderer;
-        
-        // Convert Demand to Resource properties
-        resource.currentShapeType = demand.shapeType;
-        resource.currentColorType = demand.colorType;
-        
-        // Don't destroy this template - SequenceManager will need it for comparison
-        // It will be cleaned up when the level ends
-        DontDestroyOnLoad(templateObj);
-        
-        return resource;
+        Debug.Log($"[LevelManager] Delegated SequenceManager configuration to EventConfiguration system");
     }
     
     #endregion
@@ -388,36 +373,9 @@ public class LevelManager : BaseManager
         // Stop assembly line
         cintaController?.StopAssemblyLine();
         
-        // Clean up template resources created for SequenceManager
-        CleanupTemplateResources();
+        // SequenceManager now handles its own cleanup
         
         isGameplayActive = false;
-    }
-    
-    /// <summary>
-    /// Cleans up template Resource objects created for sequence validation
-    /// </summary>
-    private void CleanupTemplateResources()
-    {
-        if (sequenceManager?.demands?.sequences != null)
-        {
-            foreach (var sequence in sequenceManager.demands.sequences)
-            {
-                foreach (var resource in sequence.resources)
-                {
-                    if (resource != null && resource.gameObject != null)
-                    {
-                        if (resource.gameObject.name == "TemplateResource")
-                        {
-                            DestroyImmediate(resource.gameObject);
-                        }
-                    }
-                }
-            }
-            
-            // Clear the sequences after cleanup
-            sequenceManager.demands.sequences.Clear();
-        }
     }
     
     #endregion
@@ -552,6 +510,87 @@ public class LevelManager : BaseManager
         {
             Debug.Log("✅ This is a gameplay event - perfect for testing sequence flow!");
         }
+    }
+    
+    #endregion
+    
+    #region Resource Management (Moved from GameManager)
+    
+    public List<GameManager.Demand> getCurrentDemands()
+    {
+        var currentEvent = GetCurrentEvent();
+        if (currentEvent != null)
+        {
+            return currentEvent.GetDemands();
+        }
+        return new List<GameManager.Demand>();
+    }
+
+    public bool isDemandCompleted()
+    {
+        var currentEvent = GetCurrentEvent();
+        if (currentEvent == null) return false;
+        
+        List<GameManager.Demand> eventDemands = new List<GameManager.Demand>(currentEvent.GetDemands());
+        List<GameManager.Demand> lineDemands = new List<GameManager.Demand>(GetItemsInLine());
+        
+        // Check if all event demands are in the line
+        foreach (GameManager.Demand eventDemand in eventDemands)
+        {
+            bool found = false;
+            for (int i = 0; i < lineDemands.Count; i++)
+            {
+                if (lineDemands[i].colorType == eventDemand.colorType && 
+                    lineDemands[i].shapeType == eventDemand.shapeType)
+                {
+                    lineDemands.RemoveAt(i);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) return false;
+        }
+        
+        return true;
+    }
+    
+    public void AddResourceToLine(Resource resource)
+    {
+        if (resource == null) return;
+        
+        var demand = new GameManager.Demand
+        {
+            colorType = resource.currentColorType,
+            shapeType = resource.currentShapeType
+        };
+        
+        itemsInLine.Add(demand);
+    }
+    
+    public void UpdateResourceInLine(Resource resource, int index)
+    {
+        if (resource == null || index < 0 || index >= itemsInLine.Count) return;
+        
+        itemsInLine[index].colorType = resource.currentColorType;
+        itemsInLine[index].shapeType = resource.currentShapeType;
+    }
+    
+    public void RemoveResourceFromLine(int index)
+    {
+        if (index >= 0 && index < itemsInLine.Count)
+        {
+            itemsInLine.RemoveAt(index);
+        }
+    }
+    
+    public List<GameManager.Demand> GetItemsInLine()
+    {
+        return new List<GameManager.Demand>(itemsInLine);
+    }
+    
+    private GameManager.GenericEvent GetCurrentEvent()
+    {
+        return GameManager.Instance.GetCurrentEvent();
     }
     
     #endregion

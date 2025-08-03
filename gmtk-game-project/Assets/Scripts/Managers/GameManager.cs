@@ -7,13 +7,12 @@ using UnityEngine.SceneManagement;
 /// <summary>
 /// GameManager principal que controla el estado del juego y gestiona todos los managers.
 /// Implementa el patrón Singleton para acceso global.
-/// Contiene toda la configuración de loops, días, eventos y la lógica de instanciación.
+/// Coordina managers especializados y maneja transiciones de escena.
+/// Delegación de responsabilidades: spawning → LevelManager, loops → LoopManager, etc.
 /// </summary>
 public class GameManager : MonoBehaviour
 {
     [Header("Game State")]
-    public int currentDay = 0;
-
     [SerializeField] private bool debugMode = false;
     [SerializeField] private bool isGameActive = true;
     
@@ -23,21 +22,9 @@ public class GameManager : MonoBehaviour
     [Header("Debug Info")]
     [SerializeField] private string currentActiveManager = "None";
     
-    [Header("Loop Configuration")]
-    [SerializeField] private Loop currentLoop = new Loop();
-    [SerializeField] private int currentDayIndex = 0;
-    [SerializeField] private GenericEvent currentEvent;
-    [SerializeField] private int currentEventIndex = 0;
+    [Header("Global Configuration")]
     [SerializeField] private bool autoSaveOnStart = true;
     [SerializeField] private FadeManager fadeManager;
-
-    [Header("Narrative Configuration")]
-    [SerializeField] private TextAsset narrativeCsv;
-    [SerializeField] private bool narrativeStartEnd = true;
-    [SerializeField] private bool narrativeQuotaBool = true;
-
-    [SerializeField] private List<Demand> itemsInLine = new List<Demand>();
-    [SerializeField] private List<Demand> demandToComplete = new List<Demand>();
 
     // Manager orchestration variables  
     private BaseManager activeManager;
@@ -96,6 +83,14 @@ public class GameManager : MonoBehaviour
     public class GenericEvent{
         [Header("Event Configuration (Required)")]
         [SerializeField] public EventConfiguration eventConfiguration;
+        
+        /// <summary>
+        /// Obtiene la configuración del evento
+        /// </summary>
+        public EventConfiguration GetEventConfiguration()
+        {
+            return eventConfiguration;
+        }
         
         /// <summary>
         /// Obtiene el nombre del evento
@@ -191,15 +186,23 @@ public class GameManager : MonoBehaviour
         // Initialize manager system
         InitializeManagers();
         
+        // Auto-save if enabled
+        if (autoSaveOnStart)
+        {
+            Debug.Log("[GameManager] Auto-save on start enabled - saving current state");
+            // TODO: Implement actual save functionality when save system is ready
+        }
+        
         if(debugMode){
-            runEvent();
+            // In debug mode, start with DayManager to run events
+            SwitchManager("DayManager");
         }
     }
     
     private void Update()
     {
-        // Update active manager
-        if (activeManager != null)
+        // Update active manager only if game is active
+        if (isGameActive && activeManager != null)
         {
             activeManager.UpdateManager();
         }
@@ -213,7 +216,7 @@ public class GameManager : MonoBehaviour
     private void InitializeManagers()
     {
         // Find all managers in the scene that inherit from BaseManager
-        BaseManager[] allManagers = FindObjectsOfType<BaseManager>();
+        BaseManager[] allManagers = FindObjectsByType<BaseManager>(FindObjectsSortMode.None);
         
         managersDict.Clear();
         foreach (BaseManager manager in allManagers)
@@ -246,6 +249,7 @@ public class GameManager : MonoBehaviour
         if (managersDict.ContainsKey(managerName))
         {
             activeManager = managersDict[managerName];
+            currentActiveManager = managerName; // Update debug info
             Debug.Log($"[GameManager] Starting manager: {managerName}");
             activeManager.StartManager();
         }
@@ -253,6 +257,7 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogWarning($"[GameManager] Manager '{managerName}' not found!");
             activeManager = null;
+            currentActiveManager = "None";
         }
     }
     
@@ -282,182 +287,88 @@ public class GameManager : MonoBehaviour
     
     #endregion
     
-    // LOOP MANAGEMENT METHODS
+    #region Manager Communication Helpers
+    
+    /// <summary>
+    /// Helper methods for managers to communicate with each other
+    /// These delegate to the appropriate active managers
+    /// </summary>
+    
+    // Loop Management - Delegate to LoopManager
     public void SetLoop(Loop loop)
     {
-        currentLoop = loop;
-        currentDayIndex = 0;
-        currentEventIndex = 0;
-        currentDay = 0;
-        
+        var loopManager = GetManager<LoopManager>();
+        if (loopManager != null)
+        {
+            loopManager.SetLoop(loop);
+        }
     }
     
     public Loop GetCurrentLoop()
     {
-        return currentLoop;
+        var loopManager = GetManager<LoopManager>();
+        return loopManager?.GetCurrentLoop();
     }
     
+    // Day Management - Delegate to DayManager  
     public Day GetCurrentDay()
     {
-        if (currentLoop != null && currentLoop.days.Count > 0 && currentDayIndex < currentLoop.days.Count)
-            return currentLoop.days[currentDayIndex];
-        return null;
+        var dayManager = GetManager<DayManager>();
+        return dayManager?.GetCurrentEvent()?.GetEventConfiguration() != null ? 
+               GetManager<LoopManager>()?.GetCurrentDay() : null;
     }
     
+    // Event Management - Delegate to DayManager
     public GenericEvent GetCurrentEvent()
     {
-        var currentDay = GetCurrentDay();
-        if (currentDay != null && currentDay.events.Count > 0 && currentEventIndex < currentDay.events.Count)
-            return currentDay.events[currentEventIndex];
-        return null;
+        var dayManager = GetManager<DayManager>();
+        return dayManager?.GetCurrentEvent();
     }
     
     public void AdvanceToNextEvent()
     {
-        var currentDay = GetCurrentDay();
-        if (currentDay == null) return;
-        
-        currentEventIndex++;
-        
-        // Si hemos completado todos los eventos del día actual
-        if (currentEventIndex >= currentDay.events.Count)
-        {
-            AdvanceToNextDay();
-        }
-        else {
-            runEvent();
-        }
+        var dayManager = GetManager<DayManager>();
+        dayManager?.AdvanceToNextEvent();
     }
     
-    public void StartDay()
-    {
-        var currentDay = GetCurrentDay();
-        if (currentDay == null) return;
-
-    
-        // Si hemos completado todos los eventos del día actual
-        if (currentEventIndex >= currentDay.events.Count)
-        {
-            AdvanceToNextDay();
-        }
-        else {
-            runEvent();
-        }
-    }
-    
-    
-    public void runEvent()
-    {
-        var currentEvent = GetCurrentEvent();
-        if (currentEvent == null) return;
-        demandToComplete = currentEvent.GetDemands();
-        
-        if(currentEvent.GetEventType() == EventType.Narrative)
-        {
-            goToNarrativeScene();
-        }
-        else if(currentEvent.GetEventType() == EventType.Gameplay)
-        {
-            goToLevelScene();
-        }
-        
-    }
-
-    public void AdvanceToNextDay()
-    {
-        if (currentLoop == null) return;
-        
-        currentEventIndex = 0;
-        currentDayIndex++;
-        currentDay++;
-        
-        // Si hemos completado todos los días del loop
-        if (currentDayIndex >= GetCurrentLoop().days.Count)
-        {
-            // TODO: Aquí deberías ir al siguiente loop si existe
-            // Por ahora va al menú
-            goToMenuScene();
-        }
-        else
-        {
-            // Ir al siguiente día
-            goToDayScene();
-        }
-    }
-    
-    // Nuevo método para manejar la navegación desde eventos
-    public void AdvanceFromEvent()
-    {
-        var currentDay = GetCurrentDay();
-        if (currentDay == null) return;
-        
-        currentEventIndex++;
-        
-        // Si hay más eventos en el día actual
-        if (currentEventIndex < currentDay.events.Count)
-        {
-            runEvent(); // Ir al siguiente evento
-        }
-        else
-        {
-            // No hay más eventos, ir al siguiente día
-            AdvanceToNextDay();
-        }
-    }
-    
-    public void RestartLoop()
-    {
-        currentEventIndex = 0;
-        currentDayIndex = 0;
-        currentDay = 0;
-        
-        
-    }
-
-
-
-    public void startDemand(){
-       //  demandToComplete = currentEvent.GetDemands();
-
-    }
-
+    // Resource Management - Delegate to LevelManager
     public List<Demand> getCurrentDemands()
     {
-        GenericEvent currentEvent = GetCurrentEvent();
-        if (currentEvent != null)
-        {
-            return currentEvent.GetDemands();
-        }
-        return new List<Demand>();
+        var levelManager = GetManager<LevelManager>();
+        return levelManager?.getCurrentDemands() ?? new List<Demand>();
     }
 
     public bool isDemandCompleted()
     {
-        GenericEvent currentEvent = GetCurrentEvent();
-        if (currentEvent == null) return false;
-        
-        List<Demand> eventDemands = new List<Demand>(currentEvent.GetDemands());
-        List<Demand> lineDemands = new List<Demand>(GetItemsInLine());
-        
-        // Verificar si todas las demandas del evento están en la línea
-        foreach (Demand eventDemand in eventDemands)
-        {
-            bool found = false;
-            for (int i = 0; i < lineDemands.Count; i++)
-            {
-                if (lineDemands[i].colorType == eventDemand.colorType && 
-                    lineDemands[i].shapeType == eventDemand.shapeType)
-                {
-                    lineDemands.RemoveAt(i);
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) return false;
-        }
-        
-        return true;
+        var levelManager = GetManager<LevelManager>();
+        return levelManager?.isDemandCompleted() ?? false;
     }
+    
+    public void AddResourceToLine(Resource resource)
+    {
+        var levelManager = GetManager<LevelManager>();
+        levelManager?.AddResourceToLine(resource);
+    }
+    
+    public void UpdateResourceInLine(Resource resource, int index)
+    {
+        var levelManager = GetManager<LevelManager>();
+        levelManager?.UpdateResourceInLine(resource, index);
+    }
+    
+    public void RemoveResourceFromLine(int index)
+    {
+        var levelManager = GetManager<LevelManager>();
+        levelManager?.RemoveResourceFromLine(index);
+    }
+    
+    public List<Demand> GetItemsInLine()
+    {
+        var levelManager = GetManager<LevelManager>();
+        return levelManager?.GetItemsInLine() ?? new List<Demand>();
+    }
+    
+    #endregion
     
     // SCENE MANAGEMENT
     public void goToMenuScene() 
@@ -558,119 +469,18 @@ public class GameManager : MonoBehaviour
         }
     }
     
-    // ITEMS IN LINE MANAGEMENT
-    public void AddResourceToLine(Resource resource)
-    {
-        if (resource == null) return;
-        
-        var demand = new Demand
-        {
-            colorType = resource.currentColorType,
-            shapeType = resource.currentShapeType
-        };
-        
-        itemsInLine.Add(demand);
-        
-    }
-    
-    public void UpdateResourceInLine(Resource resource, int index)
-    {
-        if (resource == null || index < 0 || index >= itemsInLine.Count) return;
-        
-        itemsInLine[index].colorType = resource.currentColorType;
-        itemsInLine[index].shapeType = resource.currentShapeType;
-        
-    }
-    
-    public void RemoveResourceFromLine(int index)
-    {
-        if (index >= 0 && index < itemsInLine.Count)
-        {
-            itemsInLine.RemoveAt(index);
-            
-        }
-    }
-    
-    public List<Demand> GetItemsInLine()
-    {
-        return new List<Demand>(itemsInLine);
-    }
-    
-    // ORBIT AND MACHINE INSTANTIATION METHODS
+    // ORBIT AND MACHINE INSTANTIATION METHODS - Delegated to LevelManager
     public void InstantiateCurrentEventObjects(Transform centerTransform)
     {
-        var currentEvent = GetCurrentEvent();
-        if (currentEvent == null || currentEvent.GetEventType() != EventType.Gameplay)
+        var levelManager = GetManager<LevelManager>();
+        if (levelManager != null)
         {
-            Debug.LogWarning("No hay evento actual de gameplay para instanciar objetos");
-            return;
+            levelManager.InstantiateCurrentEventObjects(centerTransform);
         }
-        
-        var orbitConfig = currentEvent.GetOrbitConfig();
-        InstantiateOrbitingObjects(orbitConfig, centerTransform);
-        InstantiateMachines(orbitConfig, centerTransform);
-    }
-    
-    private void InstantiateOrbitingObjects(OrbitConfiguration config, Transform centerTransform)
-    {
-        for (int i = 0; i < config.numberOfOrbitingObjects; i++)
+        else
         {
-            float angle = i * config.angularSeparation * Mathf.Deg2Rad;
-            if (config.resourcePrefabs.Count == 0) break;
-            
-            GameObject prefabToUse = config.resourcePrefabs[i % config.resourcePrefabs.Count];
-            GameObject obj = Instantiate(prefabToUse);
-            
-            Vector3 position = GetOrbitPosition(angle, config.orbitRadius, centerTransform.position);
-            obj.transform.position = position;
-            AlignCollider(obj);
-            
-            // Configurar el componente OrbitingObject si existe
-            var orbitingComponent = obj.GetComponent<OrbitingObject>();
-            if (orbitingComponent == null)
-            {
-                orbitingComponent = obj.AddComponent<OrbitingObject>();
-            }
-            
-            orbitingComponent.Initialize(centerTransform, angle, config.orbitRadius, config.angularSpeed);
+            Debug.LogWarning("[GameManager] LevelManager not found - cannot instantiate event objects");
         }
-    }
-    
-    private void InstantiateMachines(OrbitConfiguration config, Transform centerTransform)
-    {
-        foreach (var machineInfo in config.machineInfos)
-        {
-            if (machineInfo.machineConfiguration != null)
-            {
-                float angleRad = machineInfo.angleDegrees * Mathf.Deg2Rad;
-                Vector3 position = GetOrbitPosition(angleRad, config.orbitRadius, centerTransform.position);
-                
-                GameObject machine = MachinePrefabGenerator.GenerateMachine(
-                    machineInfo.machineConfiguration,
-                    position,
-                    Quaternion.identity
-                );
-                
-                if (machine != null)
-                {
-                    AlignCollider(machine);
-                }
-            }
-        }
-    }
-    
-    private Vector3 GetOrbitPosition(float angleRad, float radius, Vector3 center)
-    {
-        float x = center.x + Mathf.Cos(angleRad) * radius;
-        float z = center.z + Mathf.Sin(angleRad) * radius;
-        return new Vector3(x, center.y, z);
-    }
-    
-    private void AlignCollider(GameObject obj)
-    {
-        var collider = obj.GetComponent<Collider>();
-        if (collider != null)
-            collider.transform.position = obj.transform.position;
     }
     
     // Método para obtener la configuración orbital del evento actual
@@ -679,10 +489,4 @@ public class GameManager : MonoBehaviour
         GenericEvent currentEvent = GetCurrentEvent();
         return currentEvent?.GetOrbitConfig();
     }
-    
-    // Narrative Getters
-    public TextAsset GetNarrativeCsv() => narrativeCsv;
-    public bool GetNarrativeStartEnd() => narrativeStartEnd;
-    public bool GetNarrativeQuotaBool() => narrativeQuotaBool;
-    
 }

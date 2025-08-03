@@ -84,10 +84,10 @@ public static class MachinePrefabGenerator
         // Agregar el componente apropiado
         switch (config.machineType)
         {
-            case MachineConfiguration.MachineType.Shapeshifter:
+            case MachineType.Shapeshifter:
                 machineComponent = machineInstance.AddComponent<Shapeshifter>();
                 break;
-            case MachineConfiguration.MachineType.Huehopper:
+            case MachineType.Huehopper:
                 machineComponent = machineInstance.AddComponent<Huehopper>();
                 break;
         }
@@ -95,10 +95,9 @@ public static class MachinePrefabGenerator
         // Configurar el componente
         if (machineComponent != null)
         {
-            // Crear ScriptableObject temporal basado en la configuración
-            CreateMachineData(machineComponent, config);
-            machineComponent.purpose = config.purpose;
-            machineComponent.isOn = true;
+            // Assign the configuration directly to the machine
+            machineComponent.Configuration = config;
+            machineComponent.IsOn = true;
         }
     }
     
@@ -166,7 +165,7 @@ public static class MachinePrefabGenerator
     {
         switch (config.machineType)
         {
-            case MachineConfiguration.MachineType.Shapeshifter:
+            case MachineType.Shapeshifter:
                 Shape shapeData = ScriptableObject.CreateInstance<Shape>();
                 shapeData.shapeType = GetShapeTypeFromPurpose(config.purpose);
                 // Asignar el sprite específico según el propósito
@@ -182,13 +181,13 @@ public static class MachinePrefabGenerator
                         shapeData.circleSprite = config.targetSprite;
                         break;
                 }
-                machineComponent.machineData = shapeData;
+                // Note: machineData property doesn't exist, configuration is set via Configuration property
                 break;
                 
-            case MachineConfiguration.MachineType.Huehopper:
+            case MachineType.Huehopper:
                 ResourceColor colorData = ScriptableObject.CreateInstance<ResourceColor>();
                 colorData.colorType = GetColorTypeFromPurpose(config.purpose);
-                machineComponent.machineData = colorData;
+                // Note: machineData property doesn't exist, configuration is set via Configuration property
                 break;
         }
     }
@@ -465,7 +464,7 @@ public static class MachinePrefabGenerator
         }
         
         // Para Shapeshifter, usar el targetSprite directamente
-        if (config.machineType == MachineConfiguration.MachineType.Shapeshifter && config.targetSprite != null)
+        if (config.machineType == MachineType.Shapeshifter && config.targetSprite != null)
         {
             iconRenderer.sprite = config.targetSprite;
         }

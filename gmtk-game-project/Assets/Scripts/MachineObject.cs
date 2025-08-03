@@ -23,6 +23,15 @@ public abstract class MachineObject : MonoBehaviour
 
     public abstract void Interact(Resource resource);
 
+    /// <summary>
+    /// Toggles the machine on/off state
+    /// </summary>
+    public virtual void ToggleMachine()
+    {
+        IsOn = !IsOn;
+        Debug.Log($"[{GetType().Name}] Machine toggled: {(IsOn ? "ON" : "OFF")}");
+    }
+
     // Collision logic
     void OnTriggerEnter(Collider other)
     {

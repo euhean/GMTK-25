@@ -3,7 +3,7 @@ using System.IO;
 using UnityEngine;
 using BitWave_Labs.AnimatedTextReveal;
 
-public class NarrativeManager : MonoBehaviour
+public class NarrativeManager : BaseManager
 {
     [SerializeField] private AnimateText animateText;
     [SerializeField] private TextAsset csvFile;
@@ -199,4 +199,30 @@ public class NarrativeManager : MonoBehaviour
             Debug.LogError("AnimateText reference is missing or no text lines available!");
         }
     }
+    
+    #region BaseManager Implementation
+    
+    protected override void OnManagerStart()
+    {
+        Debug.Log($"[{ManagerID}] Narrative Manager started");
+        
+        // Auto-initialize from GameManager if not manually configured
+        if (csvFile == null || dayIndex <= 0)
+        {
+            InitializeFromGameManager();
+        }
+    }
+    
+    protected override void OnManagerEnd()
+    {
+        Debug.Log($"[{ManagerID}] Narrative Manager ended");
+    }
+    
+    protected override void OnManagerUpdate()
+    {
+        // Narrative manager update logic
+        // Could handle input for advancing text, etc.
+    }
+    
+    #endregion
 }

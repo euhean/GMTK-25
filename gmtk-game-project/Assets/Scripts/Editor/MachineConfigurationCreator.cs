@@ -21,7 +21,7 @@ public class MachineConfigurationCreator
         
         // Crear configuración de ejemplo para Shapeshifter
         MachineConfiguration config = ScriptableObject.CreateInstance<MachineConfiguration>();
-        config.machineType = MachineConfiguration.MachineType.Shapeshifter;
+        config.machineType = MachineType.Shapeshifter;
         config.purpose = MachinePurpose.TRIANGLE; // Ejemplo: convierte a círculo
         config.iconColor = Color.blue;
         config.scale = Vector3.one;
@@ -53,7 +53,7 @@ public class MachineConfigurationCreator
         
         // Crear configuración de ejemplo para Huehopper
         MachineConfiguration config = ScriptableObject.CreateInstance<MachineConfiguration>();
-        config.machineType = MachineConfiguration.MachineType.Huehopper;
+        config.machineType = MachineType.Huehopper;
         config.purpose = MachinePurpose.RED; // Ejemplo: convierte a rojo
         config.iconColor = Color.red;
         config.scale = Vector3.one;
@@ -103,7 +103,7 @@ public class MachineConfigurationCreator
     private static void CreateShapeConfiguration(string folderPath, MachinePurpose purpose, string shapeName)
     {
         MachineConfiguration config = ScriptableObject.CreateInstance<MachineConfiguration>();
-        config.machineType = MachineConfiguration.MachineType.Shapeshifter;
+        config.machineType = MachineType.Shapeshifter;
         config.purpose = purpose;
         config.iconColor = Color.blue;
         config.scale = Vector3.one;
@@ -116,7 +116,7 @@ public class MachineConfigurationCreator
     private static void CreateColorConfiguration(string folderPath, MachinePurpose purpose, string colorName, Color iconColor)
     {
         MachineConfiguration config = ScriptableObject.CreateInstance<MachineConfiguration>();
-        config.machineType = MachineConfiguration.MachineType.Huehopper;
+        config.machineType = MachineType.Huehopper;
         config.purpose = purpose;
         config.iconColor = iconColor;
         config.scale = Vector3.one;
