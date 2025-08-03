@@ -166,10 +166,25 @@ public class GameManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            
+            // Ensure AudioManager exists
+            InitializeAudioManager();
         }
         else
         {
             Destroy(gameObject);
+        }
+    }
+    
+    private void InitializeAudioManager()
+    {
+        // Check if AudioManager already exists
+        if (AudioManager.Instance == null)
+        {
+            // Create AudioManager if it doesn't exist
+            GameObject audioManagerObj = new GameObject("AudioManager");
+            audioManagerObj.AddComponent<AudioManager>();
+            DontDestroyOnLoad(audioManagerObj);
         }
     }
     
@@ -289,6 +304,12 @@ public class GameManager : MonoBehaviour
             {
                 Debug.LogError("No se encontró DeskManager en la escena para el evento de gameplay");
             }
+        // Si no estamos en la escena LEVEL, cargarla primero independientemente del tipo de evento
+        else if (SceneManager.GetActiveScene().buildIndex != (int)Scenes.LEVEL)
+        {
+            // Registrar el evento para que se ejecute después de cargar la escena
+            SceneManager.sceneLoaded += OnLevelSceneLoaded;
+            goToLevelScene();
         }
         else
         {
@@ -339,6 +360,19 @@ public class GameManager : MonoBehaviour
             else
             {
                 Debug.LogError("No se encontró DeskManager en la escena para el evento de diálogo");
+            }
+        }
+        else if (currentEvent.GetEventType() == EventType.Gameplay)
+        {
+            // Buscar una instancia del DeskManager en la escena ahora que estamos en LEVEL
+            DeskManager deskManager = FindFirstObjectByType<DeskManager>();
+            if (deskManager != null)
+            {
+                deskManager.StartGameplayEvent();
+            }
+            else
+            {
+                Debug.LogError("No se encontró DeskManager en la escena para el evento de gameplay");
             }
         }
     }

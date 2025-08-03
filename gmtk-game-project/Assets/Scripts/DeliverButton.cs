@@ -17,6 +17,12 @@ public class DeliverButton : MonoBehaviour
 
     public void Deliver()
     {
+        // Play collect sound when deliver button is pressed
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySound(SoundType.Collect);
+        }
+        
         playerController.sendDemand();
     }
 

@@ -16,18 +16,16 @@ MonoBehaviour:
   eventType: 1
   description: Level
   isCompleted: 0
+  dialogCutsceneName: 
   demands:
-  - colorType: 0
-    shapeType: 0
-  - colorType: 0
-    shapeType: 0
-  - colorType: 0
-    shapeType: 0
+  - demands: []
+  - demands: []
+  - demands: []
   orbitConfig:
     resourcePrefabs:
     - {fileID: 538977329041564931, guid: cd6717e7acd87a447bc50e96b090f281, type: 3}
-    numberOfOrbitingObjects: 6
-    orbitRadius: 3.5
+    numberOfOrbitingObjects: 3
+    orbitRadius: 4
     angularSpeed: 1
     angularSeparation: 60
     machineInfos:

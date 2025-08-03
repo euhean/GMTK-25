@@ -57,16 +57,6 @@ public class CameraSwitcher : MonoBehaviour
         Cursor.visible = false;
     }
 
-    // DEBUGGING: Toggle camera mode with space key
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            useCameraGameplay = !useCameraGameplay;
-            
-        }
-    }
-
     [ContextMenu("Switch Cameras")]
     private void SwitchCameras()
     {
@@ -74,6 +64,21 @@ public class CameraSwitcher : MonoBehaviour
         {
             camera_desk.gameObject.SetActive(!useCameraGameplay);
             camera_gameplay.gameObject.SetActive(useCameraGameplay);
+
+            // Toggle office background ambience based on camera
+            if (AudioManager.Instance != null)
+            {
+                if (!useCameraGameplay)
+                {
+                    AudioManager.Instance.PlaySound(SoundType.OfficeBackground);
+                    // Music is automatically paused when OfficeBackground plays
+                }
+                else
+                {
+                    AudioManager.Instance.StopSound(SoundType.OfficeBackground);
+                    // Music is automatically resumed when OfficeBackground stops
+                }
+            }
 
             // Animación DOTween para la cámara asignada desde el editor
             if (cameraToAnimate != null)
