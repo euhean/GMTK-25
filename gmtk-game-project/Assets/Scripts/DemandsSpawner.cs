@@ -68,14 +68,12 @@ public class DemandsSpawner : MonoBehaviour
         if (GameManager.Instance == null)
             return;
 
-        List<List<Demand>> allDemands = GameManager.Instance.getCurrentDemands();
+        List<Demand> allDemands = GameManager.Instance.getCurrentDemand();
         Debug.Log($"Got {allDemands.Count} demand lists to display");
-        
-        // Aplanar todas las demandas en una sola lista para mostrarlas
-        List<Demand> flattenedDemands = new List<Demand>();
+                List<Demand> flattenedDemands = new List<Demand>();
         foreach (var demandList in allDemands)
         {
-            flattenedDemands.AddRange(demandList);
+            flattenedDemands.Add(demandList);
         }
         
         SpawnDemands(flattenedDemands);
@@ -84,28 +82,7 @@ public class DemandsSpawner : MonoBehaviour
     // Check if demands have changed and refresh if needed
     private void CheckAndRefreshDemands()
     {
-        if (GameManager.Instance == null)
-            return;
-            
-        List<List<Demand>> allDemands = GameManager.Instance.getCurrentDemands();
-        if (allDemands.Count > 0)
-        {
-            // Aplanar todas las demandas para comparar
-            List<Demand> newFlattenedDemands = new List<Demand>();
-            foreach (var demandList in allDemands)
-            {
-                newFlattenedDemands.AddRange(demandList);
-            }
-            
-            Debug.Log($"Checking demands - Total demands count: {newFlattenedDemands.Count}");
-            
-            if (!AreDemandListsEqual(currentDemands, newFlattenedDemands))
-            {
-                Debug.Log("Demands changed - Refreshing display");
-                currentDemands = new List<Demand>(newFlattenedDemands);
-                RefreshDemands();
-            }
-        }
+        RefreshDemands();
     }
 
     // Spawn resources based on current demands

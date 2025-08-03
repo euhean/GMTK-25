@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   machineType: 1
   purpose: 0
-  basePrefab: {fileID: 0}
-  machineMaterial: {fileID: 0}
-  iconSprite: {fileID: 0}
+  basePrefab: {fileID: 5359917699364430212, guid: 3f7311c4c7b15a84fb66ae67c345492e, type: 3}
+  machineMaterial: {fileID: 2100000, guid: aadf62e8b9496c04782fea9a15d4c4b7, type: 2}
+  iconSprite: {fileID: 21300000, guid: f0cf009b49ab13245b41b3d498b15a5b, type: 3}
   targetSprite: {fileID: 0}
-  iconColor: {r: 0, g: 0, b: 1, a: 1}
+  iconColor: {r: 1, g: 1, b: 1, a: 1}
   targetColor: {r: 0.059088584, g: 0.7283019, b: 0.48807156, a: 1}
   scale: {x: 1, y: 1, z: 1}
   rotationOffset: {x: 0, y: 0, z: 0}

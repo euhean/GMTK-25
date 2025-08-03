@@ -20,16 +20,20 @@ MonoBehaviour:
   - demands:
     - colorType: 0
       shapeType: 0
-  - demands:
-    - colorType: 0
+    - colorType: 2
+      shapeType: 0
+    - colorType: 2
       shapeType: 0
   - demands:
-    - colorType: 0
+    - colorType: 1
+      shapeType: 1
+  - demands:
+    - colorType: 2
       shapeType: 0
   orbitConfig:
     resourcePrefabs:
     - {fileID: 538977329041564931, guid: cd6717e7acd87a447bc50e96b090f281, type: 3}
-    numberOfOrbitingObjects: 6
+    numberOfOrbitingObjects: 3
     orbitRadius: 4
     angularSpeed: 1
     angularSeparation: 60
@@ -38,3 +42,5 @@ MonoBehaviour:
       angleDegrees: 36
     - machineConfiguration: {fileID: 11400000, guid: add719bc3260b7a46abe3eb5f85e6d24, type: 2}
       angleDegrees: 216
+    - machineConfiguration: {fileID: 11400000, guid: 8d2d369cb764f1d439155ae5b0ef8299, type: 2}
+      angleDegrees: 0
