@@ -867,6 +867,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 318022765}
+  - component: {fileID: 318022766}
   m_Layer: 0
   m_Name: DemandsSpawner
   m_TagString: Untagged
@@ -882,13 +883,46 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 318022764}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.4499998, y: -9.8, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.13, y: -8.592003, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1628741360}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &318022766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 318022764}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d379ef356784e604998d8c330677f804, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  resourcePrefab: {fileID: 538977329041564931, guid: cd6717e7acd87a447bc50e96b090f281, type: 3}
+  spawnPoint: {fileID: 318022765}
+  verticalSpacing: 1.5
+  shapeAssets:
+  - {fileID: 11400000, guid: c4495744441ca644b86b921a8ac6cef8, type: 2}
+  - {fileID: 11400000, guid: e021fae11877ef24c95642702797cb41, type: 2}
+  - {fileID: 11400000, guid: f1331354b8ed6c94a869bbf9e354cb53, type: 2}
+  - {fileID: 11400000, guid: c5baa46e08041274abf7d147e592061f, type: 2}
+  colorAssets:
+  - {fileID: 11400000, guid: 5a488870b61f2a443bf40e9e775b41fc, type: 2}
+  - {fileID: 11400000, guid: b0d917d7f7da2f84e969d53b63ab6fa5, type: 2}
+  - {fileID: 11400000, guid: cf67822a4bc998341a1f42ae4b35221f, type: 2}
+  - {fileID: 11400000, guid: 718d5ccd31d7cdc49864f6af7c6bd900, type: 2}
+  displayScale: {x: 0.75, y: 0.75, z: 0.75}
+  autoRefresh: 1
+  refreshInterval: 0.5
+  initialRotation: {x: 90, y: 0, z: 0}
+  continuousRotation: 0
+  rotationSpeed: {x: 0, y: 90, z: 0}
+  spawnedDemands: []
+  currentDemands: []
 --- !u!1 &379467885
 GameObject:
   m_ObjectHideFlags: 0
@@ -1454,6 +1488,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1092239378699909736, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1794052602641212326, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
       propertyPath: debugMode
       value: 1
