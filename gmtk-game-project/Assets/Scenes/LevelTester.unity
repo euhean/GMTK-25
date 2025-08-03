@@ -884,7 +884,7 @@ Transform:
   m_GameObject: {fileID: 318022764}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.13, y: -8.592003, z: 0}
+  m_LocalPosition: {x: 0.35, y: -8.592003, z: -1.65}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -906,16 +906,16 @@ MonoBehaviour:
   spawnPoint: {fileID: 318022765}
   verticalSpacing: 1.5
   shapeAssets:
-  - {fileID: 11400000, guid: c4495744441ca644b86b921a8ac6cef8, type: 2}
-  - {fileID: 11400000, guid: e021fae11877ef24c95642702797cb41, type: 2}
-  - {fileID: 11400000, guid: f1331354b8ed6c94a869bbf9e354cb53, type: 2}
-  - {fileID: 11400000, guid: c5baa46e08041274abf7d147e592061f, type: 2}
+  - {fileID: 11400000, guid: ef4ffb694fbad3f438529ae86ec2d6ce, type: 2}
+  - {fileID: 11400000, guid: 1d4be5213f7e67641845a01bdb55ddc6, type: 2}
+  - {fileID: 11400000, guid: 33c50c22e511a1a45ada7a6d60b1b999, type: 2}
+  - {fileID: 11400000, guid: 7cf2b011166323448b817bf71f822450, type: 2}
   colorAssets:
   - {fileID: 11400000, guid: 5a488870b61f2a443bf40e9e775b41fc, type: 2}
   - {fileID: 11400000, guid: b0d917d7f7da2f84e969d53b63ab6fa5, type: 2}
   - {fileID: 11400000, guid: cf67822a4bc998341a1f42ae4b35221f, type: 2}
   - {fileID: 11400000, guid: 718d5ccd31d7cdc49864f6af7c6bd900, type: 2}
-  displayScale: {x: 0.75, y: 0.75, z: 0.75}
+  displayScale: {x: 0.35, y: 0.35, z: 0.35}
   autoRefresh: 1
   refreshInterval: 0.5
   initialRotation: {x: 90, y: 0, z: 0}
