@@ -37,6 +37,8 @@ public class GameManager : MonoBehaviour
     [Header("Gameplay Timer")]
     private float gameplayTimer = 0f;
     private bool isGameplayTimerActive = false;
+
+    public bool iaFirstGame = true;
      [SerializeField] public float GAMEPLAY_TIME_LIMIT = 120f; // 2 minutes in seconds
 
 
@@ -556,10 +558,14 @@ public class GameManager : MonoBehaviour
 
     public void goToLevelScene()
     {
+        iaFirstGame = false; // Set to false after the first game starts
+        
         if (fadeManager != null)
         {
-            fadeManager.FadeIn(() => {
-                SceneManager.LoadSceneAsync((int)Scenes.LEVEL).completed += (op) => {
+            fadeManager.FadeIn(() =>
+            {
+                SceneManager.LoadSceneAsync((int)Scenes.LEVEL).completed += (op) =>
+                {
                     fadeManager.FadeOut();
                 };
             });

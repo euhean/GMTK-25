@@ -19,25 +19,25 @@ MonoBehaviour:
   dialogCutsceneName: 
   demands:
   - demands:
-    - colorType: 3
+    - colorType: 0
       shapeType: 1
-    - colorType: 3
+    - colorType: 0
       shapeType: 1
-    - colorType: 3
+    - colorType: 0
       shapeType: 1
   - demands:
-    - colorType: 3
+    - colorType: 0
       shapeType: 1
-    - colorType: 3
+    - colorType: 0
       shapeType: 2
-    - colorType: 3
+    - colorType: 0
       shapeType: 2
   - demands:
-    - colorType: 3
+    - colorType: 0
       shapeType: 2
-    - colorType: 3
+    - colorType: 0
       shapeType: 2
-    - colorType: 3
+    - colorType: 0
       shapeType: 2
   orbitConfig:
     resourcePrefabs:
@@ -51,3 +51,5 @@ MonoBehaviour:
       angleDegrees: 45
     - machineConfiguration: {fileID: 11400000, guid: b23956b5e756b5d45966a89e0251733b, type: 2}
       angleDegrees: 225
+    - machineConfiguration: {fileID: 11400000, guid: add719bc3260b7a46abe3eb5f85e6d24, type: 2}
+      angleDegrees: 180

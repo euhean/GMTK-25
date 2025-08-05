@@ -69,6 +69,7 @@ public class PlayerController : MonoBehaviour
                     }
                     else if (deliverButton)
                     {
+                        Debug.Log("Clicking deliver button from PlayerController");
                         deliverButton.Deliver();
                     }
                 }

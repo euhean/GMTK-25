@@ -40,20 +40,27 @@ public class MultiOrbit : MonoBehaviour
     // Change from private to public
     public void InstantiateFromConfig(GameManager.OrbitConfiguration config)
     {
+        if (!GameManager.Instance.iaFirstGame)
+        {
+            GameObject[] objetosADestruirMachines = GameObject.FindGameObjectsWithTag("Machine");
 
-    GameObject[] objetosADestruirMachines = GameObject.FindGameObjectsWithTag("Machine");
+            foreach (GameObject obj in objetosADestruirMachines)
+            {
+                Destroy(obj);
+            }
 
-    foreach(GameObject obj in objetosADestruirMachines)
-    {
-        Destroy(obj);
-    }
+            GameObject[] objetosADestruir = GameObject.FindGameObjectsWithTag("resource tag");
 
-    GameObject[] objetosADestruir = GameObject.FindGameObjectsWithTag("resource tag");
-    
-    foreach(GameObject obj in objetosADestruir)
-    {
-        Destroy(obj);
-    }
+            foreach (GameObject obj in objetosADestruir)
+            {
+                Destroy(obj);
+            }
+        }
+        else
+        {
+            GameManager.Instance.iaFirstGame = false; // Set to false after the first game starts
+        }
+
         // Instanciar objetos que orbitan
         for (int i = 0; i < config.numberOfOrbitingObjects; i++)
         {

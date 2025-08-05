@@ -25,22 +25,4 @@ public class DeliverButton : MonoBehaviour
         
         playerController.sendDemand();
     }
-
-    void OnMouseDown()
-    {
-        if (playerController != null)
-        {
-            if (playerController.TryGetInnerRay(out Ray innerRay))
-            {
-                if (Physics.Raycast(innerRay, out var hit, 100f))
-                {
-                    if (hit.collider.gameObject == gameObject)
-                    {
-                        Debug.Log("Hit deliver button");
-                        Deliver();
-                    }
-                }
-            }
-        }
-    }
 }
