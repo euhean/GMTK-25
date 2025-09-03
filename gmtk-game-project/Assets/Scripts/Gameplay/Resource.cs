@@ -12,6 +12,8 @@ public class Resource : MonoBehaviour
     private int lineIndex = -1;
     private bool isRegisteredInLine = false;
 
+    public bool isBeingDelivered = false; // Nueva propiedad para marcar el recurso durante la entrega
+
     void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>() ?? gameObject.AddComponent<SpriteRenderer>();

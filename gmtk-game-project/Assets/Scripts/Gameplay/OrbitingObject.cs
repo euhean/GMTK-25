@@ -30,6 +30,10 @@ public class OrbitingObject : MonoBehaviour
     
     void Update()
     {
+        var resourceScript = GetComponent<Resource>();
+        if (resourceScript != null && resourceScript.isBeingDelivered)
+            return; // No mover si está siendo entregado
+        
         if (!isInitialized || centerTransform == null) return;
         
         // Calcular la posición actual basada en el tiempo
