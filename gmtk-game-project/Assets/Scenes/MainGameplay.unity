@@ -3141,6 +3141,26 @@ PrefabInstance:
       propertyPath: debugMode
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1794052602641212326, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
+      propertyPath: currentLoop.days.Array.data[0].events.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1794052602641212326, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
+      propertyPath: currentLoop.days.Array.data[0].events.Array.data[0].eventConfiguration
+      value: 
+      objectReference: {fileID: 11400000, guid: 2b91e30c1f67d1b4ebd75ac221c954bd, type: 2}
+    - target: {fileID: 1794052602641212326, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
+      propertyPath: currentLoop.days.Array.data[0].events.Array.data[1].eventConfiguration
+      value: 
+      objectReference: {fileID: 11400000, guid: bbc9aeea770375f4597321d89f773a61, type: 2}
+    - target: {fileID: 1794052602641212326, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
+      propertyPath: currentLoop.days.Array.data[0].events.Array.data[2].eventConfiguration
+      value: 
+      objectReference: {fileID: 11400000, guid: 83d0c3d3a35a1e94fb995805a1e19a57, type: 2}
+    - target: {fileID: 1794052602641212326, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
+      propertyPath: currentLoop.days.Array.data[0].events.Array.data[3].eventConfiguration
+      value: 
+      objectReference: {fileID: 11400000, guid: 604ebc11c3b5e544c943447c99e9c612, type: 2}
     - target: {fileID: 3531560230527322648, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
