@@ -891,30 +891,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2141045406446171287, guid: f2643f8deeb2dd34198a997fd9d96ce5, type: 3}
-      propertyPath: m_Size.y
-      value: 13.879572
-      objectReference: {fileID: 0}
-    - target: {fileID: 2141045406446171287, guid: f2643f8deeb2dd34198a997fd9d96ce5, type: 3}
-      propertyPath: m_Center.y
-      value: -42.76905
-      objectReference: {fileID: 0}
-    - target: {fileID: 3839981766213669584, guid: f2643f8deeb2dd34198a997fd9d96ce5, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -36.49
-      objectReference: {fileID: 0}
-    - target: {fileID: 4011989582690839984, guid: f2643f8deeb2dd34198a997fd9d96ce5, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 4011989582690839984, guid: f2643f8deeb2dd34198a997fd9d96ce5, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 4011989582690839984, guid: f2643f8deeb2dd34198a997fd9d96ce5, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.3
-      objectReference: {fileID: 0}
     - target: {fileID: 4011989582690839984, guid: f2643f8deeb2dd34198a997fd9d96ce5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -954,10 +930,6 @@ PrefabInstance:
     - target: {fileID: 4011989582690839984, guid: f2643f8deeb2dd34198a997fd9d96ce5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4011989582690839984, guid: f2643f8deeb2dd34198a997fd9d96ce5, type: 3}
-      propertyPath: m_ConstrainProportionsScale
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5385431331905842827, guid: f2643f8deeb2dd34198a997fd9d96ce5, type: 3}
       propertyPath: m_Name
@@ -1122,7 +1094,7 @@ Transform:
   m_GameObject: {fileID: 719792332}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.518, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1871,8 +1843,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1365087944}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -6.39, y: -98.88253, z: -0.82}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -5.87, y: -98.88253, z: -1.13}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3137,30 +3109,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1794052602641212326, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
-      propertyPath: debugMode
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1794052602641212326, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
-      propertyPath: currentLoop.days.Array.data[0].events.Array.size
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 1794052602641212326, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
-      propertyPath: currentLoop.days.Array.data[0].events.Array.data[0].eventConfiguration
-      value: 
-      objectReference: {fileID: 11400000, guid: 2b91e30c1f67d1b4ebd75ac221c954bd, type: 2}
-    - target: {fileID: 1794052602641212326, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
-      propertyPath: currentLoop.days.Array.data[0].events.Array.data[1].eventConfiguration
-      value: 
-      objectReference: {fileID: 11400000, guid: bbc9aeea770375f4597321d89f773a61, type: 2}
-    - target: {fileID: 1794052602641212326, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
-      propertyPath: currentLoop.days.Array.data[0].events.Array.data[2].eventConfiguration
-      value: 
-      objectReference: {fileID: 11400000, guid: 83d0c3d3a35a1e94fb995805a1e19a57, type: 2}
-    - target: {fileID: 1794052602641212326, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
-      propertyPath: currentLoop.days.Array.data[0].events.Array.data[3].eventConfiguration
-      value: 
-      objectReference: {fileID: 11400000, guid: 604ebc11c3b5e544c943447c99e9c612, type: 2}
     - target: {fileID: 3531560230527322648, guid: e0cecb6b61f90594c97318c72bbf62f8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
